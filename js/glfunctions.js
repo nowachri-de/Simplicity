@@ -170,6 +170,7 @@ class MatrixGL {
                 premultipliedAlpha: false,
                 preserveDrawingBuffer: false
             });
+			
             if (this.gl === undefined)
                 throw "webgl is not supported.";
             // must support float texture
@@ -177,14 +178,20 @@ class MatrixGL {
             try {
                 ext = this.gl.getExtension("OES_texture_float");
             } catch (e) {}
+			
             if (!ext) {
-                console.log("Your webgl does not support OES_texture_float extension.");
+                console.log("Your browser does not support OES_texture_float extension.");
             }
         }
 
         this.gl.viewport(0, 0, columns, rows);
+		this.printGLInfo();
         return this.gl;
     }
+	
+	printGLInfo(){
+		console.log(this.getMaximumTextureUnits());
+	}
 
     buildRenderer(vertexShaderCode, fragmentShaderCode) {
         var gl = this.gl;
@@ -218,21 +225,17 @@ class MatrixGL {
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 
-        var sampler = gl.getUniformLocation(this.renderer, "usampler");
-        gl.uniform1i(sampler, 0);
-
         return texture;
     }
 
     getRenderCanvas(canvasID) {
         // Safari readPixels will not work from an 'off-screen' canvas
-        // This code probably needs re-factoring, since the canvas should be the 
-        // first thing we grab, then the webgl context
         return document.getElementById(canvasID);
     }
 
     bindFrameBuffer(dstTex) {
         var gl = this.gl;
+		
         // create and bind renderbuffer
         var renderBuffer = gl.createRenderbuffer();
         gl.bindRenderbuffer(gl.RENDERBUFFER, null);
@@ -248,7 +251,7 @@ class MatrixGL {
         gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer);
 
         if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) != gl.FRAMEBUFFER_COMPLETE)
-            alert("Error: bound frameBuffer is not complete.");
+            alert("Error: binding of framebuffer failed");
 
         return frameBuffer;
     }
@@ -262,7 +265,6 @@ class MatrixGL {
         var glresult = new Uint8Array(rawBuffer);
         gl.readPixels(0, 0, this.numColumns, this.numRows, gl.RGBA, gl.UNSIGNED_BYTE, glresult);
 
-
         var result = new Matrix(this.numColumns, this.numRows);
         result.setData(new Float32Array(rawBuffer));
 
@@ -272,6 +274,7 @@ class MatrixGL {
     createDestinationTexture() {
         var gl = this.gl;
         var renderCanvas = this.getRenderCanvas(this.canvasID);
+
         // create and bind texture to render to
         var dstTex = gl.createTexture();
 
@@ -296,6 +299,9 @@ class MatrixGL {
         var outC = gl.getUniformLocation(renderer, "uOutCols");
         var stepS = gl.getUniformLocation(renderer, "uStepS");
         var stepT = gl.getUniformLocation(renderer, "uStepT");
+		
+        gl.uniform1i(gl.getUniformLocation(this.renderer, "usampler"), 0);
+		
         // bind length of one multiply run
         gl.uniform1i(length, this.numRows);
         gl.uniform1f(outR, this.numRows);
@@ -443,7 +449,11 @@ class MatrixGL {
             "	} ";
         return fragmentShader;
     }
-
+	
+	getMaximumTextureUnits(){
+		return this.gl.getParameter(this.gl.MAX_COMBINED_TEXTURE_IMAGE_UNITS);
+	}
+	
     get renderer() {
         return this._renderer;
     }
