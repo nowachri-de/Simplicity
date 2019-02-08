@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" >
+
+	<head>
+	  <meta charset="UTF-8">
+	  <title>MatrixTest</title>
+	  <script src="js/glfunctions.js"></script>
+	  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/5.4.2/math.min.js"></script>
+	  
+	</head>
+
+	<body>
+		<canvas id="canvas"></canvas>
+		
+		<script>
+			var matrix = new Matrix(16,16);
+			var matrix2 = new Matrix(16,16);
+			matrix.randomInitialize();
+			matrix2.randomInitialize();
+			
+			var matrixGL = new MatrixGL("canvas",matrix,matrix2);
+			var result = matrixGL.compute();
+			result.print(5);
+			
+			var mat1 = math.matrix(matrix.as2DArray());
+			var mat2 = math.matrix(matrix2.as2DArray());
+			
+			var result2 = math.multiply(mat1,mat2);
+			console.log(result2.format(5));
+			
+		</script>
+		
+	</body>
+
+</html>
