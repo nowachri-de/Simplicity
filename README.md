@@ -8,10 +8,11 @@ Limitations
 
 Maximum size of matrix is 2048 * 2048
 
-~~~~~~~~~~~~~~~~~
 
 Example
------------------
+------------------------
+
+~~~~~~~~~~~~~~~~~
 <!DOCTYPE html>
 <html lang="en" >
 
@@ -54,3 +55,4 @@ Example
 		
 	</body>
 </html>
+~~~~~~~~~~~~~~~~~
