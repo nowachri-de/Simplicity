@@ -4,7 +4,7 @@ Simplicity!
 A javascript library for matrix multiplication on the GPU
 
 Limitations
-~~~~~~~~~~~~~~~~~
+------------------------
 
 Maximum size of matrix is 2048 * 2048
 
@@ -54,4 +54,3 @@ Example
 		
 	</body>
 </html>
------------------

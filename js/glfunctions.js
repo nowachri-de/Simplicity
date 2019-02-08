@@ -1,8 +1,9 @@
 
 class Matrix{
-  constructor(columns,rows){
+  constructor(canvasID,columns,rows){
 	  this.numRows = rows;
 	  this.numColumns = columns;
+	  this.canvasID = canvasID;
 	  
 	  this.rows = new Array();
 	  for (var row = 0; row < this.numRows; row++){
@@ -81,6 +82,10 @@ class Matrix{
 	  return result;
   }
   
+  multiply(matrixB){
+	return (new MatrixGL("canvas",this,matrixB)).compute();
+  }
+  
   set numRows(rows){
 	  this._numRows = rows;
   }
@@ -127,6 +132,14 @@ class Matrix{
   
   get renderBuffer(){
 	  return this._renderBuffer;
+  }
+  
+  get canvasID(){
+	  return _canvasID;
+  }
+  
+  set canvasID(canvasID){
+	  this._canvasID = canvasID;
   }
 }
 
