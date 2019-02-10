@@ -1,5 +1,5 @@
 class Matrix {
-  
+
     constructor(canvasID, columns, rows) {
         this.numRows = rows;
         this.numColumns = columns;
@@ -65,7 +65,7 @@ class Matrix {
 
     getTexels(matrix) {
 
-        var result = new Float32Array(3 * this.numRows * this.numColumns);
+        var result = new Float32Array(4 * this.numRows * this.numColumns);
         var cnt = 0;
 
         for (var row = 0; row < this.numRows; row++) {
@@ -75,7 +75,9 @@ class Matrix {
                 //value G
                 result[cnt++] = matrix.rows[row][col];
                 //Value B
-                result[cnt++] = 0;
+                result[cnt++] = 0.;
+                //Value A
+                result[cnt++] = 0.;
             }
         }
 
@@ -153,9 +155,13 @@ class MatrixGL {
         this.numColumns = matrixA.numColumns;
         this.init(canvasID, this.numRows, this.numColumns);
         this.buildRenderer();
-        this.createMatrixTexture();
+        this.sourceTexture = this.createTexture(0,this.numRows, this.numColumns,this.matrixA.getTexels(this.matrixB));
+	this.destinationTexture = this.createTexture(1,this.numRows,this.numColumns, null);
+        
         this.doBindings();
-        this.bindFrameBuffer(this.createDestinationTexture());
+        this.sourceFrameBuffer = this.createFrameBuffer(this.sourceTexture);
+        this.destinationFrameBuffer = this.createFrameBuffer(this.destinationTexture);
+        
     }
 
     init(canvasID, rows, columns) {
@@ -170,7 +176,7 @@ class MatrixGL {
                 premultipliedAlpha: false,
                 preserveDrawingBuffer: false
             });
-			
+
             if (this.gl === undefined)
                 throw "webgl is not supported.";
             // must support float texture
@@ -178,27 +184,27 @@ class MatrixGL {
             try {
                 ext = this.gl.getExtension("OES_texture_float");
             } catch (e) {}
-			
+
             if (!ext) {
                 console.log("Your browser does not support OES_texture_float extension.");
             }
         }
 
         this.gl.viewport(0, 0, columns, rows);
-		this.printGLInfo();
+        this.printGLInfo();
         return this.gl;
     }
-	
-	printGLInfo(){
-		console.log(this.getMaximumTextureUnits());
-	}
+
+    printGLInfo() {
+        console.log('Maximum texture uints ' + this.getMaximumTextureUnits());
+    }
 
     buildRenderer(vertexShaderCode, fragmentShaderCode) {
         var gl = this.gl;
         // get compiled shaders
         var vertexShader = this.getVertexShader(this.getVertexShaderCode());
         var fragmentShader = this.getFragmentShader(this.getFragmentShaderCode());
-
+        // var fragmentShader = this.getFragmentShader(this.test());
         // link into a program
         this.renderer = gl.createProgram();
         gl.attachShader(this.renderer, vertexShader);
@@ -209,33 +215,65 @@ class MatrixGL {
         return this.renderer;
     }
 
-    createMatrixTexture() {
-
+    createMatrixTexture(textureIndex) {
         var gl = this.gl;
         var texels = this.matrixA.getTexels(this.matrixB);
-        var texture = gl.createTexture();
-
-        gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, texture);
-        gl.texImage2D(gl.TEXTURE_2D, /*level*/ 0, gl.RGB, this.numColumns, this.numRows, 0, gl.RGB, gl.FLOAT, texels);
-        // clamp to edge to support non-power of two textures
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-        // don't interpolate when getting data from texture
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-
-        return texture;
+       
+        return this.createTexture(textureIndex, this.numColumns, this.numRows, texels);
     }
+
+    createDestinationTexture(index) {
+        var gl = this.gl;
+        var renderCanvas = this.getRenderCanvas(this.canvasID);
+
+        // create and bind texture to render to
+        var dstTex = gl.createTexture();
+
+        gl.activeTexture(gl.TEXTURE0 + index);
+        gl.bindTexture(gl.TEXTURE_2D, dstTex);
+        //gl.texImage2D(gl.TEXTURE_2D, /*level*/ 0, gl.RGBA, gl.RGBA, gl.FLOAT, renderCanvas);
+
+        //This is the original line
+        gl.texImage2D(gl.TEXTURE_2D, /*level*/ 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, renderCanvas);
+       
+        return dstTex;
+    }
+
 
     getRenderCanvas(canvasID) {
         // Safari readPixels will not work from an 'off-screen' canvas
         return document.getElementById(canvasID);
     }
 
-    bindFrameBuffer(dstTex) {
+    createTexture(textureIndex, width, height, data) {
         var gl = this.gl;
-		
+        var texture = gl.createTexture();
+        //gl.activeTexture(gl.TEXTURE0 + textureIndex);
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        //gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, width, height, 0, gl.RGB, gl.FLOAT, data);
+       
+        // clamp to edge to support non-power of two textures
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+        // don't interpolate when getting data from texture
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.FLOAT, data);
+        return texture;
+    }
+
+    createFrameBufferAndAttachTexture(texture) {
+        var gl = this.gl;
+        var frameBuffer = gl.createFramebuffer();
+        gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, /*level*/ 0);
+    }
+
+    createFrameBuffer(dstTex) {
+        var gl = this.gl;
+
         // create and bind renderbuffer
         var renderBuffer = gl.createRenderbuffer();
         gl.bindRenderbuffer(gl.RENDERBUFFER, null);
@@ -258,31 +296,62 @@ class MatrixGL {
 
     compute() {
         var gl = this.gl;
+        gl.bindTexture(gl.TEXTURE_2D,this.sourceTexture);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.destinationFrameBuffer);
         gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
 
         // extract the product and return in new matrix
         var rawBuffer = new ArrayBuffer(this.numColumns * this.numRows * 4);
         var glresult = new Uint8Array(rawBuffer);
         gl.readPixels(0, 0, this.numColumns, this.numRows, gl.RGBA, gl.UNSIGNED_BYTE, glresult);
-
-        var result = new Matrix(this.numColumns, this.numRows);
+        var result = new Matrix(this.canvasID, this.numColumns, this.numRows);
+        result.setData(new Float32Array(rawBuffer));
+        console.log("First Print"); 
+        result.print(5); 
+        
+        gl.bindTexture(gl.TEXTURE_2D, this.destinationTexture);
+        //gl.activeTexture(gl.TEXTURE0 + 1);
+        //this.doBindings();
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.sourceFrameBuffer);
+        //gl.viewport(0, 0, this.numRows, this.numRows);
+        gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
+        
+        rawBuffer = new ArrayBuffer(this.numColumns * this.numRows * 4);
+        glresult = new Uint8Array(rawBuffer);
+        gl.readPixels(0, 0, this.numColumns, this.numRows, gl.RGBA, gl.UNSIGNED_BYTE, glresult);
+        result = new Matrix(this.canvasID, this.numColumns, this.numRows);
         result.setData(new Float32Array(rawBuffer));
 
+     
+        console.log("Secont Print"); 
+        
+        result.print(5);
+
+         gl.bindTexture(gl.TEXTURE_2D, this.sourceTexture);
+        //gl.activeTexture(gl.TEXTURE0 + 1);
+        //this.doBindings();
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.destinationFrameBuffer);
+        //gl.viewport(0, 0, this.numRows, this.numRows);
+        gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
+        
+        rawBuffer = new ArrayBuffer(this.numColumns * this.numRows * 4);
+        glresult = new Uint8Array(rawBuffer);
+        gl.readPixels(0, 0, this.numColumns, this.numRows, gl.RGBA, gl.UNSIGNED_BYTE, glresult);
+        result = new Matrix(this.canvasID, this.numColumns, this.numRows);
+        result.setData(new Float32Array(rawBuffer));
+
+     
+        console.log("Third Print"); 
+        
+        result.print(5); 	
+ 
+        
+        //draw to canvas
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
+        
+        
         return result;
-    }
-
-    createDestinationTexture() {
-        var gl = this.gl;
-        var renderCanvas = this.getRenderCanvas(this.canvasID);
-
-        // create and bind texture to render to
-        var dstTex = gl.createTexture();
-
-        gl.activeTexture(gl.TEXTURE2);
-        gl.bindTexture(gl.TEXTURE_2D, dstTex);
-        gl.texImage2D(gl.TEXTURE_2D, /*level*/ 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, renderCanvas);
-
-        return dstTex;
     }
 
     doBindings() {
@@ -299,9 +368,9 @@ class MatrixGL {
         var outC = gl.getUniformLocation(renderer, "uOutCols");
         var stepS = gl.getUniformLocation(renderer, "uStepS");
         var stepT = gl.getUniformLocation(renderer, "uStepT");
-		
+
         gl.uniform1i(gl.getUniformLocation(this.renderer, "usampler"), 0);
-		
+
         // bind length of one multiply run
         gl.uniform1i(length, this.numRows);
         gl.uniform1f(outR, this.numRows);
@@ -449,11 +518,30 @@ class MatrixGL {
             "	} ";
         return fragmentShader;
     }
-	
-	getMaximumTextureUnits(){
-		return this.gl.getParameter(this.gl.MAX_COMBINED_TEXTURE_IMAGE_UNITS);
-	}
-	
+
+    test(){
+      var result = `
+	    #ifdef GL_ES  
+            	precision highp float;  
+            #endif  
+            varying vec2	  vTex;         // row, column to calculate
+            uniform sampler2D usampler;		// left in .r, right in .g 
+            uniform int		  uLength;      // r1xc1.r2xc2 => product has r2 (or c1) terms
+            uniform float	  uStepS;       // increment across source texture
+            uniform float	  uStepT;       // increment down source texture
+            uniform float	  uOutRows;     // size of output in rows
+            uniform float	  uOutCols;     // size of output in columns
+            
+            void main(void) {  
+        	gl_FragColor = vec4(vTex.s,vTex.t,0.,2.);
+            }`
+        return result;
+    }
+
+    getMaximumTextureUnits() {
+        return this.gl.getParameter(this.gl.MAX_COMBINED_TEXTURE_IMAGE_UNITS);
+    }
+
     get renderer() {
         return this._renderer;
     }
@@ -492,5 +580,37 @@ class MatrixGL {
 
     get canvasID() {
         return this._canvasID;
+    }
+
+    get sourceTexture(){
+        return this._sourceTexture;
+    }
+
+    set sourceTexture(sourceTexture){
+        this._sourceTexture = sourceTexture;
+    }
+
+    get destinationTexture(){
+        return this._destinationTexture;
+    }
+
+    set destinationTexture(destinationTexture){
+        this._destinationTexture = destinationTexture;
+    }
+
+    set sourceFrameBuffer(frameBuffer){
+      this._sourceFrameBuffer = frameBuffer;
+    }
+
+    get sourceFrameBuffer(){
+      return this._sourceFrameBuffer;
+    }
+
+    set destinationFrameBuffer(frameBuffer){
+      this._destinationFrameBuffer = frameBuffer;
+    }
+
+    get destinationFrameBuffer(){
+      return this._destinationFrameBuffer;
     }
 }

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en" >
+
+	<head>
+	  <meta charset="UTF-8">
+	  <title>MatMul GPU</title>
+	  <script src="js/glfunctions.js"></script>
+	  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/5.4.2/math.min.js"></script>
+	  
+	</head>
+
+	<body>
+		<canvas id="canvas"></canvas>
+		
+		<script> 
+			var matrixA = new Matrix("canvas",16,16);
+			var matrixB = new Matrix("canvas",16,16);
+                        
+                        var matrixGL = new MatrixGL("canvas",matrixA,matrixB);
+                        matrixGL.createFrameBufferAndAttachTexture(matrixGL.createTexture(2,16,16,null));
+		</script>
+		
+	</body>
+</html>
