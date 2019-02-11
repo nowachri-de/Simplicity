@@ -155,13 +155,47 @@ class MatrixGL {
         this.numColumns = matrixA.numColumns;
         this.init(canvasID, this.numRows, this.numColumns);
         this.buildRenderer();
+        this.doBindings(0);
         this.sourceTexture = this.createTexture(0,this.numRows, this.numColumns,this.matrixA.getTexels(this.matrixB));
 	this.destinationTexture = this.createTexture(1,this.numRows,this.numColumns, null);
+        this.readTexture = this.createReadableTexture(2,this.numRows,this.numColumns, null);
         
-        this.doBindings();
+        
         this.sourceFrameBuffer = this.createFrameBuffer(this.sourceTexture);
         this.destinationFrameBuffer = this.createFrameBuffer(this.destinationTexture);
+        this.readFrameBuffer = this.createFrameBuffer(this.readTexture);
+    }
+    
+    compute() {
+        var gl = this.gl;
+        gl.bindTexture(gl.TEXTURE_2D,this.sourceTexture);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.destinationFrameBuffer);
+        this.gl.viewport(0, 0, this.numColumns, this.numRows);
+        gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
+
+        //gl.activeTexture(gl.TEXTURE0+1);
+        gl.bindTexture(gl.TEXTURE_2D,this.destinationTexture);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.readFrameBuffer);
+        this.doBindings(1);
+        this.gl.viewport(0, 0, this.numColumns, this.numRows);
+        gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
+
+
+        // extract the product and return in new matrix
+        var rawBuffer = new ArrayBuffer(this.numColumns * this.numRows * 4);
+        var glresult = new Uint8Array(rawBuffer);
+        gl.readPixels(0, 0, this.numColumns, this.numRows, gl.RGBA, gl.UNSIGNED_BYTE, glresult);
+        var result = new Matrix(this.canvasID, this.numColumns, this.numRows);
+        result.setData(new Float32Array(rawBuffer));
+        console.log("First Print"); 
+        result.print(5); 
+           
+        //draw to canvas
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
         
+        
+        return result;
     }
 
     init(canvasID, rows, columns) {
@@ -222,7 +256,7 @@ class MatrixGL {
         return this.createTexture(textureIndex, this.numColumns, this.numRows, texels);
     }
 
-    createDestinationTexture(index) {
+    createReadableTexture(index) {
         var gl = this.gl;
         var renderCanvas = this.getRenderCanvas(this.canvasID);
 
@@ -248,7 +282,7 @@ class MatrixGL {
     createTexture(textureIndex, width, height, data) {
         var gl = this.gl;
         var texture = gl.createTexture();
-        //gl.activeTexture(gl.TEXTURE0 + textureIndex);
+        gl.activeTexture(gl.TEXTURE0 + textureIndex);
         gl.bindTexture(gl.TEXTURE_2D, texture);
         //gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, width, height, 0, gl.RGB, gl.FLOAT, data);
        
@@ -294,72 +328,14 @@ class MatrixGL {
         return frameBuffer;
     }
 
-    compute() {
-        var gl = this.gl;
-        gl.bindTexture(gl.TEXTURE_2D,this.sourceTexture);
-        gl.bindFramebuffer(gl.FRAMEBUFFER, this.destinationFrameBuffer);
-        gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
+    
 
-        // extract the product and return in new matrix
-        var rawBuffer = new ArrayBuffer(this.numColumns * this.numRows * 4);
-        var glresult = new Uint8Array(rawBuffer);
-        gl.readPixels(0, 0, this.numColumns, this.numRows, gl.RGBA, gl.UNSIGNED_BYTE, glresult);
-        var result = new Matrix(this.canvasID, this.numColumns, this.numRows);
-        result.setData(new Float32Array(rawBuffer));
-        console.log("First Print"); 
-        result.print(5); 
-        
-        gl.bindTexture(gl.TEXTURE_2D, this.destinationTexture);
-        //gl.activeTexture(gl.TEXTURE0 + 1);
-        //this.doBindings();
-        gl.bindFramebuffer(gl.FRAMEBUFFER, this.sourceFrameBuffer);
-        //gl.viewport(0, 0, this.numRows, this.numRows);
-        gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
-        
-        rawBuffer = new ArrayBuffer(this.numColumns * this.numRows * 4);
-        glresult = new Uint8Array(rawBuffer);
-        gl.readPixels(0, 0, this.numColumns, this.numRows, gl.RGBA, gl.UNSIGNED_BYTE, glresult);
-        result = new Matrix(this.canvasID, this.numColumns, this.numRows);
-        result.setData(new Float32Array(rawBuffer));
-
-     
-        console.log("Secont Print"); 
-        
-        result.print(5);
-
-         gl.bindTexture(gl.TEXTURE_2D, this.sourceTexture);
-        //gl.activeTexture(gl.TEXTURE0 + 1);
-        //this.doBindings();
-        gl.bindFramebuffer(gl.FRAMEBUFFER, this.destinationFrameBuffer);
-        //gl.viewport(0, 0, this.numRows, this.numRows);
-        gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
-        
-        rawBuffer = new ArrayBuffer(this.numColumns * this.numRows * 4);
-        glresult = new Uint8Array(rawBuffer);
-        gl.readPixels(0, 0, this.numColumns, this.numRows, gl.RGBA, gl.UNSIGNED_BYTE, glresult);
-        result = new Matrix(this.canvasID, this.numColumns, this.numRows);
-        result.setData(new Float32Array(rawBuffer));
-
-     
-        console.log("Third Print"); 
-        
-        result.print(5); 	
- 
-        
-        //draw to canvas
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-        gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
-        
-        
-        return result;
-    }
-
-    doBindings() {
-        this.doUnifromBindings();
+    doBindings(textureUnit) {
+        this.doUnifromBindings(textureUnit);
         this.doVertexBindings();
     }
 
-    doUnifromBindings() {
+    doUnifromBindings(textureUnit) {
         var gl = this.gl;
         var renderer = this.renderer;
         // get var locations
@@ -369,7 +345,7 @@ class MatrixGL {
         var stepS = gl.getUniformLocation(renderer, "uStepS");
         var stepT = gl.getUniformLocation(renderer, "uStepT");
 
-        gl.uniform1i(gl.getUniformLocation(this.renderer, "usampler"), 0);
+        gl.uniform1i(gl.getUniformLocation(this.renderer, "usampler"), textureUnit);
 
         // bind length of one multiply run
         gl.uniform1i(length, this.numRows);
@@ -598,6 +574,14 @@ class MatrixGL {
         this._destinationTexture = destinationTexture;
     }
 
+     get readTexture(){
+        return this._readTexture;
+    }
+
+    set readTexture(readTexture){
+        this._readTexture = readTexture;
+    }
+
     set sourceFrameBuffer(frameBuffer){
       this._sourceFrameBuffer = frameBuffer;
     }
@@ -612,5 +596,13 @@ class MatrixGL {
 
     get destinationFrameBuffer(){
       return this._destinationFrameBuffer;
+    }
+
+    set readFrameBuffer(readFrameBuffer){
+      this._readFrameBuffer = readFrameBuffer;
+    }
+
+    get readFrameBuffer(){
+      return this._readFrameBuffer;
     }
 }
