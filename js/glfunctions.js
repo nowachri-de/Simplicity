@@ -187,8 +187,6 @@ class MatrixGL {
         gl.readPixels(0, 0, this.numColumns, this.numRows, gl.RGBA, gl.UNSIGNED_BYTE, glresult);
         var result = new Matrix(this.canvasID, this.numColumns, this.numRows);
         result.setData(new Float32Array(rawBuffer));
-        console.log("First Print"); 
-        result.print(5); 
            
         //draw to canvas
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
@@ -247,13 +245,6 @@ class MatrixGL {
         gl.useProgram(this.renderer);
 
         return this.renderer;
-    }
-
-    createMatrixTexture(textureIndex) {
-        var gl = this.gl;
-        var texels = this.matrixA.getTexels(this.matrixB);
-       
-        return this.createTexture(textureIndex, this.numColumns, this.numRows, texels);
     }
 
     createReadableTexture(index) {
@@ -371,7 +362,7 @@ class MatrixGL {
         var aTex = gl.getAttribLocation(this.renderer, "aTex");
         var texCoords = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, texCoords);
-        var textureCoords = [0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, ];
+        var textureCoords = [0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0];
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoords), gl.STATIC_DRAW);
         gl.vertexAttribPointer(aTex, /*item size*/ 2, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(aTex);
