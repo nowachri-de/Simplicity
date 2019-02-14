@@ -157,10 +157,8 @@ class MatrixGL {
         this.buildRenderer();
         this.doBindings(0);
         this.sourceTexture = this.createTexture(0,this.numRows, this.numColumns,this.matrixA.getTexels(this.matrixB));
-	this.destinationTexture = this.createTexture(1,this.numRows,this.numColumns, null);
+		this.destinationTexture = this.createTexture(1,this.numRows,this.numColumns, null);
         this.readTexture = this.createReadableTexture(2,this.numRows,this.numColumns, null);
-        
-        
         this.sourceFrameBuffer = this.createFrameBuffer(this.sourceTexture);
         this.destinationFrameBuffer = this.createFrameBuffer(this.destinationTexture);
         this.readFrameBuffer = this.createFrameBuffer(this.readTexture);

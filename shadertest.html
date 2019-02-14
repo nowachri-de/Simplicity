@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" >
+
+	<head>
+	  <meta charset="UTF-8">
+	  <title>MatMul GPU</title>
+	  <script src="js/glfunctions.js"></script>
+	  <script src="js/shader.js"></script>
+	  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/5.4.2/math.min.js"></script>
+	  
+	</head>
+
+	<body>
+		<canvas id="canvas"></canvas>
+		
+		<script>
+		    //Create two matrices 
+			var matrixA = new Matrix("canvas",16,16);
+			var matrixB = new Matrix("canvas",16,16);
+			var matrixGL = new MatrixGL("canvas",matrixA,matrixB);
+			
+			var textureA = matrixGL.createTexture(0,16, 16,matrixA.getTexels(this.matrixB));
+			var textureB = matrixGL.createTexture(0,16, 16,null);
+			
+			var shader =  new Shader('canvas',matrixA,matrixB);
+			//shader.buildProgram(shader.getVertexShaderCode(),shader.getFragmentShaderCode());
+			shader.buildProgram(shader.getVertexShaderCode(),shader.getReadableShaderCode());
+		</script>
+		
+	</body>
+</html>
