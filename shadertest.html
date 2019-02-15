@@ -24,7 +24,9 @@
 			
 			var shader =  new Shader('canvas',matrixA,matrixB);
 			//shader.buildProgram(shader.getVertexShaderCode(),shader.getFragmentShaderCode());
-			shader.buildProgram(shader.getVertexShaderCode(),shader.getReadableShaderCode());
+			var programA = shader.buildProgram(shader.getVertexShaderCode(),shader.getFragmentShaderCode());
+			var programB = shader.buildProgram(shader.getVertexShaderCode(),shader.getReadableShaderCode());
+			
 		</script>
 		
 	</body>

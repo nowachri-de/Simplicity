@@ -62,9 +62,13 @@ class Matrix {
 
         return result;
     }
-
-    getTexels(matrix) {
-
+	
+	 getTexels(matrix,component) {
+		
+		if (component == 'undefined'){
+				component = "R";
+		}
+		
         var result = new Float32Array(4 * this.numRows * this.numColumns);
         var cnt = 0;
 
@@ -81,6 +85,44 @@ class Matrix {
             }
         }
 
+        return result;
+    }
+
+	
+    copyTexels(component) {
+
+        var result = new Float32Array(4 * this.numRows * this.numColumns);
+        var cnt = 0;
+
+        for (var row = 0; row < this.numRows; row++) {
+            for (var col = 0; col < this.numColumns; col++) {
+				//COPY R
+				result[cnt++] = 0.;
+				//Copy G
+				result[cnt++] = 0.; 
+				//Copy B
+				result[cnt++] = 0.;
+				//Copy A
+				result[cnt++] = 0.;
+					
+				switch(component){
+					//R component of RGBA color
+					case 'R' : 
+						result[cnt-4] = this.rows[row][col]; break;
+					//G component of RGBA color
+					case 'G' : 
+						result[cnt-3] = this.rows[row][col]; break;
+					//B component of RGBA color
+					case 'B' : 
+						result[cnt-2] = this.rows[row][col]; break;
+					//A component of RGBA color
+					case 'A' : 
+						result[cnt-1] = this.rows[row][col]; break;
+					default:
+						throw "getTexels: component " + component +" unknown";
+				}
+            }
+        }
         return result;
     }
 

@@ -36,24 +36,24 @@ function Shader(canvasID,matrixA,matrixB){
 	
 	this.gl = this.init(canvasID,this.matrixA,this.matrixB);
 	
-	this.doBindings = function(textureUnitA,textureUnitB,matrixA,matrixB) {
-        this.doUnifromBindings(textureUnitA,textureUnitB,matrixA,matrixB);
+	this.doBindings = function(textureUnitA,textureUnitB,matrixA,matrixB,program) {
+        this.doUnifromBindings(textureUnitA,textureUnitB,matrixA,matrixB,program);
         this.doVertexBindings();
     }
 
-    this.doUnifromBindings = function(textureUnitA,textureUnitB,matrixA,matrixB) {
+    this.doUnifromBindings = function(textureUnitA,textureUnitB,matrixA,matrixB,program) {
         var gl = this.gl;
-        var renderer = this.renderer;
+        
 		
         // get var locations
-        var length = gl.getUniformLocation(renderer, "uInputCols"); //number of input columns 
-        var outR = gl.getUniformLocation(renderer, "uOutRows");
-        var outC = gl.getUniformLocation(renderer, "uOutCols");
-        var stepX = gl.getUniformLocation(renderer, "uStepX");
-        var stepY = gl.getUniformLocation(renderer, "uStepY");
+        var length = gl.getUniformLocation(program, "uInputCols"); //number of input columns 
+        var outR = gl.getUniformLocation(program, "uOutRows");
+        var outC = gl.getUniformLocation(program, "uOutCols");
+        var stepX = gl.getUniformLocation(program, "uStepX");
+        var stepY = gl.getUniformLocation(program, "uStepY");
 
-        gl.uniform1i(gl.getUniformLocation(this.renderer, "usamplerA"), textureUnitA);
-		gl.uniform1i(gl.getUniformLocation(this.renderer, "usamplerB"), textureUnitB);
+        gl.uniform1i(gl.getUniformLocation(program, "usamplerA"), textureUnitA);
+		gl.uniform1i(gl.getUniformLocation(program, "usamplerB"), textureUnitB);
 
         // bind length of one multiply run
         gl.uniform1i(length, matrixA.numColumns);
@@ -64,10 +64,10 @@ function Shader(canvasID,matrixA,matrixB){
         gl.uniform1f(stepY, 1. / Math.max(matrixA.numRows,matrixB.numRows));
     }
 	
-	this.doVertexBindings = function() {
+	this.doVertexBindings = function(program) {
         var gl = this.gl;
         // bind vertices
-        var aPosition = gl.getAttribLocation(this.renderer, "aPosition");
+        var aPosition = gl.getAttribLocation(program, "aPosition");
         var vertexBuffer = gl.createBuffer();
         var vertices = [-1.0, -1.0, 0.0, 1.0, -1.0, 0.0, 1.0, 1.0, 0.0, -1.0, 1.0, 0.0];
 		
@@ -77,7 +77,7 @@ function Shader(canvasID,matrixA,matrixB){
         gl.enableVertexAttribArray(aPosition);
 
         // bind texture cords
-        var aTexture = gl.getAttribLocation(this.renderer, "aTexture");
+        var aTexture = gl.getAttribLocation(program, "aTexture");
         var texCoords = gl.createBuffer();
         var textureCoords = [0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0];
 		
