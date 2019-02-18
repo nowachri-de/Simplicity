@@ -63,49 +63,23 @@ class Matrix {
         return result;
     }
 	
-	 getTexels(matrix,component) {
+	getTexels(matrix,component) {
 		
-		if (component == 'undefined'){
-				component = "R";
+		var result = new Float32Array(4 * this.numRows * this.numColumns);
+        var cnt = 0;
+		
+		if (component === undefined ){
+			component = "R";
 		}
 		
-        var result = new Float32Array(4 * this.numRows * this.numColumns);
-        var cnt = 0;
-
         for (var row = 0; row < this.numRows; row++) {
             for (var col = 0; col < this.numColumns; col++) {
-                //value R
-                result[cnt++] = this.rows[row][col];
-                //value G
-                result[cnt++] = matrix.rows[row][col];
-                //Value B
-                result[cnt++] = 0.;
-                //Value A
-                result[cnt++] = 0.;
-            }
-        }
-
-        return result;
-    }
-
-	
-    copyTexels(component) {
-
-        var result = new Float32Array(4 * this.numRows * this.numColumns);
-        var cnt = 0;
-
-        for (var row = 0; row < this.numRows; row++) {
-            for (var col = 0; col < this.numColumns; col++) {
-				//COPY R
 				result[cnt++] = 0.;
-				//Copy G
-				result[cnt++] = 0.; 
-				//Copy B
 				result[cnt++] = 0.;
-				//Copy A
 				result[cnt++] = 0.;
-					
-				switch(component){
+				result[cnt++] = 0.;
+				
+                switch(component){
 					//R component of RGBA color
 					case 'R' : 
 						result[cnt-4] = this.rows[row][col]; break;
@@ -123,9 +97,10 @@ class Matrix {
 				}
             }
         }
+
         return result;
     }
-
+	
     multiply(matrixB) {
         return (new MatrixGL("canvas", this, matrixB)).compute();
     }

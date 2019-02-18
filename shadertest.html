@@ -6,6 +6,7 @@
 	  <title>MatMul GPU</title>
 	  <script src="js/glfunctions.js"></script>
 	  <script src="js/shader.js"></script>
+	  <script src="js/program.js"></script>
 	  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/5.4.2/math.min.js"></script>
 	  
 	</head>
@@ -17,16 +18,20 @@
 		    //Create two matrices 
 			var matrixA = new Matrix("canvas",16,16);
 			var matrixB = new Matrix("canvas",16,16);
-			var matrixGL = new MatrixGL("canvas",matrixA,matrixB);
+			var program = new Program("canvas",16,16);
+			var matrixGL = new MatrixGL("canvas",matrixA, matrixB);
 			
-			var textureA = matrixGL.createTexture(0,16, 16,matrixA.getTexels(this.matrixB));
-			var textureB = matrixGL.createTexture(0,16, 16,null);
+			var textureA = program.createTexture('textureA',16, 16, matrixA.getTexels('R'));
+			var textureB = program.createTexture('textureB',16, 16, matrixB.getTexels('R'));
 			
-			var shader =  new Shader('canvas',matrixA,matrixB);
-			//shader.buildProgram(shader.getVertexShaderCode(),shader.getFragmentShaderCode());
-			var programA = shader.buildProgram(shader.getVertexShaderCode(),shader.getFragmentShaderCode());
-			var programB = shader.buildProgram(shader.getVertexShaderCode(),shader.getReadableShaderCode());
+			//var textureA = matrixGL.createTexture(0,16, 16,matrixA.getTexels('R'));
+			//var textureB = matrixGL.createTexture(1,16, 16,matrixB.getTexels('R'));
 			
+			var shader =  new Shader(matrixGL.gl,matrixA,matrixB);
+
+			var programA = program.buildProgram(shader.getVertexShader(shader.getVertexShaderCode()),shader.getFragmentShader(shader.getFragmentShaderCode()));
+			var programB = program.buildProgram(shader.getVertexShader(shader.getVertexShaderCode()),shader.getFragmentShader(shader.getReadableShaderCode()));
+			program.compute(textureA,textureB);
 		</script>
 		
 	</body>
