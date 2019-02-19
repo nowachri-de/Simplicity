@@ -1,15 +1,19 @@
-function Program (canvasID,width,height) {
-    this.canvasID 		= canvasID;
+function Program (canvasID,matrixA,matrixB) {
+    this.canvasID 		= canvasID;	
+	this.textures		= new Map();
+	this.frameBuffers	= new Map();
 	this.matrixA = matrixA;
 	this.matrixB = matrixB;
 	
-	this.textures		= new Map();
-	this.frameBuffers	= new Map();
+	this.getRenderCanvas = function(canvasID){
+		return document.getElementById(canvasID);
+	};
 	
 	this.getGl = function(canvasID,width,height) {
-        var canvas = document.getElementById(canvasID);
+        var canvas = this.getRenderCanvas(canvasID);
 		canvas.width = width;
 		canvas.height = height;
+		
 		
         var gl = canvas.getContext("experimental-webgl", {
 			premultipliedAlpha: false,
@@ -32,30 +36,46 @@ function Program (canvasID,width,height) {
         return gl;
     }
 	
-	this.gl 			= this.getGl(canvasID,width,height);
-	this.textureIndex	= this.gl.TEXTURE0;
+	this.getOutputDimensions = function(){
+		
+		var outRows = this.matrixA.numRows;
+		var outColumns = this.matrixB.numColumns;
+		
+		var result = {
+			numRows : outRows,
+			numColumns : outColumns
+		};
+		
+		return result;
+	}
 	
-    this.getRenderCanvas = function(canvasID){
-		return document.getElementById(canvasID);
-	};
+	var outputDimension = this.getOutputDimensions();
 	
-	this.createReadableTexture = function(name) {
+	this.gl 			= this.getGl(canvasID,outputDimension.numColumns,outputDimension.numRows);
+	this.textureIndex	= 0;
+	
+	this.createReadableTexture = function(name,width, height) {
         var gl = this.gl;
+		
         var renderCanvas = this.getRenderCanvas(this.canvasID);
+		renderCanvas.width = width;
+		renderCanvas.height = height;
 		
         // create and bind texture to render to
         var texture = gl.createTexture();
-        gl.activeTexture(this.textureIndex);
-		this.textureIndex++;
+        gl.activeTexture(this.gl.TEXTURE0 + this.textureIndex);
         gl.bindTexture(gl.TEXTURE_2D, texture);
 		gl.texImage2D(gl.TEXTURE_2D, /*level*/ 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, renderCanvas);
 		
 		var result={
 			texture : texture,
-			textureIndex : this.textureIndex - 1,
-			name : name
+			textureIndex : this.textureIndex,
+			name : name,
+			width : width,
+			height : height
 		}
-		textures.set(name,result);
+		this.textureIndex++;
+		this.textures.set(name,result);
         return result;
     }
 	
@@ -63,8 +83,7 @@ function Program (canvasID,width,height) {
         var gl = this.gl;
         
 		var texture = gl.createTexture();
-        gl.activeTexture(this.textureIndex);
-		this.textureIndex++;
+        gl.activeTexture(this.gl.TEXTURE0 + this.textureIndex);
         gl.bindTexture(gl.TEXTURE_2D, texture);
        
         // clamp to edge to support non-power of two textures
@@ -79,24 +98,25 @@ function Program (canvasID,width,height) {
 		
 		var result = {
 			texture : texture,
-			textureIndex : this.textureIndex -1,
+			textureIndex : this.textureIndex,
 			name : name,
 			width : width,
 			height : height
 		}
 		
+		this.textureIndex++;
 		this.textures.set(name,result);
         return result;
     }
 
-    this.createFrameBuffer = function(texture,rows,columns) {
+    this.createFrameBuffer = function(texture) {
         var gl = this.gl;
 
         // create and bind renderbuffer
         var renderBuffer = gl.createRenderbuffer();
         gl.bindRenderbuffer(gl.RENDERBUFFER, null);
         gl.bindRenderbuffer(gl.RENDERBUFFER, renderBuffer);
-        gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16,rows,columns);
+        gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16,texture.width,texture.height);
 
         // create and bind framebuffer
         var frameBuffer = gl.createFramebuffer();
@@ -112,7 +132,9 @@ function Program (canvasID,width,height) {
 		var result = {
 			texture: texture,
 			frameBuffer : frameBuffer,
-			name : name
+			name : name,
+			width : texture.width,
+			height : texture.height
 		}
 		
 		this.frameBuffers.set(name,result);
@@ -120,37 +142,35 @@ function Program (canvasID,width,height) {
         return result;
     }
 	
-	this.doBindings = function(textureUnitA,textureUnitB,matrixA,matrixB,program) {
-        this.doUnifromBindings(textureUnitA,textureUnitB,matrixA,matrixB,program);
+	this.doBindings = function(textureA,textureB) {
+        this.doUnifromBindings(textureA.textureIndex,textureB.textureIndex);
         this.doVertexBindings();
     }
 
-    this.doUnifromBindings = function(textureUnitA,textureUnitB,matrixA,matrixB,program) {
+    this.doUnifromBindings = function(textureUnitA,textureUnitB) {
         var gl = this.gl;
-        
-        // get var locations
-        var length = gl.getUniformLocation(program, "uInputCols"); //number of input columns 
-        var outR = gl.getUniformLocation(program, "uOutRows");
-        var outC = gl.getUniformLocation(program, "uOutCols");
-        var stepX = gl.getUniformLocation(program, "uStepX");
-        var stepY = gl.getUniformLocation(program, "uStepY");
-
-        gl.uniform1i(gl.getUniformLocation(program, "usamplerA"), textureUnitA);
-		gl.uniform1i(gl.getUniformLocation(program, "usamplerB"), textureUnitB);
+			
+        var uOutRows = gl.getUniformLocation(this.program, "uOutRows");
+        var uOutCols = gl.getUniformLocation(this.program, "uOutCols");
+        var uStepInCol = gl.getUniformLocation(this.program, "uStepInCol");
+		var uNumInputColumns = gl.getUniformLocation(this.program, "uNumInputColumns");
+		
+        gl.uniform1i(gl.getUniformLocation(this.program, "usamplerA"), textureUnitA);
+		gl.uniform1i(gl.getUniformLocation(this.program, "usamplerB"), textureUnitB);
 
         // bind length of one multiply run
-        gl.uniform1i(length, matrixA.numColumns);
-        gl.uniform1f(outR, matrixA.numRows);
-        gl.uniform1f(outC, matrixB.numColumns);
-
-        gl.uniform1f(stepX, 1. / Math.max(matrixA.numColumns,matrixB.numColumns));
-        gl.uniform1f(stepY, 1. / Math.max(matrixA.numRows,matrixB.numRows));
+		var outputDimension = this.getOutputDimensions();
+		
+		gl.uniform1f(uNumInputColumns, outputDimension.numRows);
+        gl.uniform1f(uOutRows, outputDimension.numRows);
+        gl.uniform1f(uOutCols, outputDimension.numColumns);
+        gl.uniform1f(uStepInCol, 1. / outputDimension.numRows);
     }
 	
-	this.doVertexBindings = function(program) {
+	this.doVertexBindings = function() {
         var gl = this.gl;
         // bind vertices
-        var aPosition = gl.getAttribLocation(program, "aPosition");
+        var aPosition = gl.getAttribLocation(this.program, "aPosition");
         var vertexBuffer = gl.createBuffer();
         var vertices = [-1.0, -1.0, 0.0, 1.0, -1.0, 0.0, 1.0, 1.0, 0.0, -1.0, 1.0, 0.0];
 		
@@ -160,7 +180,7 @@ function Program (canvasID,width,height) {
         gl.enableVertexAttribArray(aPosition);
 
         // bind texture cords
-        var aTexture = gl.getAttribLocation(program, "aTexture");
+        var aTexture = gl.getAttribLocation(this.program, "aTexture");
         var texCoords = gl.createBuffer();
         var textureCoords = [0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0];
 		
@@ -179,23 +199,60 @@ function Program (canvasID,width,height) {
 	this.buildProgram = function(vertexShader, fragmentShader) {
         var gl = this.gl;
 		
-        // var fragmentShader = this.getFragmentShader(this.test());
         // link into a program
-        this.renderer = gl.createProgram();
-        gl.attachShader(this.renderer, vertexShader);
-        gl.attachShader(this.renderer, fragmentShader);
-        gl.linkProgram(this.renderer);
-        gl.useProgram(this.renderer);
+        this.program = gl.createProgram();
+        gl.attachShader(this.program, vertexShader);
+        gl.attachShader(this.program, fragmentShader);
+        gl.linkProgram(this.program);
+        gl.useProgram(this.program);
+		
+		gl.validateProgram(this.program);
 
-        return this.renderer;
+		if ( !gl.getProgramParameter( this.program, gl.LINK_STATUS) ) {
+		  var info = gl.getProgramInfoLog(this.program);
+		  throw 'Could not compile WebGL program. \n\n' + info;
+		}
+
+        return this;
     }
 	
 	this.compute = function(textureA,textureB) {
         var gl = this.gl;
-        var frameBuffer = this.createFrameBuffer(textureB,textureB.width,textureB.height);
-		gl.bindTexture(gl.TEXTURE_2D,textureA.texture);
+		
+		gl.useProgram(this.program);
+        gl.viewport(0, 0,textureB.width,textureB.height);
+		var textureC = this.createTexture('textureC',16, 16, null);
+		var frameBuffer = this.createFrameBuffer(textureC);
+		//gl.bindTexture(gl.TEXTURE_2D,textureA.texture);
         gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.frameBuffer);
-        gl.viewport(0, 0,textureA.width,textureA.height);
+		this.doBindings(textureA,textureB);
+        
+        gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
+		return textureC;
+    }
+	
+	this.computeB = function(textureA,textureB) {
+        var gl = this.gl;
+        gl.viewport(0, 0,textureB.width,textureB.height);
+		
+		var frameBuffer = this.createFrameBuffer(textureB);
+		//gl.bindTexture(gl.TEXTURE_2D,textureA.texture);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.frameBuffer);
+		this.doBindings(textureA,textureB);
+        
         gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
     }
+	
+	this.read = function(){
+		var gl = this.gl;
+		var outputDimension = this.getOutputDimensions();
+		 // extract the product and return in new matrix
+        var rawBuffer = new ArrayBuffer(outputDimension.numRows * outputDimension.numColumns * 4);
+        var glresult = new Uint8Array(rawBuffer);
+        gl.readPixels(0, 0, outputDimension.numColumns,outputDimension.numRows, gl.RGBA, gl.UNSIGNED_BYTE, glresult);
+        var result = new Matrix(outputDimension.numColumns,outputDimension.numRows);
+        result.setData(new Float32Array(rawBuffer));
+		
+		return result;
+	}
 }

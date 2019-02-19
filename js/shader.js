@@ -35,14 +35,14 @@ function Shader(gl,matrixA,matrixB){
 			#ifdef GL_ES 
 				precision highp float; 
 			#endif 
-			attribute highp vec3 aPos; 
-			attribute highp vec2 aTex; 
-			varying   highp vec2   vTex; 
+			attribute highp vec3 aPosition; 
+			attribute highp vec2 aTexture; 
+			varying   highp vec2 vTexture; 
 			void main(void) 
 			{ 
 				// just pass the position and texture coords 
-				gl_Position = vec4(aPos, 1.0); 
-				vTex = aTex; 
+				gl_Position = vec4(aPosition, 1.0); 
+				vTexture = aTexture; 
 			}`;
           
 		return code;
@@ -60,24 +60,22 @@ function Shader(gl,matrixA,matrixB){
 				precision highp float; 
 			#endif 
 		 
-			varying vec2	      vTex;         // row, column to calculate 
-			uniform highp sampler2D     usamplerA;	// matrixA
-			uniform highp sampler2D     usamplerB;	// matrixB
-			uniform int		      uInputCols;   // r1xc1.r2xc2 => product has r2 (or c1) terms 
-			uniform highp float	  uStepX;       // increment across source texture 
-			uniform highp float	  uStepY;       // increment down source texture 
-			uniform highp float	  uOutRows;     // size of output in rows 
-			uniform highp float	  uOutCols;     // size of output in columns 
+			varying  vec2	   			vTexture;		// row, column to calculate 
+			uniform highp sampler2D     usamplerA;			// matrixA
+			uniform highp sampler2D     usamplerB;			// matrixB
+			uniform highp int 			uNumInputColumns;	//
+			uniform highp float	  		uStepInCol; 		// increment across source texture
+			uniform highp float	  		uOutRows;   		// size of output in rows 
+			uniform highp float	  		uOutCols;   		// size of output in columns 
 		 
 			void main(void) { 
 				 
 				// get the implied row and column from .s and .t of passed texel 
-				highp float  col = floor((vTex.s*uOutRows)); 
-				highp float  row = floor((vTex.t*uOutCols));
-				highp float  c = col*uStepX;  // moving texture coordinate 
-				highp float  r = row*uStepY;  // moving texture coordinate 
+				highp float  row = floor((vTexture.t*uOutRows));
+				highp float  col = floor((vTexture.s*uOutCols)); 
 				
-		        highp float  v = texture2D(usamplerA, vec2(c,r)).r; 
+				
+		        highp float  v = texture2D(usamplerA, vec2(col,row)).r; 
 				
 				highp float a = abs(v);                   			// encode absolute value + sign
 				highp float exp = floor(log2(a));         			// number of powers of 2
@@ -109,30 +107,28 @@ function Shader(gl,matrixA,matrixB){
 				precision highp float; 
 			#endif 
 		 
-			varying vec2	      		vTex; // row, column to calculate 
-			uniform highp sampler2D     usamplerA;	// matrixA
-			uniform highp sampler2D     usamplerB;	// matrixB
-			uniform int		      		uInputCols;   // r1xc1.r2xc2 => product has r2 (or c1) terms 
-			uniform highp float	  		uStepX;       // increment across source texture 
-			uniform highp float	  		uStepY;       // increment down source texture 
-			uniform highp float	  		uOutRows;     // size of output in rows 
-			uniform highp float	  		uOutCols;     // size of output in columns 
+			varying vec2     		    vTexture;			// row, column to calculate 
+			uniform highp sampler2D     usamplerA;			// matrixA
+			uniform highp sampler2D     usamplerB;			// matrixB
+			uniform highp int 			uNumInputColumns;	//
+			uniform highp float	  		uStepInCol; 		// increment across source texture
+			uniform highp float	  		uOutRows;   		// size of output in rows 
+			uniform highp float	  		uOutCols;   		// size of output in columns 
 		 
 		 
 			// sum row r x col c 
-			float sumrowcol(float row, float col) { 
-				float  sum = 0.;        // sum 
-				float  curX = 0.;       // column on source texture 
-				float  curY = 0.;       // row on source texture 
-				float  r = row*uStepY;  // moving texture coordinate 
-				float  c = col*uStepX;  // moving texture coordinate 
+			float sumrowcol(float rowB, float colB) { 
+				float sum  = 0.;	// sum 
+				float colA = 0.;    // always start from the beginning of the row
+				float rowA = rowB;  // is like this due to matrix multiplication rules	
+				int   numInputColumns = 2;
 				for (int pos=0 ; pos<2048 ; ++pos) { 
-					if(pos>=uInputCols) break; // stop when we multiple a row by a column 
-					float m1 = texture2D(usamplerA, vec2(curX,r)).r; 
-					float m2 = texture2D(usamplerB, vec2(c,curY)).r; 
-					// sum += (m1*m2); 
-					curX += uStepX; 
-					curY += uStepY; 
+					if(pos>=uNumInputColumns) break; // we have iterated a whole row of the input matrix
+					
+					float m1 = texture2D(usamplerA, vec2(colA,rowA)).r; 
+					float m2 = texture2D(usamplerB, vec2(colB,colA)).r; 
+					sum += (m1*m2); 
+					colA += uStepInCol;
 				} 
 				return sum; 
 			} 
@@ -140,13 +136,14 @@ function Shader(gl,matrixA,matrixB){
 			void main(void) { 
 				 
 				// get the implied row and column from .s and .t of passed texel 
-				float col = floor((vTex.s*uOutRows)); 
-				float row = floor((vTex.t*uOutCols));    
-		 
+				float row = floor((vTexture.t*uOutRows));
+				float col = floor((vTexture.s*uOutCols)); 
+				
 				// sum row x col for the passed pixel 
 				float v = sumrowcol(row,col);
+				
 				if (v==0.) { 
-					gl_FragColor = vec4(0.,0.,0.,0.); 
+					gl_FragColor = vec4(v,0.,0.,0.); 
 					return; 
 				}  
 				gl_FragColor = vec4(v,0.,0.,0.);
