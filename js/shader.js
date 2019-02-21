@@ -3,8 +3,6 @@ function Shader(gl,matrixA,matrixB){
 	this.matrixB = matrixB;
 	this.gl = gl;
 	
-	
-	
 	this.getVertexShader = function(vertexShaderCode) {
         var gl = this.gl;
         // create appropriate type of shader
@@ -60,7 +58,7 @@ function Shader(gl,matrixA,matrixB){
 				precision highp float; 
 			#endif 
 		 
-			varying  vec2	   			vTexture;		// row, column to calculate 
+			varying highp vec2	   		vTexture;		// row, column to calculate 
 			uniform highp sampler2D     usamplerA;			// matrixA
 			uniform highp sampler2D     usamplerB;			// matrixB
 			uniform highp int 			uNumInputColumns;	//
@@ -70,13 +68,13 @@ function Shader(gl,matrixA,matrixB){
 		 
 			void main(void) { 
 				 
-				// get the implied row and column from .s and .t of passed texel 
-				highp float  row = floor((vTexture.t*uOutRows));
-				highp float  col = floor((vTexture.s*uOutCols)); 
+				// coordinate system is explained here
+				// http://learnwebgl.brown37.net/10_surface_properties/texture_mapping_images.html
+				highp float  row = floor(vTexture.t*uOutRows);
+				highp float  col = floor(vTexture.s*uOutCols); 
 				
 				
-		        highp float  v = texture2D(usamplerA, vec2(col,row)).r; 
-				
+		        highp float v = texture2D(usamplerA, vec2(row * uStepInCol,col * uStepInCol)).r; 
 				highp float a = abs(v);                   			// encode absolute value + sign
 				highp float exp = floor(log2(a));         			// number of powers of 2
 				highp float mant = (a * pow(2.,23.-exp)); 			// multiply to fill 24 bits (implied leading 1) 
@@ -125,8 +123,10 @@ function Shader(gl,matrixA,matrixB){
 				for (int pos=0 ; pos<2048 ; ++pos) { 
 					if(pos>=uNumInputColumns) break; // we have iterated a whole row of the input matrix
 					
-					float m1 = texture2D(usamplerA, vec2(colA,rowA)).r; 
-					float m2 = texture2D(usamplerB, vec2(colB,colA)).r; 
+					//Matrix A
+					float m1 = texture2D(usamplerA, vec2(rowA * uStepInCol,colA)).r; 
+					//Matrix B
+					float m2 = texture2D(usamplerB, vec2(colA,colB * uStepInCol)).r; 
 					sum += (m1*m2); 
 					colA += uStepInCol;
 				} 
@@ -134,14 +134,15 @@ function Shader(gl,matrixA,matrixB){
 			} 
 
 			void main(void) { 
-				 
-				// get the implied row and column from .s and .t of passed texel 
-				float row = floor((vTexture.t*uOutRows));
-				float col = floor((vTexture.s*uOutCols)); 
+				// The texture coordinates are coming from the target texture 
+				// WebGL coordinate system is explained here
+				// http://learnwebgl.brown37.net/10_surface_properties/texture_mapping_images.html
+				highp float  row = floor(vTexture.t*uOutRows);
+				highp float  col = floor(vTexture.s*uOutCols); 
 				
 				// sum row x col for the passed pixel 
-				float v = sumrowcol(row,col);
-				
+				//float v = sumrowcol(row,col);
+				float v = 0.;
 				if (v==0.) { 
 					gl_FragColor = vec4(v,0.,0.,0.); 
 					return; 

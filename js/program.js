@@ -164,7 +164,8 @@ function Program (canvasID,matrixA,matrixB) {
 		gl.uniform1f(uNumInputColumns, outputDimension.numRows);
         gl.uniform1f(uOutRows, outputDimension.numRows);
         gl.uniform1f(uOutCols, outputDimension.numColumns);
-        gl.uniform1f(uStepInCol, 1. / outputDimension.numRows);
+        //gl.uniform1f(uStepInCol, 1. / outputDimension.numRows);
+		gl.uniform1f(uStepInCol, 1./ outputDimension.numRows);
     }
 	
 	this.doVertexBindings = function() {
@@ -233,10 +234,12 @@ function Program (canvasID,matrixA,matrixB) {
 	
 	this.computeB = function(textureA,textureB) {
         var gl = this.gl;
+		gl.useProgram(this.program);
         gl.viewport(0, 0,textureB.width,textureB.height);
 		
 		var frameBuffer = this.createFrameBuffer(textureB);
 		//gl.bindTexture(gl.TEXTURE_2D,textureA.texture);
+		gl.activeTexture(gl.TEXTURE0 + textureB.textureIndex);
         gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.frameBuffer);
 		this.doBindings(textureA,textureB);
         
