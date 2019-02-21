@@ -142,36 +142,35 @@ function Program (canvasID,matrixA,matrixB) {
         return result;
     }
 	
-	this.doBindings = function(textureA,textureB) {
-        this.doUnifromBindings(textureA.textureIndex,textureB.textureIndex);
-        this.doVertexBindings();
+	this.doBindings = function(textureA,textureB,program) {
+        this.doUnifromBindings(textureA.textureIndex,textureB.textureIndex,program);
+        this.doVertexBindings(program);
     }
 
-    this.doUnifromBindings = function(textureUnitA,textureUnitB) {
+    this.doUnifromBindings = function(textureUnitA,textureUnitB,program) {
         var gl = this.gl;
 			
-        var uOutRows = gl.getUniformLocation(this.program, "uOutRows");
-        var uOutCols = gl.getUniformLocation(this.program, "uOutCols");
-        var uStepInCol = gl.getUniformLocation(this.program, "uStepInCol");
-		var uNumInputColumns = gl.getUniformLocation(this.program, "uNumInputColumns");
+        var uOutRows = gl.getUniformLocation(program, "uOutRows");
+        var uOutCols = gl.getUniformLocation(program, "uOutCols");
+        var uStepInCol = gl.getUniformLocation(program, "uStepInCol");
+		var uNumInputColumns = gl.getUniformLocation(program, "uNumInputColumns");
 		
-        gl.uniform1i(gl.getUniformLocation(this.program, "usamplerA"), textureUnitA);
-		gl.uniform1i(gl.getUniformLocation(this.program, "usamplerB"), textureUnitB);
+        gl.uniform1i(gl.getUniformLocation(program, "usamplerA"), textureUnitA);
+		gl.uniform1i(gl.getUniformLocation(program, "usamplerB"), textureUnitB);
 
         // bind length of one multiply run
 		var outputDimension = this.getOutputDimensions();
 		
-		gl.uniform1f(uNumInputColumns, outputDimension.numRows);
+		gl.uniform1i(uNumInputColumns, outputDimension.numRows);
         gl.uniform1f(uOutRows, outputDimension.numRows);
         gl.uniform1f(uOutCols, outputDimension.numColumns);
-        //gl.uniform1f(uStepInCol, 1. / outputDimension.numRows);
 		gl.uniform1f(uStepInCol, 1./ outputDimension.numRows);
     }
 	
-	this.doVertexBindings = function() {
+	this.doVertexBindings = function(program) {
         var gl = this.gl;
         // bind vertices
-        var aPosition = gl.getAttribLocation(this.program, "aPosition");
+        var aPosition = gl.getAttribLocation(program, "aPosition");
         var vertexBuffer = gl.createBuffer();
         var vertices = [-1.0, -1.0, 0.0, 1.0, -1.0, 0.0, 1.0, 1.0, 0.0, -1.0, 1.0, 0.0];
 		
@@ -181,7 +180,7 @@ function Program (canvasID,matrixA,matrixB) {
         gl.enableVertexAttribArray(aPosition);
 
         // bind texture cords
-        var aTexture = gl.getAttribLocation(this.program, "aTexture");
+        var aTexture = gl.getAttribLocation(program, "aTexture");
         var texCoords = gl.createBuffer();
         var textureCoords = [0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0];
 		
@@ -201,47 +200,45 @@ function Program (canvasID,matrixA,matrixB) {
         var gl = this.gl;
 		
         // link into a program
-        this.program = gl.createProgram();
-        gl.attachShader(this.program, vertexShader);
-        gl.attachShader(this.program, fragmentShader);
-        gl.linkProgram(this.program);
-        gl.useProgram(this.program);
-		
-		gl.validateProgram(this.program);
+        var program = gl.createProgram();
+        gl.attachShader(program, vertexShader);
+        gl.attachShader(program, fragmentShader);
+        gl.linkProgram(program);
+        gl.useProgram(program);
+		gl.validateProgram(program);
 
-		if ( !gl.getProgramParameter( this.program, gl.LINK_STATUS) ) {
-		  var info = gl.getProgramInfoLog(this.program);
+		if ( !gl.getProgramParameter( program, gl.LINK_STATUS) ) {
+		  var info = gl.getProgramInfoLog(program);
 		  throw 'Could not compile WebGL program. \n\n' + info;
 		}
 
-        return this;
+        return program;
     }
 	
-	this.compute = function(textureA,textureB) {
+	this.compute = function(textureA,textureB,textureC,program) {
         var gl = this.gl;
 		
-		gl.useProgram(this.program);
+		gl.useProgram(program);
         gl.viewport(0, 0,textureB.width,textureB.height);
-		var textureC = this.createTexture('textureC',16, 16, null);
 		var frameBuffer = this.createFrameBuffer(textureC);
-		//gl.bindTexture(gl.TEXTURE_2D,textureA.texture);
+		
         gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.frameBuffer);
-		this.doBindings(textureA,textureB);
+		this.doBindings(textureA,textureB,program);
         
         gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
 		return textureC;
     }
 	
-	this.computeB = function(textureA,textureB) {
+	this.computeB = function(textureA,textureB,program) {
         var gl = this.gl;
-		gl.useProgram(this.program);
+		gl.useProgram(program);
         gl.viewport(0, 0,textureB.width,textureB.height);
 		
 		var frameBuffer = this.createFrameBuffer(textureB);
 		//gl.bindTexture(gl.TEXTURE_2D,textureA.texture);
 		gl.activeTexture(gl.TEXTURE0 + textureB.textureIndex);
         gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.frameBuffer);
-		this.doBindings(textureA,textureB);
+		this.doBindings(textureA,textureB,program);
         
         gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
     }

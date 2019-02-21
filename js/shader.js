@@ -105,48 +105,40 @@ function Shader(gl,matrixA,matrixB){
 				precision highp float; 
 			#endif 
 		 
-			varying vec2     		    vTexture;			// row, column to calculate 
+			varying highp vec2          vTexture;			// row, column to calculate 
 			uniform highp sampler2D     usamplerA;			// matrixA
 			uniform highp sampler2D     usamplerB;			// matrixB
-			uniform highp int 			uNumInputColumns;	//
+			uniform 	  int 			uNumInputColumns;	//
 			uniform highp float	  		uStepInCol; 		// increment across source texture
 			uniform highp float	  		uOutRows;   		// size of output in rows 
-			uniform highp float	  		uOutCols;   		// size of output in columns 
+			uniform highp float  		uOutCols;   		// size of output in columns 
 		 
-		 
-			// sum row r x col c 
-			float sumrowcol(float rowB, float colB) { 
-				float sum  = 0.;	// sum 
-				float colA = 0.;    // always start from the beginning of the row
-				float rowA = rowB;  // is like this due to matrix multiplication rules	
-				int   numInputColumns = 2;
-				for (int pos=0 ; pos<2048 ; ++pos) { 
-					if(pos>=uNumInputColumns) break; // we have iterated a whole row of the input matrix
+			highp float matrixmul(float col, float row){
+				highp float sum = 0.;
+				highp float cc = 0.;
+				
+				for (int index=0; index < 2048; index ++){
+					if (index>=uNumInputColumns) break;
 					
-					//Matrix A
-					float m1 = texture2D(usamplerA, vec2(rowA * uStepInCol,colA)).r; 
-					//Matrix B
-					float m2 = texture2D(usamplerB, vec2(colA,colB * uStepInCol)).r; 
-					sum += (m1*m2); 
-					colA += uStepInCol;
-				} 
-				return sum; 
-			} 
-
+					float m1 = texture2D(usamplerA,vec2(cc,col * uStepInCol)).r;
+					float m2 = texture2D(usamplerB,vec2(row * uStepInCol,cc)).r;
+					
+					cc  += uStepInCol;
+					sum += (m1*m2);
+				}
+				return sum;
+				//return texture2D(usamplerA,vec2(col * uStepInCol,row * uStepInCol)).r;
+			}
+			
 			void main(void) { 
 				// The texture coordinates are coming from the target texture 
 				// WebGL coordinate system is explained here
 				// http://learnwebgl.brown37.net/10_surface_properties/texture_mapping_images.html
-				highp float  row = floor(vTexture.t*uOutRows);
-				highp float  col = floor(vTexture.s*uOutCols); 
+				highp float  col = floor(vTexture.s * uOutCols);
+				highp float  row = floor(vTexture.t * uOutRows);
 				
-				// sum row x col for the passed pixel 
-				//float v = sumrowcol(row,col);
-				float v = 0.;
-				if (v==0.) { 
-					gl_FragColor = vec4(v,0.,0.,0.); 
-					return; 
-				}  
+				
+				float v = matrixmul(row,col);
 				gl_FragColor = vec4(v,0.,0.,0.);
 			}
 		`;

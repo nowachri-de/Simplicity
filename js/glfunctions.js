@@ -40,8 +40,8 @@ class Matrix {
             decimals = 15;
 
         var rowContent = "";
-        for (var col = 0; col < this.numColumns; col++) {
-            for (var row = 0; row < this.numRows; row++) {
+        for (var row = 0; row < this.numRows; row++) {
+            for (var col = 0; col < this.numColumns; col++) {
                 rowContent += (this.rows[row][col]).toFixed(decimals) + ";"
             }
             console.log(rowContent);

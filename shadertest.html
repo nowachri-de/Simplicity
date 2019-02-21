@@ -32,7 +32,8 @@
 			var program  = new Program("canvas",matrixA,matrixB);
 			
 			var textureA = program.createTexture('textureA',16, 16, matrixA.getTexels('R'));
-			var textureB = program.createTexture('textureB',16, 16, matrixA.getTexels('R'));
+			var textureB = program.createTexture('textureB',16, 16, matrixB.getTexels('R'));
+			var textureC = program.createTexture('textureC',16, 16, null);
 			var textureD = program.createReadableTexture('textureD',16, 16,null);
 			
 			//var textureA = matrixGL.createTexture(0,16, 16,matrixA.getTexels('R'));
@@ -43,10 +44,10 @@
 			var programA = program.buildProgram(shader.getVertexShader(shader.getVertexShaderCode()),shader.getFragmentShader(shader.getFragmentShaderCode()));
 			var programB = program.buildProgram(shader.getVertexShader(shader.getVertexShaderCode()),shader.getFragmentShader(shader.getReadableShaderCode()));
 			
-			var textureResult = programA.compute(textureA,textureB);
-			programB.computeB(textureResult,textureD);
+			program.compute(textureA,textureB,textureC,programA);
+			program.computeB(textureC,textureD,programB);
 			
-			var result = programB.read();
+			var result = program.read();
 			console.log("RESULT ---------------------");
 			result.print(5);
 			
