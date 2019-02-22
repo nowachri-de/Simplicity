@@ -1,6 +1,4 @@
-function Shader(gl,matrixA,matrixB){
-	this.matrixA = matrixA;
-	this.matrixB = matrixB;
+function Shader(gl){
 	this.gl = gl;
 	
 	this.getVertexShader = function(vertexShaderCode) {

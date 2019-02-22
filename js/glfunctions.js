@@ -42,7 +42,7 @@ class Matrix {
         var rowContent = "";
         for (var row = 0; row < this.numRows; row++) {
             for (var col = 0; col < this.numColumns; col++) {
-                rowContent += (this.rows[row][col]).toFixed(decimals) + ";"
+                rowContent += (this.rows[row][col]).toFixed(decimals) + " ; "
             }
             console.log(rowContent);
             rowContent = "";

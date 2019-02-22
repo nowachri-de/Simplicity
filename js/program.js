@@ -1,20 +1,16 @@
-function Program (canvasID,matrixA,matrixB) {
+function Program (canvasID) {
     this.canvasID 		= canvasID;	
 	this.textures		= new Map();
 	this.frameBuffers	= new Map();
-	this.matrixA = matrixA;
-	this.matrixB = matrixB;
+	this.self           = this;
+	this.program        = null;
 	
 	this.getRenderCanvas = function(canvasID){
 		return document.getElementById(canvasID);
 	};
 	
-	this.getGl = function(canvasID,width,height) {
+	this.getGl = function(canvasID) {
         var canvas = this.getRenderCanvas(canvasID);
-		canvas.width = width;
-		canvas.height = height;
-		
-		
         var gl = canvas.getContext("experimental-webgl", {
 			premultipliedAlpha: false,
             preserveDrawingBuffer: false
@@ -32,14 +28,13 @@ function Program (canvasID,matrixA,matrixB) {
 			console.log("Your browser does not support OES_texture_float extension.");
 		}
 		
-		gl.viewport(0, 0, width, height);		
         return gl;
     }
 	
-	this.getOutputDimensions = function(){
+	this.getOutputDimensions = function(matrixA,matrixB){
 		
-		var outRows = this.matrixA.numRows;
-		var outColumns = this.matrixB.numColumns;
+		var outRows = matrixA.numRows;
+		var outColumns = matrixB.numColumns;
 		
 		var result = {
 			numRows : outRows,
@@ -49,72 +44,9 @@ function Program (canvasID,matrixA,matrixB) {
 		return result;
 	}
 	
-	var outputDimension = this.getOutputDimensions();
-	
-	this.gl 			= this.getGl(canvasID,outputDimension.numColumns,outputDimension.numRows);
+	this.gl 			= this.getGl(canvasID);
 	this.textureIndex	= 0;
-	
-	this.createReadableTexture = function(name,rows, columns) {
-        var gl = this.gl;
-		
-        var renderCanvas = this.getRenderCanvas(this.canvasID);
-		renderCanvas.width = columns;
-		renderCanvas.height = rows;
-		
-        // create and bind texture to render to
-        var texture = gl.createTexture();
-        gl.activeTexture(this.gl.TEXTURE0 + this.textureIndex);
-        gl.bindTexture(gl.TEXTURE_2D, texture);
-		gl.texImage2D(gl.TEXTURE_2D, /*level*/ 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, renderCanvas);
-		
-		var result={
-			texture : texture,
-			textureIndex : this.textureIndex,
-			name : name,
-			width : columns,
-			height : rows
-		}
-		this.textureIndex++;
-		this.textures.set(name,result);
-        return result;
-    }
-	
-	this.createTexture=function(name,matrix,component) {
-       return this.createTextureByDimension(name,matrix.numRows,matrix.numColumns,matrix.getTexels(component));
-    }
 
-	
-	this.createTextureByDimension=function(name,rows,cols,data) {
-        var gl = this.gl;
-        
-		var texture = gl.createTexture();
-        gl.activeTexture(this.gl.TEXTURE0 + this.textureIndex);
-        gl.bindTexture(gl.TEXTURE_2D, texture);
-       
-        // clamp to edge to support non-power of two textures
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-        // don't interpolate when getting data from texture
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-        
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, cols, rows, 0, gl.RGBA, gl.FLOAT,data);
-		
-		var result = {
-			texture : texture,
-			textureIndex : this.textureIndex,
-			name : name,
-			width : cols,
-			height : rows
-		}
-		
-		this.textureIndex++;
-		this.textures.set(name,result);
-        return result;
-    }
-	
-	
     this.createFrameBuffer = function(texture) {
         var gl = this.gl;
 
@@ -148,12 +80,12 @@ function Program (canvasID,matrixA,matrixB) {
         return result;
     }
 	
-	this.doBindings = function(textureA,textureB,program) {
-        this.doUnifromBindings(textureA,textureB,program);
+	this.doBindings = function(textureA,textureB,program,outputDimensions) {
+        this.doUnifromBindings(textureA,textureB,program,outputDimensions);
         this.doVertexBindings(program);
     }
 
-    this.doUnifromBindings = function(textureA,textureB,program) {
+    this.doUnifromBindings = function(textureA,textureB,program,outputDimensions) {
         var gl = this.gl;
 			
         var uOutRows = gl.getUniformLocation(program, "uOutRows");
@@ -163,13 +95,10 @@ function Program (canvasID,matrixA,matrixB) {
 		
         gl.uniform1i(gl.getUniformLocation(program, "usamplerA"), textureA.textureIndex);
 		gl.uniform1i(gl.getUniformLocation(program, "usamplerB"), textureB.textureIndex);
-
-        // bind length of one multiply run
-		var outputDimension = this.getOutputDimensions();
 		
 		gl.uniform1i(uNumInputColumns, textureA.width);
-        gl.uniform1f(uOutRows, outputDimension.numRows);
-        gl.uniform1f(uOutCols, outputDimension.numColumns);
+        gl.uniform1f(uOutRows, outputDimensions.numRows);
+        gl.uniform1f(uOutCols, outputDimensions.numColumns);
 		gl.uniform1f(uStepInCol, 1./ textureA.width);
     }
 	
@@ -218,47 +147,28 @@ function Program (canvasID,matrixA,matrixB) {
 		  throw 'Could not compile WebGL program. \n\n' + info;
 		}
 
+		this.program = program;
         return program;
     }
 	
-	this.compute = function(textureA,textureB,textureC,program) {
+	this.compute = function(textureA,textureB,textureC,outputDimensions) {
         var gl = this.gl;
+		var canvas = this.getRenderCanvas(this.canvasID);
 		
-		gl.useProgram(program);
-        gl.viewport(0, 0,textureC.width,textureC.height);
+		canvas.width = outputDimensions.numColumns;
+		canvas.height = outputDimensions.numRows;
+		
+		gl.useProgram(this.program);
+        gl.viewport(0, 0,canvas.width,canvas.height);
+		
 		var frameBuffer = this.createFrameBuffer(textureC);
 		
         gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.frameBuffer);
-		this.doBindings(textureA,textureB,program);
+		this.doBindings(textureA,textureB,this.program,outputDimensions);
         
         gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
 		return textureC;
     }
 	
-	this.computeB = function(textureA,textureB,program) {
-        var gl = this.gl;
-		gl.useProgram(program);
-        gl.viewport(0, 0,textureB.width,textureB.height);
-		
-		var frameBuffer = this.createFrameBuffer(textureB);
-		//gl.bindTexture(gl.TEXTURE_2D,textureA.texture);
-		gl.activeTexture(gl.TEXTURE0 + textureB.textureIndex);
-        gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.frameBuffer);
-		this.doBindings(textureA,textureB,program);
-        
-        gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
-    }
 	
-	this.read = function(){
-		var gl = this.gl;
-		var outputDimension = this.getOutputDimensions();
-		 // extract the product and return in new matrix
-        var rawBuffer = new ArrayBuffer(outputDimension.numRows * outputDimension.numColumns * 4);
-        var glresult = new Uint8Array(rawBuffer);
-        gl.readPixels(0, 0, outputDimension.numColumns,outputDimension.numRows, gl.RGBA, gl.UNSIGNED_BYTE, glresult);
-        var result = new Matrix(outputDimension.numColumns,outputDimension.numRows);
-        result.setData(new Float32Array(rawBuffer));
-		
-		return result;
-	}
 }
