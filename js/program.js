@@ -1,9 +1,11 @@
 function Program (canvasID) {
     this.canvasID 		= canvasID;	
-	this.textures		= new Map();
 	this.frameBuffers	= new Map();
 	this.self           = this;
 	this.program        = null;
+	this.vShader        = null;
+	this.fShader        = null;
+	
 	
 	this.getRenderCanvas = function(canvasID){
 		return document.getElementById(canvasID);
@@ -70,6 +72,7 @@ function Program (canvasID) {
 		var result = {
 			texture: texture,
 			frameBuffer : frameBuffer,
+			renderBuffer: renderBuffer,
 			name : name,
 			width : texture.width,
 			height : texture.height
@@ -130,6 +133,9 @@ function Program (canvasID) {
 	this.buildProgram = function(vertexShader, fragmentShader) {
         var gl = this.gl;
 		
+		this.vShader=vertexShader;
+		this.fShader=fragmentShader;
+		
         // link into a program
         var program = gl.createProgram();
         gl.attachShader(program, vertexShader);
@@ -166,5 +172,24 @@ function Program (canvasID) {
 		return textureC;
     }
 	
+	this.free = function(){
+		var gl = this.gl;
+		this.frameBuffers.forEach(function logMapElements(value, key, map) {
+			gl.deleteFramebuffer(value.frameBuffer);
+			gl.deleteRenderbuffer(value.renderBuffer);
+			gl.deleteTexture(value.texture.texture);
+			
+			console.log("Called gl.deleteFramebuffer for framebuffer " + value.name + " holding texture with texture index " +value.texture.textureIndex );
+		});
+		gl.deleteShader(this.vShader);
+		console.log("Deleted vertex shader");
+		gl.deleteShader(this.fShader);
+		console.log("Deleted fragment shader");
+		gl.deleteProgram(this.program);
+		console.log("Deleted program");
+		
+		gl.canvas.width = 1;
+		gl.canvas.height = 1;
+	}
 	
 }

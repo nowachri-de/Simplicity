@@ -17,8 +17,8 @@
 		
 		<script>
 		    //Create two matrices 
-			var matrixA  = new Matrix(4,4);
-			var matrixB  = new Matrix(4,4);
+			var matrixA  = new Matrix(1024,2048);
+			var matrixB  = new Matrix(2048,1024);
 			
 			//Do random initialization
 			matrixA.randomInitialize();
@@ -42,34 +42,16 @@
 			
 			var shader =  new Shader(program.gl);
 
-			program.buildProgram(shader.getVertexShader(shader.getVertexShaderCode()),shader.getFragmentShader(shader.getFragmentShaderCode()));			
-			program.compute(textureA,textureB,textureC,outputDimensions);
+			program.buildProgram(shader.getVertexShader(shader.getVertexShaderCode()),shader.getFragmentShader(shader.getFragmentShaderCode()));
 			console.log(outputDimensions);
-			var resultReader = new ResultReader(program.gl,"canvas");
-			var result = resultReader.read(textureC,textureD);
-			console.log("GPU MatMul ---------------------");
-			result.print(5);
 			
-			/*
-				Compare the result of the GPU matrix multiplication
-				With the result of a matrix multiplication on CPU
-			*/
-			var mat1 = math.matrix(matrixA.as2DArray());
-			var mat2 = math.matrix(matrixB.as2DArray());
-			
-			var result2 = math.multiply(mat1,mat2);
-			console.log("JS MatMul ---------------------");
-			for (var row = 0; row < outputDimensions.numRows; row++) {
-				var tmp = "";
-				for (var col = 0; col < outputDimensions.numColumns; col++) {
-					 tmp += (result2.subset(math.index(row, col))).toFixed(5) + " ; ";
-				}
-				console.log(tmp);
-			}
+			var t0 = performance.now();
+			program.compute(textureA,textureB,textureC,outputDimensions); 
+			var t1 = performance.now();
+			console.log("GPU time for matmul of A(1024 * 2048) B(2048 * 1024) " + (t1 - t0) + " milliseconds.")
 			
 			textureFactory.free();
 			program.free();
-			resultReader.free();
 		</script>
 		
 	</body>

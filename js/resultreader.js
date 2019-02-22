@@ -47,6 +47,15 @@ function ResultReader(gl,canvasID){
 	
 		return result;
 	}
+	
+	this.free = function(){
+		
+		var gl = this.gl;
+		
+		this.program.free();
+		gl.canvas.width = 1;
+		gl.canvas.height = 1;
+	}
 }
 
 function TextureFactory(canvasID){
@@ -60,9 +69,6 @@ function TextureFactory(canvasID){
 	
 	this.getGl = function(canvasID) {
         var canvas = this.getRenderCanvas(canvasID);
-		//canvas.width = width;
-		//canvas.height = height;
-		
 		
         var gl = canvas.getContext("experimental-webgl", {
 			premultipliedAlpha: false,
@@ -81,7 +87,6 @@ function TextureFactory(canvasID){
 			console.log("Your browser does not support OES_texture_float extension.");
 		}
 		
-		//gl.viewport(0, 0, width, height);		
         return gl;
     }
 	
@@ -89,8 +94,7 @@ function TextureFactory(canvasID){
 	
 	this.createReadableTexture = function(name,outputdimensions) {
         var gl = this.gl;
-		console.log("createReadableTexture" );
-		console.log(outputdimensions);
+		
         var renderCanvas = this.getRenderCanvas(this.canvasID);
 		renderCanvas.width = outputdimensions.numColumns;
 		renderCanvas.height = outputdimensions.numRows;
@@ -123,9 +127,7 @@ function TextureFactory(canvasID){
 	
 	this.createTextureByDimension=function(name,rows,cols,data) {
         var gl = this.gl;
-        console.log("createTextureByDimension" );
-		console.log(rows + " " +cols);
-		
+        
 		var texture = gl.createTexture();
         gl.activeTexture(this.gl.TEXTURE0 + this.textureIndex);
         gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -152,4 +154,15 @@ function TextureFactory(canvasID){
 		this.textures.set(name,result);
         return result;
     }
+	
+	this.free = function(){
+		var gl = this.gl;
+		this.textures.forEach(function logMapElements(value, key, map) {
+			gl.deleteTexture(value.texture);
+			console.log("Called gl.deleteTexture for texture " + value.name + " with index " +value.textureIndex );
+		});
+		
+		gl.canvas.width = 1;
+		gl.canvas.height = 1;
+	}
 }
