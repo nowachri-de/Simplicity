@@ -1,6 +1,6 @@
 class Matrix {
 
-    constructor(columns, rows) {
+    constructor(rows, columns) {
         this.numRows = rows;
         this.numColumns = columns;
 

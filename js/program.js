@@ -54,12 +54,12 @@ function Program (canvasID,matrixA,matrixB) {
 	this.gl 			= this.getGl(canvasID,outputDimension.numColumns,outputDimension.numRows);
 	this.textureIndex	= 0;
 	
-	this.createReadableTexture = function(name,width, height) {
+	this.createReadableTexture = function(name,rows, columns) {
         var gl = this.gl;
 		
         var renderCanvas = this.getRenderCanvas(this.canvasID);
-		renderCanvas.width = width;
-		renderCanvas.height = height;
+		renderCanvas.width = columns;
+		renderCanvas.height = rows;
 		
         // create and bind texture to render to
         var texture = gl.createTexture();
@@ -71,15 +71,20 @@ function Program (canvasID,matrixA,matrixB) {
 			texture : texture,
 			textureIndex : this.textureIndex,
 			name : name,
-			width : width,
-			height : height
+			width : columns,
+			height : rows
 		}
 		this.textureIndex++;
 		this.textures.set(name,result);
         return result;
     }
 	
-	this.createTexture=function(name,width, height, data) {
+	this.createTexture=function(name,matrix,component) {
+       return this.createTextureByDimension(name,matrix.numRows,matrix.numColumns,matrix.getTexels(component));
+    }
+
+	
+	this.createTextureByDimension=function(name,rows,cols,data) {
         var gl = this.gl;
         
 		var texture = gl.createTexture();
@@ -94,21 +99,22 @@ function Program (canvasID,matrixA,matrixB) {
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
         
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.FLOAT, data);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, cols, rows, 0, gl.RGBA, gl.FLOAT,data);
 		
 		var result = {
 			texture : texture,
 			textureIndex : this.textureIndex,
 			name : name,
-			width : width,
-			height : height
+			width : cols,
+			height : rows
 		}
 		
 		this.textureIndex++;
 		this.textures.set(name,result);
         return result;
     }
-
+	
+	
     this.createFrameBuffer = function(texture) {
         var gl = this.gl;
 
@@ -143,11 +149,11 @@ function Program (canvasID,matrixA,matrixB) {
     }
 	
 	this.doBindings = function(textureA,textureB,program) {
-        this.doUnifromBindings(textureA.textureIndex,textureB.textureIndex,program);
+        this.doUnifromBindings(textureA,textureB,program);
         this.doVertexBindings(program);
     }
 
-    this.doUnifromBindings = function(textureUnitA,textureUnitB,program) {
+    this.doUnifromBindings = function(textureA,textureB,program) {
         var gl = this.gl;
 			
         var uOutRows = gl.getUniformLocation(program, "uOutRows");
@@ -155,16 +161,16 @@ function Program (canvasID,matrixA,matrixB) {
         var uStepInCol = gl.getUniformLocation(program, "uStepInCol");
 		var uNumInputColumns = gl.getUniformLocation(program, "uNumInputColumns");
 		
-        gl.uniform1i(gl.getUniformLocation(program, "usamplerA"), textureUnitA);
-		gl.uniform1i(gl.getUniformLocation(program, "usamplerB"), textureUnitB);
+        gl.uniform1i(gl.getUniformLocation(program, "usamplerA"), textureA.textureIndex);
+		gl.uniform1i(gl.getUniformLocation(program, "usamplerB"), textureB.textureIndex);
 
         // bind length of one multiply run
 		var outputDimension = this.getOutputDimensions();
 		
-		gl.uniform1i(uNumInputColumns, outputDimension.numRows);
+		gl.uniform1i(uNumInputColumns, textureA.width);
         gl.uniform1f(uOutRows, outputDimension.numRows);
         gl.uniform1f(uOutCols, outputDimension.numColumns);
-		gl.uniform1f(uStepInCol, 1./ outputDimension.numRows);
+		gl.uniform1f(uStepInCol, 1./ textureA.width);
     }
 	
 	this.doVertexBindings = function(program) {
@@ -219,7 +225,7 @@ function Program (canvasID,matrixA,matrixB) {
         var gl = this.gl;
 		
 		gl.useProgram(program);
-        gl.viewport(0, 0,textureB.width,textureB.height);
+        gl.viewport(0, 0,textureC.width,textureC.height);
 		var frameBuffer = this.createFrameBuffer(textureC);
 		
         gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.frameBuffer);

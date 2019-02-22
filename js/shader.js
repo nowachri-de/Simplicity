@@ -70,11 +70,14 @@ function Shader(gl,matrixA,matrixB){
 				 
 				// coordinate system is explained here
 				// http://learnwebgl.brown37.net/10_surface_properties/texture_mapping_images.html
-				highp float  row = floor(vTexture.t*uOutRows);
-				highp float  col = floor(vTexture.s*uOutCols); 
+				//highp float  row = floor(vTexture.t*uOutRows);
+				//highp float  col = floor(vTexture.s*uOutCols); 
+				highp float  row = vTexture.t;
+				highp float  col = vTexture.s;
 				
+		        //highp float v = texture2D(usamplerA, vec2(row * uStepInCol,col * uStepInCol)).r;
 				
-		        highp float v = texture2D(usamplerA, vec2(row * uStepInCol,col * uStepInCol)).r; 
+				highp float v = texture2D(usamplerA, vec2(col,row)).r;				
 				highp float a = abs(v);                   			// encode absolute value + sign
 				highp float exp = floor(log2(a));         			// number of powers of 2
 				highp float mant = (a * pow(2.,23.-exp)); 			// multiply to fill 24 bits (implied leading 1) 
@@ -120,8 +123,8 @@ function Shader(gl,matrixA,matrixB){
 				for (int index=0; index < 2048; index ++){
 					if (index>=uNumInputColumns) break;
 					
-					float m1 = texture2D(usamplerA,vec2(cc,col * uStepInCol)).r;
-					float m2 = texture2D(usamplerB,vec2(row * uStepInCol,cc)).r;
+					float m1 = texture2D(usamplerA,vec2(cc,row)).r;
+					float m2 = texture2D(usamplerB,vec2(col,cc)).r;
 					
 					cc  += uStepInCol;
 					sum += (m1*m2);
@@ -134,11 +137,11 @@ function Shader(gl,matrixA,matrixB){
 				// The texture coordinates are coming from the target texture 
 				// WebGL coordinate system is explained here
 				// http://learnwebgl.brown37.net/10_surface_properties/texture_mapping_images.html
-				highp float  col = floor(vTexture.s * uOutCols);
-				highp float  row = floor(vTexture.t * uOutRows);
+				highp float  col = vTexture.s;
+				highp float  row = vTexture.t;
 				
 				
-				float v = matrixmul(row,col);
+				float v = matrixmul(col,row);
 				gl_FragColor = vec4(v,0.,0.,0.);
 			}
 		`;

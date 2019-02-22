@@ -16,8 +16,8 @@
 		
 		<script>
 		    //Create two matrices 
-			var matrixA  = new Matrix(16,16);
-			var matrixB  = new Matrix(16,16);
+			var matrixA  = new Matrix(1,4);
+			var matrixB  = new Matrix(4,4);
 			
 			//Do random initialization
 			matrixA.randomInitialize();
@@ -33,8 +33,8 @@
 			
 			var textureA = program.createTexture('textureA',matrixA,'R');
 			var textureB = program.createTexture('textureB',matrixB,'R');
-			var textureC = program.createTextureByDimension('textureC',16,16);
-			var textureD = program.createReadableTexture('textureD',16, 16,null);
+			var textureC = program.createTextureByDimension('textureC',4, 4, null);
+			var textureD = program.createReadableTexture('textureD',4, 4,null);
 			
 			//var textureA = matrixGL.createTexture(0,16, 16,matrixA.getTexels('R'));
 			//var textureB = matrixGL.createTexture(1,16, 16,matrixB.getTexels('R'));
@@ -59,7 +59,6 @@
 			
 			var result2 = math.multiply(mat1,mat2);
 			console.log(result2.format(7));
-			
 			
 		</script>
 		
