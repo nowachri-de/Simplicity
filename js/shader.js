@@ -61,8 +61,6 @@ function Shader(gl){
 			uniform highp sampler2D     usamplerB;			// matrixB
 			uniform highp int 			uNumInputColumns;	//
 			uniform highp float	  		uStepInCol; 		// increment across source texture
-			uniform highp float	  		uOutRows;   		// size of output in rows 
-			uniform highp float	  		uOutCols;   		// size of output in columns 
 		 
 			void main(void) { 
 				 
@@ -111,8 +109,6 @@ function Shader(gl){
 			uniform highp sampler2D     usamplerB;			// matrixB
 			uniform 	  int 			uNumInputColumns;	//
 			uniform highp float	  		uStepInCol; 		// increment across source texture
-			uniform highp float	  		uOutRows;   		// size of output in rows 
-			uniform highp float  		uOutCols;   		// size of output in columns 
 		 
 			highp float matrixmul(float col, float row){
 				highp float sum = 0.;

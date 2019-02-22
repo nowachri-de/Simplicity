@@ -88,8 +88,6 @@ function Program (canvasID) {
     this.doUnifromBindings = function(textureA,textureB,program,outputDimensions) {
         var gl = this.gl;
 			
-        var uOutRows = gl.getUniformLocation(program, "uOutRows");
-        var uOutCols = gl.getUniformLocation(program, "uOutCols");
         var uStepInCol = gl.getUniformLocation(program, "uStepInCol");
 		var uNumInputColumns = gl.getUniformLocation(program, "uNumInputColumns");
 		
@@ -97,8 +95,6 @@ function Program (canvasID) {
 		gl.uniform1i(gl.getUniformLocation(program, "usamplerB"), textureB.textureIndex);
 		
 		gl.uniform1i(uNumInputColumns, textureA.width);
-        gl.uniform1f(uOutRows, outputDimensions.numRows);
-        gl.uniform1f(uOutCols, outputDimensions.numColumns);
 		gl.uniform1f(uStepInCol, 1./ textureA.width);
     }
 	

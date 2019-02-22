@@ -28,8 +28,8 @@ class Matrix {
 
     setData(f32Array) {
         var cnt = 0;
-        for (var col = 0; col < this.numColumns; col++) {
-            for (var row = 0; row < this.numRows; row++) {
+        for (var row = 0; row < this.numRows; row++) {
+            for (var col = 0; col < this.numColumns; col++) {
                 this.rows[row][col] = f32Array[cnt++];
             }
         }
