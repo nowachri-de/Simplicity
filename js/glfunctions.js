@@ -62,7 +62,79 @@ class Matrix {
         return result;
     }
 	
-	getTexels(matrix,component) {
+	mergeRow(texelRowOrig,texelRowCopy,copyComponent,targetComponent){
+		var length = Math.min(texelRowOrig.length,texelRowCopy.length);
+		var copyOffset = 0;
+		
+		switch(copyComponent){
+			//R component of RGBA color
+			case 'R' :
+				copyOffset = 4; break;
+			//G component of RGBA color
+			case 'G' : 
+				copyOffset = 3; break;
+			//B component of RGBA color
+			case 'B' : 
+				copyOffset = 2; break;
+			//A component of RGBA color
+			case 'A' : 
+				copyOffset = 1; break;
+			default:
+				throw "mergeRow: copyComponent " + copyComponent +" unknown";
+		}
+		
+		for(var cnt=4; cnt < length;cnt += 4){
+			
+			switch(targetComponent){
+				//R component of RGBA color
+				case 'R' :
+					texelRowOrig[cnt-4] = texelRowCopy[cnt-copyOffset]; break;
+				//G component of RGBA color
+				case 'G' : 
+					texelRowOrig[cnt-3] = texelRowCopy[cnt-copyOffset]; break;
+				//B component of RGBA color
+				case 'B' : 
+					texelRowOrig[cnt-2] = texelRowCopy[cnt-copyOffset]; break;
+				//A component of RGBA color
+				case 'A' : 
+					texelRowOrig[cnt-1] = texelRowCopy[cnt-copyOffset]; break;
+				default:
+					throw "mergeRow: targetComponent " + targetComponent +" unknown";
+			}
+		}
+	}
+	
+	mergeTexels(thisTexels,matrixCopy,origComponent,copyComponent,targetComponent){
+		
+		var copyTexels = matrixCopy.getTexels(copyComponent);
+		var origStartIndex = 0;
+		var copyStartIndex = 0;		
+		var length = Math.min(thisTexels.length,copyTexels.length);
+		var result = new Float32Array(length);
+		
+		var index = 0;
+		
+		for (var i = 0; i < length; ++i){
+			var origRow = thisTexels.slice(origStartIndex,origStartIndex + (this.numColumns * 4) );
+			var copyRow = copyTexels.slice(copyStartIndex,copyStartIndex + (matrixCopy.numColumns * 4) );
+			
+			this.mergeRow(origRow,copyRow,copyComponent,targetComponent);
+			
+			for (var x=0; x < origRow.length; x++){
+				result[index] = origRow[x];
+				index ++;
+			}
+			
+			origStartIndex += this.numColumns * 4;
+			copyStartIndex += matrixCopy.numColumns * 4;
+		}
+		
+		return result;
+	}
+	
+
+	
+	getTexels(component) {
 		
 		var result = new Float32Array(4 * this.numRows * this.numColumns);
         var cnt = 0;

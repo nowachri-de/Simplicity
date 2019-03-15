@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" >
+
+	<head>
+	  <meta charset="UTF-8">
+	  <title>MatMul GPU</title>
+	  <script src="js/glfunctions.js"></script>
+	  <script src="js/shader.js"></script>
+	  <script src="js/program.js"></script>
+	  <script src="js/resultreader.js"></script>
+	  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/5.4.2/math.min.js"></script>
+	  
+	</head>
+
+	<body>
+		<canvas id="canvas"></canvas>
+		
+		<script>
+		    //Create two matrices 
+			var matrixA  = new Matrix(16,16);
+			var matrixB  = new Matrix(16,16);
+			
+			//Do random initialization
+			matrixA.randomInitialize();
+			matrixB.randomInitialize();
+			
+			var texels = matrixA.mergeTexels(matrixA.getTexels('R'),matrixB,'R','R','G');
+			
+			for (var i=0; i < texels.length; i++){
+				console.log(texels[i]);
+			}
+			
+		</script>
+		
+	</body>
+</html>
