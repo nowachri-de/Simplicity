@@ -7,6 +7,8 @@
 	  <script src="js/glfunctions.js"></script>
 	  <script src="js/shader.js"></script>
 	  <script src="js/program.js"></script>
+	  <script src="js/util.js"></script>
+	  <script src="js/resultreader.js"></script>
 	  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/5.4.2/math.min.js"></script>
 	  
 	</head>
@@ -16,49 +18,19 @@
 		
 		<script>
 		    //Create two matrices 
-			var matrixA  = new Matrix(16,16);
-			var matrixB  = new Matrix(16,16);
+			var matrixA  = new Matrix(1024,1024);
+			var matrixB  = new Matrix(1024,1024);
 			
 			//Do random initialization
 			matrixA.randomInitialize();
 			matrixB.randomInitialize();
 			
-			console.log("Matrix A");
-			matrixA.print(5);
+			var t0 = performance.now();
+			matrixA.multiply(matrixB);
+			var t1 = performance.now();
+	
+			logTime(matrixA,matrixB,t1,t0);
 			
-			console.log("Matrix B");
-			matrixB.print(5);
-			
-			var program  = new Program("canvas",matrixA,matrixB);
-			
-			var textureA = program.createTexture('textureA',matrixA,'R');
-			var textureB = program.createTexture('textureB',matrixB,'R');
-			var textureC = program.createTextureByDimension('textureC',16,16);
-			var textureD = program.createReadableTexture('textureD',16, 16,null);
-			
-			//var textureA = matrixGL.createTexture(0,16, 16,matrixA.getTexels('R'));
-			//var textureB = matrixGL.createTexture(1,16, 16,matrixB.getTexels('R'));
-			
-			var shader =  new Shader(program.gl,matrixA,matrixB);
-
-			var programA = program.buildProgram(shader.getVertexShader(shader.getVertexShaderCode()),shader.getFragmentShader(shader.getFragmentShaderCode()));
-			var programB = program.buildProgram(shader.getVertexShader(shader.getVertexShaderCode()),shader.getFragmentShader(shader.getReadableShaderCode()));
-			
-			program.compute(textureA,textureB,textureC,programA);
-			program.computeB(textureC,textureD,programB);
-			var result = program.read();
-			console.log("RESULT ---------------------");
-			result.print(5);
-			
-			/*
-				Compare the result of the GPU matrix multiplication
-				With the result of a matrix multiplication on CPU
-			*/
-			var mat1 = math.matrix(matrixA.as2DArray());
-			var mat2 = math.matrix(matrixB.as2DArray());
-			
-			var result2 = math.multiply(mat1,mat2);
-			console.log(result2.format(7));
 			
 			
 		</script>

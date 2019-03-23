@@ -53,7 +53,7 @@
 			console.log(outputDimensions);
 			console.log(matrixMerger.getTexels());
 			
-			var texture = textureFactory.createTextureByDimension("inputTexture",matrixMerger.maxRows,matrixMerger.maxColumns,matrixMerger.getTexels());
+			var texture 				= textureFactory.createTextureByDimension("inputTexture",matrixMerger.maxRows,matrixMerger.maxColumns,matrixMerger.getTexels());
 			var textureResult   		= textureFactory.createResultTexture('resultTexture',outputDimensions);
 			var textureReadable 		= textureFactory.createReadableTexture('textureReadable',outputDimensions);
 			
@@ -61,12 +61,12 @@
 			
 			program.buildProgram(shader.getVertexShader(shader.getVertexShaderCode()),shader.getFragmentShader(shader.getFragmentShaderCode2()));
 			var t0 = performance.now();
-			program.compute2(texture,textureResult,outputDimensions,0,1);
+			program.compute2(texture,textureResult,outputDimensions,0,1,0);
 			var t1 = performance.now();
 			console.log("GPU time for matmul " + (t1 - t0) + " milliseconds.")
 			
 			var resultReader = new ResultReader(program.gl,"canvas");
-			var result = resultReader.read(textureResult,textureReadable);
+			var result = resultReader.read(textureResult,textureReadable,2);
 			console.log("GPU MatMul ---------------------");
 			result.print(5);
 			
@@ -89,12 +89,12 @@
 			}
 			
 			t0 = performance.now();
-			program.compute2(texture,textureResult,outputDimensions,2,3);
+			program.compute2(texture,textureResult,outputDimensions,2,3,0);
 			t1 = performance.now();
 			console.log("GPU time for matmul " + (t1 - t0) + " milliseconds.")
 			
 			resultReader = new ResultReader(program.gl,"canvas");
-			result = resultReader.read(textureResult,textureReadable);
+			result = resultReader.read(textureResult,textureReadable,0);
 			console.log("GPU MatMul ---------------------");
 			result.print(5);
 			

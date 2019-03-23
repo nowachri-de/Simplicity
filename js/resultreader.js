@@ -9,14 +9,14 @@ function ResultReader(gl,canvasID,outputDimensions){
 	};
 	
 	this.buildProgram = function(){
-		var shader   = new Shader(this.gl);
+		var shader    = new Shader(this.gl);
 		this.program  = new Program(canvasID);
 		this.program.buildProgram(shader.getVertexShader(shader.getVertexShaderCode()),shader.getFragmentShader(shader.getReadableShaderCode()));
 	}
 	
 	this.buildProgram();
 	
-	this.runShaders = function(textureA,textureB) {
+	this.runShaders = function(textureA,textureB,targetIndex) {
         var gl = this.gl;
 		var canvas = this.getRenderCanvas(this.canvasID);
 		
@@ -30,13 +30,13 @@ function ResultReader(gl,canvasID,outputDimensions){
 		
 		gl.activeTexture(gl.TEXTURE0 + textureB.textureIndex);
         gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.frameBuffer);
-		this.program.doBindings(textureA,textureB,this.program.program,this.outputDimensions);
+		this.program.doBindings(textureA,textureB,this.program.program,targetIndex);
         
         gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
     }
 	
-	this.read = function(textureA,textureB){
-		this.runShaders(textureA,textureB);
+	this.read = function(textureA,textureB,targetIndex){
+		this.runShaders(textureA,textureB,targetIndex);
 		
 		var gl = this.gl;
 		 // extract the product and return in new matrix

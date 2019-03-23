@@ -18,3 +18,9 @@ function mathJSPrint(matrixA,matrixB,numDigits){
 		console.log(tmp);
 	}	
 }
+
+function logTime(matrixA,matrixB,t1,t0){
+	
+	console.log("GPU time for matmul A(" + matrixA.numColumns + "x" + matrixA.numRows+") X (" + matrixB.numColumns + "x" + matrixB.numRows+") " + (t1 - t0) + " milliseconds.");
+	return t1 - t0;
+}

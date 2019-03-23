@@ -61,7 +61,20 @@ function Shader(gl){
 			uniform highp sampler2D     usamplerB;			// matrixB
 			uniform highp int 			uNumInputColumns;	//
 			uniform highp float	  		uStepInCol; 		// increment across source texture
-		 
+		    uniform int					uTargetIndex;       // index where to read result;
+
+		    highp float readValue(highp float col,highp float row,int targetIndex){
+				
+				highp vec4 result = texture2D(usamplerA, vec2(col,row));
+				
+				if (targetIndex == 0) return result.x;
+				if (targetIndex == 1) return result.y;
+				if (targetIndex == 2) return result.z;
+				if (targetIndex == 3) return result.w;
+				
+				//This return statement should not be reached
+				return result.x;
+			}
 			void main(void) { 
 				 
 				// coordinate system is explained here
@@ -70,10 +83,9 @@ function Shader(gl){
 				//highp float  col = floor(vTexture.s*uOutCols); 
 				highp float  row = vTexture.t;
 				highp float  col = vTexture.s;
-				
-		        //highp float v = texture2D(usamplerA, vec2(row * uStepInCol,col * uStepInCol)).r;
-				
-				highp float v = texture2D(usamplerA, vec2(col,row)).r;				
+		
+				//highp float v = texture2D(usamplerA, vec2(col,row)).r;
+				highp float v = readValue(col,row,uTargetIndex);				
 				highp float a = abs(v);                   			// encode absolute value + sign
 				highp float exp = floor(log2(a));         			// number of powers of 2
 				highp float mant = (a * pow(2.,23.-exp)); 			// multiply to fill 24 bits (implied leading 1) 
@@ -161,6 +173,7 @@ function Shader(gl){
 			
 		    uniform 	  int 			uRGBAIndexA;        // R,G,B,A index matrixA
 			uniform       int           uRGBAIndexB;        // R,G,B,A index matrixB
+			uniform       int           uTargetIndex;       // vec4 index where to put result
 			
 			float getMatrixValue(float a, float b,int rgbaIndex){
 				if (rgbaIndex == 0) return texture2D(usampler,vec2(a,b)).r;
@@ -169,6 +182,16 @@ function Shader(gl){
 				if (rgbaIndex == 3) return texture2D(usampler,vec2(a,b)).a;
 				
 				return 0.;
+			}
+			
+			vec4 getResultValue(float col, float row,float value,int targetIndex){
+				vec4 result = texture2D(usampler,vec2(col,row));
+				if (targetIndex == 0) result.x = value; return result;
+				if (targetIndex == 1) result.y = value; return result;
+				if (targetIndex == 2) result.z = value; return result;
+				if (targetIndex == 3) result.w = value; return result;
+				
+				return result;
 			}
 			
 		    float matrixmul(float col, float row){
@@ -201,7 +224,7 @@ function Shader(gl){
 				
 				
 				float v = matrixmul(col,row);
-				gl_FragColor = vec4(v,0.,0.,0.);
+				gl_FragColor = getResultValue(col,row,v,uTargetIndex);
 			}
 		`;
 		return code;

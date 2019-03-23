@@ -7,7 +7,8 @@
 	  <script src="js/glfunctions.js"></script>
 	  <script src="js/shader.js"></script>
 	  <script src="js/program.js"></script>
-	   <script src="js/resultreader.js"></script>
+	  <script src="js/resultreader.js"></script>
+	  <script src="js/util.js"></script>
 	  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/5.4.2/math.min.js"></script>
 	  
 	</head>
@@ -24,12 +25,6 @@
 			matrixA.randomInitialize();
 			matrixB.randomInitialize();
 			
-			//console.log("Matrix A");
-			//matrixA.print(5);
-			
-			//console.log("Matrix B");
-			//matrixB.print(5);
-			
 			var program  = new Program("canvas");
 			var outputDimensions = program.getOutputDimensions(matrixA,matrixB);
 			
@@ -38,7 +33,6 @@
 			var textureA = textureFactory.createTexture('textureA',matrixA,'R');
 			var textureB = textureFactory.createTexture('textureB',matrixB,'R');
 			var textureC = textureFactory.createResultTexture('textureC',outputDimensions);
-			//var textureD = textureFactory.createReadableTexture('textureD',outputDimensions);
 			
 			var shader =  new Shader(program.gl);
 
@@ -48,7 +42,7 @@
 			var t0 = performance.now();
 			program.compute(textureA,textureB,textureC,outputDimensions); 
 			var t1 = performance.now();
-			console.log("GPU time for matmul of A(1024 * 2048) B(2048 * 1024) " + (t1 - t0) + " milliseconds.")
+			logTime(matrixA,matrixB,t1,t0);
 			
 			textureFactory.free();
 			program.free();
