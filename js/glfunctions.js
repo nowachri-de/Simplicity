@@ -25,6 +25,13 @@ class Matrix {
             }
         }
     }
+	
+	getValue(row,col){
+		if (row < this.numRows && col < this.numColumns){
+			return this.rows[row][col];
+		}
+		return null;
+	}
 
     setData(f32Array) {
         var cnt = 0;
@@ -61,6 +68,10 @@ class Matrix {
 
         return result;
     }
+	
+	getRow(rowIndex){
+		return this.rows[rowIndex];
+	}
 	
 	mergeRow(texelRowOrig,texelRowCopy,copyComponent,targetComponent){
 		var length = Math.min(texelRowOrig.length,texelRowCopy.length);
@@ -104,35 +115,41 @@ class Matrix {
 		}
 	}
 	
-	mergeTexels(thisTexels,matrixCopy,origComponent,copyComponent,targetComponent){
+	mergeTexels(sourceTexels,copyTexels,copyComponent,targetComponent){
 		
-		var copyTexels = matrixCopy.getTexels(copyComponent);
-		var origStartIndex = 0;
-		var copyStartIndex = 0;		
-		var length = Math.min(thisTexels.length,copyTexels.length);
-		var result = new Float32Array(length);
+		var maxLength 	= Math.max(sourceTexels.length,copyTexels.length);
+		var result 		= new Float32Array(maxLength);
 		
-		var index = 0;
+		var indexOfCopyComponent	= componentToIndex(copyComponent);
+		var indexOfTargetComponent 	= componentToIndex(targetComponent);
 		
-		for (var i = 0; i < length; ++i){
-			var origRow = thisTexels.slice(origStartIndex,origStartIndex + (this.numColumns * 4) );
-			var copyRow = copyTexels.slice(copyStartIndex,copyStartIndex + (matrixCopy.numColumns * 4) );
-			
-			this.mergeRow(origRow,copyRow,copyComponent,targetComponent);
-			
-			for (var x=0; x < origRow.length; x++){
-				result[index] = origRow[x];
-				index ++;
+		for (var index = 0; index < maxLength; index++){
+			if (index < sourceTexels.length){
+				result[index] = sourceTexels[index];
 			}
-			
-			origStartIndex += this.numColumns * 4;
-			copyStartIndex += matrixCopy.numColumns * 4;
-		}
+		} 
 		
 		return result;
 	}
 	
-
+	componentToIndex(component){
+		switch(component){
+			//R component of RGBA color
+			case 'R' : 
+				return 0;
+			//G component of RGBA color
+			case 'G' : 
+				return 1;
+			//B component of RGBA color
+			case 'B' : 
+				return 2;
+			//A component of RGBA color
+			case 'A' : 
+				return 3;
+			default:
+				throw "componentToIndex: component " + component +" unknown";
+		}
+	}
 	
 	getTexels(component) {
 		
@@ -172,8 +189,48 @@ class Matrix {
         return result;
     }
 	
+	getOutputDimensions(matrixB){
+		var thisRows = this.numRows;
+		var otherColumns = matrixB.numColumns;
+		
+		var result = {
+			numRows : thisRows,
+			numColumns : otherColumns
+		};
+		
+		return result;
+	}
+	
     multiply(matrixB) {
-        return (new MatrixGL("canvas", this, matrixB)).compute();
+        //return (new MatrixGL("canvas", this, matrixB)).compute();
+		
+			var matrixMerger = new MatrixMerger();
+			matrixMerger.addMatrix(this,'R','R');
+			matrixMerger.addMatrix(matrixB,'R','G');
+				
+			var program			 = new Program("canvas");
+			var textureFactory 	 = new TextureFactory("canvas");
+			var outputDimensions = matrixMerger.getOutputDimensions();
+			
+			var texture = textureFactory.createTextureByDimension("inputTexture",matrixMerger.maxRows,matrixMerger.maxColumns,matrixMerger.getTexels());
+			var textureResult   		= textureFactory.createResultTexture('resultTexture',outputDimensions);
+			var textureReadable 		= textureFactory.createReadableTexture('textureReadable',outputDimensions);
+			
+			var shader =  new Shader(program.gl);
+			
+			program.buildProgram(shader.getVertexShader(shader.getVertexShaderCode()),shader.getFragmentShader(shader.getFragmentShaderCode2()));
+			var t0 = performance.now();
+			program.compute2(texture,textureResult,outputDimensions,0,1);
+			var t1 = performance.now();
+			console.log("GPU time for matmul " + (t1 - t0) + " milliseconds.")
+			
+			var resultReader = new ResultReader(program.gl,"canvas",outputDimensions);
+			var result = resultReader.read(textureResult,textureReadable);
+			
+			textureFactory.free();
+			program.free();
+			
+			return result;
     }
 
     set numRows(rows) {
@@ -223,6 +280,73 @@ class Matrix {
     get renderBuffer() {
         return this._renderBuffer;
     }
+}
+
+function MatrixMerger(){
+   this.mergeInstructions = new Array();
+   this.maxColumns		  = 0;
+   this.maxRows   		  = 0;
+   this.maxColumMatrix    = null;
+   
+   this.addMatrix = function(matrix,sourceComponent,targetComponent){
+	   
+		var mergInstruction = {
+		   sourceComponent : sourceComponent,
+		   targetComponent : targetComponent,
+		   matrix : matrix
+		}
+	   
+		this.mergeInstructions.push(mergInstruction);
+		
+		if (matrix.numRows > this.maxRows){
+			this.maxRows = matrix.numRows;
+		}
+			
+		if (matrix.numColumns > this.maxColumns){
+			this.maxColumns = matrix.numColumns;
+			this.maxColumMatrix = matrix;
+		}	
+   }
+   
+   this.getTexels = function(){
+	   var result = new Float32Array(this.maxColumns * this.maxRows * 4);
+	   var resultIndex = 0;
+	   
+	   for (var row=0;row < this.maxRows;++row ){
+	     for (var column=0;column < this.maxColumns;++column){
+			for (var mi=0; mi<this.mergeInstructions.length;++mi){
+				var mergeInstruction = this.mergeInstructions[mi];
+				var matrix = mergeInstruction.matrix;
+				var sourceComponentOffset = matrix.componentToIndex(mergeInstruction.sourceComponent);
+				var targetComponentOffset = matrix.componentToIndex(mergeInstruction.targetComponent);
+				
+				var matrixValue = matrix.getValue(row,column);
+				
+				if (matrixValue != null){
+					result[resultIndex + targetComponentOffset] = matrixValue;
+				}else{
+					result[resultIndex + targetComponentOffset] = 0;
+				}
+			}
+			resultIndex +=4;
+	     }
+	   }
+	   
+	   return result;
+   }
+   
+   this.getOutputDimensions = function(){
+		
+		var outRows = this.maxRows;
+		var outColumns = this.maxColumns;
+		
+		var result = {
+			numRows : outRows,
+			numColumns : outColumns
+		};
+		
+		return result;
+	}
 }
 
 class MatrixGL {

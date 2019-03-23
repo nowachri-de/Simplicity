@@ -141,4 +141,69 @@ function Shader(gl){
 		`;
 		return code;
 	}
+	
+	this.getFragmentShaderCode2 = function(){
+		var code = ` 
+			// fragment shader that calculates the sum of the passed row and 
+			// column (texture coord). 
+			// we loop over the row and column and sum the product. 
+			// product is then rendered to 32-bit IEEE754 floating point in the 
+			// output RGBA canvas. 
+			// readPixel is used to read the bytes. 
+			#ifdef GL_ES 
+				precision highp float; 
+			#endif 
+		 
+			varying highp vec2          vTexture;			// row, column to calculate 
+			uniform highp sampler2D     usampler;			// merged matrix texels
+			uniform 	  int 			uNumColumns;	//
+			uniform highp float	  		uStepCol; 		    // column step texture
+			
+		    uniform 	  int 			uRGBAIndexA;        // R,G,B,A index matrixA
+			uniform       int           uRGBAIndexB;        // R,G,B,A index matrixB
+			
+			float getMatrixValue(float a, float b,int rgbaIndex){
+				if (rgbaIndex == 0) return texture2D(usampler,vec2(a,b)).r;
+				if (rgbaIndex == 1) return texture2D(usampler,vec2(a,b)).g;
+				if (rgbaIndex == 2) return texture2D(usampler,vec2(a,b)).b;
+				if (rgbaIndex == 3) return texture2D(usampler,vec2(a,b)).a;
+				
+				return 0.;
+			}
+			
+		    float matrixmul(float col, float row){
+				highp float sum = 0.;
+				highp float cc = 0.;
+				highp float rr = 0.;
+				
+				for (int index=0; index < 2048; index ++){
+					if (index>=uNumColumns) break;
+					
+					//float m1 = texture2D(usampler,vec2(cc,row)).r;
+					//float m2 = texture2D(usampler,vec2(col,cc)).g;
+					
+					float m1 = getMatrixValue(cc,row,uRGBAIndexA);
+					float m2 = getMatrixValue(col,cc,uRGBAIndexB);
+					
+					cc  += uStepCol;
+					
+					sum += (m1*m2);
+				}
+				return sum;
+			}
+			
+			void main(void) { 
+				// The texture coordinates are coming from the target texture 
+				// WebGL coordinate system is explained here
+				// http://learnwebgl.brown37.net/10_surface_properties/texture_mapping_images.html
+				highp float  col = vTexture.s;
+				highp float  row = vTexture.t;
+				
+				
+				float v = matrixmul(col,row);
+				gl_FragColor = vec4(v,0.,0.,0.);
+			}
+		`;
+		return code;
+	}
 }

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" >
+
+	<head>
+	  <meta charset="UTF-8">
+	  <title>MatMul GPU</title>
+	  <script src="js/glfunctions.js"></script>
+	  <script src="js/shader.js"></script>
+	  <script src="js/program.js"></script>
+	  <script src="js/resultreader.js"></script>
+	  <script src="js/util.js"></script>
+	  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/5.4.2/math.min.js"></script>
+	  
+	</head>
+
+	<body>
+		<canvas id="canvas"></canvas>
+		
+		<script>
+		    //Create two matrices 
+			var matrixA  = new Matrix(2,2);
+			var matrixB  = new Matrix(2,2);
+			
+			
+			//Do random initialization
+			matrixA.randomInitialize();
+			matrixB.randomInitialize();
+			
+			
+			console.log("Matrix A");
+			matrixA.print(5);
+			
+			console.log("Matrix B");
+			matrixB.print(5);
+			
+			var result = matrixA.multiply(matrixB);
+			result.print(5);
+			
+			mathJSPrint(matrixA,matrixB,5);
+		</script>
+		
+	</body>
+</html>

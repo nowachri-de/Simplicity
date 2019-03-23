@@ -1,7 +1,8 @@
-function ResultReader(gl,canvasID){
+function ResultReader(gl,canvasID,outputDimensions){
 	this.gl = gl;
 	this.program = null;
 	this.canvasID = canvasID;
+	this.outputDimensions = outputDimensions;
 	
 	this.getRenderCanvas = function(canvasID){
 		return document.getElementById(canvasID);
@@ -29,7 +30,7 @@ function ResultReader(gl,canvasID){
 		
 		gl.activeTexture(gl.TEXTURE0 + textureB.textureIndex);
         gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.frameBuffer);
-		this.program.doBindings(textureA,textureB,this.program.program,outputDimensions);
+		this.program.doBindings(textureA,textureB,this.program.program,this.outputDimensions);
         
         gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
     }
