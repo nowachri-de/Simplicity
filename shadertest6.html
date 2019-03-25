@@ -8,6 +8,7 @@
 	  <script src="js/shader.js"></script>
 	  <script src="js/program.js"></script>
 	  <script src="js/resultreader.js"></script>
+	  <script src="js/util.js"></script>
 	  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/5.4.2/math.min.js"></script>
 	  
 	</head>
@@ -41,10 +42,10 @@
 			matrixD.print(5);
 			
 			var matrixMerger = new MatrixMerger();
-			matrixMerger.addMatrix(matrixA,'R','R');
-			matrixMerger.addMatrix(matrixB,'R','G');
-			matrixMerger.addMatrix(matrixC,'R','B');
-			matrixMerger.addMatrix(matrixD,'R','A');
+			matrixMerger.addMatrix(matrixA,'R');
+			matrixMerger.addMatrix(matrixB,'G');
+			matrixMerger.addMatrix(matrixC,'B');
+			matrixMerger.addMatrix(matrixD,'A');
 				
 			var program			 = new Program("canvas");
 			var textureFactory 	 = new TextureFactory("canvas");
@@ -60,33 +61,13 @@
 			var shader =  new Shader(program.gl);
 			
 			program.buildProgram(shader.getVertexShader(shader.getVertexShaderCode()),shader.getFragmentShader(shader.getFragmentShaderCode2()));
-			var t0 = performance.now();
-			program.compute2(texture,textureResult,outputDimensions,0,1,0);
-			var t1 = performance.now();
-			console.log("GPU time for matmul " + (t1 - t0) + " milliseconds.")
-			
-			var resultReader = new ResultReader(program.gl,"canvas");
-			var result = resultReader.read(textureResult,textureReadable,2);
+			logTime(matrixA,matrixB,program.compute2(texture,textureResult,outputDimensions,0,1,0));
+		
 			console.log("GPU MatMul ---------------------");
-			result.print(5);
+			gpuPrint(textureResult,textureReadable,0);
 			
-			/*
-				Compare the result of the GPU matrix multiplication
-				With the result of a matrix multiplication on CPU
-			*/
-			var mat1 = math.matrix(matrixA.as2DArray());
-			var mat2 = math.matrix(matrixB.as2DArray());
-			var resultDimensions = matrixA.getOutputDimensions(matrixB);
-			
-			var result2 = math.multiply(mat1,mat2);
 			console.log("JS MatMul ---------------------");
-			for (var row = 0; row < resultDimensions.numRows; row++) {
-				var tmp = "";
-				for (var col = 0; col < resultDimensions.numColumns; col++) {
-					 tmp += (result2.subset(math.index(row, col))).toFixed(5) + " ; ";
-				}
-				console.log(tmp);
-			}
+			mathJSPrint(matrixA,matrixB,5);
 			
 			t0 = performance.now();
 			program.compute2(texture,textureResult,outputDimensions,2,3,0);

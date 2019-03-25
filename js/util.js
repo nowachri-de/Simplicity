@@ -1,26 +1,72 @@
+function gpuPrint(program,textureResult,textureReadable,targetIndex){
+	var resultReader = new ResultReader(program.gl,"canvas");
+	var result = resultReader.read(textureResult,textureReadable,targetIndex);
+	result.print(5);
+}
 
 function mathJSPrint(matrixA,matrixB,numDigits){
-	/*
-	Compare the result of the GPU matrix multiplication
-	With the result of a matrix multiplication on CPU
-	*/
-	var mat1 = math.matrix(matrixA.as2DArray());
-	var mat2 = math.matrix(matrixB.as2DArray());
+	var result = jsMatMul(matrixA,matrixB);
 	var resultDimensions = matrixA.getOutputDimensions(matrixB);
-
-	var result2 = math.multiply(mat1,mat2);
-	console.log("JS MatMul ---------------------");
 	for (var row = 0; row < resultDimensions.numRows; row++) {
 		var tmp = "";
 		for (var col = 0; col < resultDimensions.numColumns; col++) {
-			 tmp += (result2.subset(math.index(row, col))).toFixed(numDigits) + " ; ";
+			 tmp += (result.subset(math.index(row, col))).toFixed(numDigits) + " ; ";
 		}
 		console.log(tmp);
 	}	
 }
 
-function logTime(matrixA,matrixB,t1,t0){
-	
-	console.log("GPU time for matmul A(" + matrixA.numColumns + "x" + matrixA.numRows+") X (" + matrixB.numColumns + "x" + matrixB.numRows+") " + (t1 - t0) + " milliseconds.");
-	return t1 - t0;
+function logTime(matrixA,matrixB,matrixResult){
+	var message = "GPU: duration of matmul on GPU for A(" + matrixA.numColumns + "x" + matrixA.numRows+") X B(" + matrixB.numColumns + "x" + matrixB.numRows+") " + matrixResult.duration + " milliseconds."
+	console.log(message);
+	return message;
+}
+
+function jsMatMul(matrixA,matrixB){
+	var mat1 = math.matrix(matrixA.as2DArray());
+	var mat2 = math.matrix(matrixB.as2DArray());
+	var resultDimensions = matrixA.getOutputDimensions(matrixB);
+
+	var result = math.multiply(mat1,mat2);
+	return result;
+}
+
+function validateMultiplicationResult(matrixA,matrixB,result){
+	var outputDimensions = matrixA.getOutputDimensions(matrixB);
+	var TOLERANCE = 0.0003;
+	if (outputDimensions.numRows != result.numRows){
+		throw "result row dimension " + "does not match expected dimension";
+	}
+	var jsResult = jsMatMul(matrixA,matrixB);
+	for (var row = 0; row < result.numRows; ++row) {
+		for (var column = 0; column < result.numColumns; ++column) {
+			var jsValue = jsResult.subset(math.index(row, column));
+			var value   = result.getValue(row,column);
+			
+			if (Math.abs(jsValue - value) > TOLERANCE){
+				throw "matrix multiplication result is wrong " + value + " does not match math.js matric multiplication value of " + jsValue;
+			}
+		}
+	}
+}
+
+function displayMessage(elementID,text){
+	var p = document.createElement("p");
+	var t = document.createTextNode(text);
+	p.appendChild(t);
+	document.getElementById(elementID).appendChild(p);  
+}
+
+function displayMatrix(elementID,matrix,numberDigits){
+	for (var row = 0; row < matrix.numRows; ++row) {
+		var p = document.createElement("p");
+		var textContent = "";
+		for (var column = 0; column < matrix.numColumns; ++column) {
+			textContent += matrix.getValue(row,column).toFixed(numberDigits);
+			textContent += " ; ";
+		}
+		var t = document.createTextNode(textContent);
+		p.appendChild(t);
+		document.getElementById(elementID).appendChild(p);  
+	}
 }

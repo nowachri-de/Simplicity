@@ -208,7 +208,8 @@ function Program (canvasID) {
     }
 	
 	this.compute2 = function(texture,textureResult,outputDimensions,componentA,componentB,targetIndex) {
-        var gl = this.gl;
+        var t0 = performance.now();
+		var gl = this.gl;
 		var canvas = this.getRenderCanvas(this.canvasID);
 		
 		canvas.width = outputDimensions.numColumns;
@@ -223,7 +224,12 @@ function Program (canvasID) {
 		this.doBindings2(texture,this.program,componentA,componentB,targetIndex);
         
         gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
-		return textureResult;
+		var t1 = performance.now();
+		
+		return {
+			textureResult : textureResult,
+			duration : t1 - t0
+		} 
     }
 	
 	this.free = function(){
