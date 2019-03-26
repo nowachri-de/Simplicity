@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" >
+
+	<head>
+	  <meta charset="UTF-8">
+	  <title>MatMul GPU</title>
+	  <script src="js/glfunctions.js"></script>
+	  <script src="js/shader.js"></script>
+	  <script src="js/program.js"></script>
+	  <script src="js/resultreader.js"></script>
+	  <script src="js/util.js"></script>
+	  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/5.4.2/math.min.js"></script>
+	</head>
+
+	<body>
+		<div 	id="messages"></div>
+		<canvas id="canvas"></canvas>
+		
+		<script>
+		    //Create two matrices 
+			var matrixA  = new Matrix(16,8);
+			var matrixB  = new Matrix(8,16);
+			
+			//Do random initialization
+			matrixA.randomInitialize();
+			matrixB.randomInitialize();
+			
+			var program  			= new Program("canvas");  //executes GL stuff
+			var shader 				= new Shader(program.gl); //Compiles vertex and fragment shader
+			var textureFactory 		= new TextureFactory("canvas"); //Creates textures
+			var outputDimensions 	= program.getOutputDimensions(matrixA,matrixB); //Output dimension of result matrix
+			
+			//Create textures
+			var textureA = textureFactory.createTexture('textureA',matrixA,'R'); //Texture holding matrix A values
+			var textureB = textureFactory.createTexture('textureB',matrixB,'R'); //Texture holding matrix B values
+			var textureC = textureFactory.createResultTexture('textureC',outputDimensions); //Texture holding multiplication result
+			var textureD = textureFactory.createReadableTexture('textureD',outputDimensions); //Texture that can be read easily from javascript
+
+			//Build the program
+			program.buildProgram(shader.getVertexShader(shader.getVertexShaderCode()),shader.getFragmentShader(shader.getFragmentShaderCode()));			
+			
+			
+			displayMessage('messages',"multiplying " + getSimpleMatrixInfo(matrixA,matrixB) + " on GPU using two textures");
+			//Execute the program, doing the matrix multiplication
+			var textureResult = program.compute(textureA,textureB,textureC,outputDimensions);
+			displayMessage('messages',logTime(matrixA,matrixB,textureResult));
+			
+			//Read the result
+			var resultReader = new ResultReader(program.gl,"canvas");
+			var resultMatrix = resultReader.read(textureC,textureD);
+			
+			//Compare the multiplication result of the GPU with the matrix multiplication result of math.js library
+			validateMultiplicationResult(matrixA,matrixB,resultMatrix);
+			displayMessage('messages','multiplication result is correct');
+			
+			//Free allocated resources on GPU
+			textureFactory.free();
+			program.free();
+			resultReader.free();
+			
+			displayMessage('messages','Matrix A');
+			displayMatrix('messages',matrixA,5);
+			displayMessage('messages','Matrix B');
+			displayMatrix('messages',matrixB,5);
+			displayMessage('messages','Result Matrix');
+			displayMatrix('messages',resultMatrix,5);
+			
+		</script>
+		
+	</body>
+</html>

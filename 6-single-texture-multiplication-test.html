@@ -59,12 +59,21 @@
 			var textureReadable 		= textureFactory.createReadableTexture('textureReadable',outputDimensions);
 			
 			var shader =  new Shader(program.gl);
+			var vertexShader   = shader.getVertexShader(ShaderCode.getShaderCode("VERTEX"));
+			var fragmentShader = shader.getFragmentShader(ShaderCode.getShaderCode("SINGLE"))
 			
-			program.buildProgram(shader.getVertexShader(shader.getVertexShaderCode()),shader.getFragmentShader(shader.getFragmentShaderCode2()));
+			
+			
+			program.buildProgram(vertexShader,fragmentShader);
 			logTime(matrixA,matrixB,program.compute2(texture,textureResult,outputDimensions,0,1,0));
 		
-			console.log("GPU MatMul ---------------------");
-			gpuPrint(textureResult,textureReadable,0);
+			//console.log("GPU MatMul ---------------------");
+			//gpuPrint(program,textureResult,textureReadable,0);
+			
+			var resultReader = new ResultReader(program.gl,"canvas");
+			var result = resultReader.read(textureResult,textureReadable,0);
+			
+			validateMultiplicationResult(matrixA,matrixB,result);
 			
 			console.log("JS MatMul ---------------------");
 			mathJSPrint(matrixA,matrixB,5);

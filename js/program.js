@@ -189,6 +189,7 @@ function Program (canvasID) {
     }
 	
 	this.compute = function(textureA,textureB,textureC,outputDimensions) {
+		var t0 = performance.now();
         var gl = this.gl;
 		var canvas = this.getRenderCanvas(this.canvasID);
 		
@@ -204,6 +205,8 @@ function Program (canvasID) {
 		this.doBindings(textureA,textureB,this.program);
         
         gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
+		var t1 = performance.now();
+		textureC.duration = t1-t0;
 		return textureC;
     }
 	

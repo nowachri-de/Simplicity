@@ -14,45 +14,43 @@ Example
 
 ~~~~~~~~~~~~~~~~~
 <!DOCTYPE html>
-<html lang="en" >
+<html lang="en">
 
-	<head>
-	  <meta charset="UTF-8">
-	  <title>MatMul GPU</title>
-	  <script src="js/glfunctions.js"></script>
-	  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/5.4.2/math.min.js"></script>
-	  
-	</head>
+<head>
+    <meta charset="UTF-8">
+    <title>GPU MatMul</title>
+    <script src="js/glfunctions.js"></script>
+    <script src="js/shader.js"></script>
+    <script src="js/program.js"></script>
+    <script src="js/util.js"></script>
+    <script src="js/resultreader.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/5.4.2/math.min.js"></script>
+</head>
 
-	<body>
-		<canvas id="canvas"></canvas>
+<body>
+	<div id="messages" style="font-size:.8em"></div>
+    <canvas id="canvas"></canvas>
+    <script>
+
+        //Create two matrices 
+        var matrixA = new Matrix(2048, 2048);
+        var matrixB = new Matrix(2048, 2048);
+
+		displayMessage('messages',"Test the multiplication of matrices with dimensions " + getSimpleMatrixInfo(matrixA,matrixB));
 		
-		<script>
-			//Create two matrices 
-			var matrixA = new Matrix("canvas",16,16);
-			var matrixB = new Matrix("canvas",16,16);
-			
-			//Do random initialization
-			matrixA.randomInitialize();
-			matrixB.randomInitialize();
-			
-			//Multiply on GPU
-			var result = matrixA.multiply(matrixB);
-			
-			//Print the result
-			result.print(5);
-			
-			/*
-				Compare the result of the GPU matrix multiplication
-				With the result of a matrix multiplication on CPU
-			*/
-			var mat1 = math.matrix(matrixA.as2DArray());
-			var mat2 = math.matrix(matrixB.as2DArray());
-			
-			var result2 = math.multiply(mat1,mat2);
-			console.log(result2.format(5));
-		</script>
+        //Do random initialization
+        matrixA.randomInitialize();
+        matrixB.randomInitialize();
 		
-	</body>
+        //Multiply matrices 
+        var matMulResult = matrixA.multiply(matrixB);
+
+		//Display information on page
+		displayMessage('messages',logTime(matrixA, matrixB, matMulResult));
+		displayMessage('messages',"Test completed");
+    </script>
+
+</body>
+
 </html>
 ~~~~~~~~~~~~~~~~~

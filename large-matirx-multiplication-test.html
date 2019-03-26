@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>MatMul GPU</title>
+    <title>GPU MatMul</title>
     <script src="js/glfunctions.js"></script>
     <script src="js/shader.js"></script>
     <script src="js/program.js"></script>
@@ -13,32 +13,26 @@
 </head>
 
 <body>
-    <div id="messages" style="font-size:.8em"></div>
-	<canvas id="canvas"></canvas>
+	<div id="messages" style="font-size:.8em"></div>
+    <canvas id="canvas"></canvas>
     <script>
-        //Create two matrices 
-        var matrixA = new Matrix(8, 8);
-        var matrixB = new Matrix(8, 8);
 
+        //Create two matrices 
+        var matrixA = new Matrix(2048, 2048);
+        var matrixB = new Matrix(2048, 2048);
+
+		displayMessage('messages',"Test the multiplication of matrices with dimensions " + getSimpleMatrixInfo(matrixA,matrixB));
+		
         //Do random initialization
         matrixA.randomInitialize();
         matrixB.randomInitialize();
 		
         //Multiply matrices 
         var matMulResult = matrixA.multiply(matrixB);
-		
-		//validate result
-		validateMultiplicationResult(matrixA,matrixB,matMulResult);
-		
+
 		//Display information on page
-        displayMessage('messages',logTime(matrixA, matrixB, matMulResult));
-		displayMessage('messages', "Multiplication result is valid");
-		displayMessage('messages',"Matrix A");
-		displayMatrix('messages',matrixA,5);
-		displayMessage('messages',"Matrix B");
-		displayMatrix('messages',matrixB,5);
-		displayMessage('messages',"Multiplication Result");
-		displayMatrix('messages',matMulResult,5);
+		displayMessage('messages',logTime(matrixA, matrixB, matMulResult));
+		displayMessage('messages',"Test completed");
     </script>
 
 </body>

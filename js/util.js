@@ -16,8 +16,12 @@ function mathJSPrint(matrixA,matrixB,numDigits){
 	}	
 }
 
+function getSimpleMatrixInfo(matrixA,matrixB){
+	return "A(" + matrixA.numColumns + "x" + matrixA.numRows+") x B(" + matrixB.numColumns + "x" + matrixB.numRows+")";
+}
+
 function logTime(matrixA,matrixB,matrixResult){
-	var message = "GPU: duration of matmul on GPU for A(" + matrixA.numColumns + "x" + matrixA.numRows+") X B(" + matrixB.numColumns + "x" + matrixB.numRows+") " + matrixResult.duration + " milliseconds."
+	var message = "GPU: Time for matrix multiplication on GPU for A(" + matrixA.numColumns + "x" + matrixA.numRows+") x B(" + matrixB.numColumns + "x" + matrixB.numRows+") took " +matrixResult.duration.toFixed(5) + " milliseconds (" + (matrixResult.duration / 1000.0).toFixed(5) + " seconds)."
 	console.log(message);
 	return message;
 }

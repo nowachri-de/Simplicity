@@ -22,30 +22,40 @@ function Shader(gl){
             console.log(gl.getShaderInfoLog(shader));
         return shader;
     }
-	
-	this.getVertexShaderCode = function(){
-		var code =  `	
-			// vertex shader for a single quad 
-			// work is performed based on the texels being passed 
-			// through to the texture shader. 
-			#ifdef GL_ES 
-				precision highp float; 
-			#endif 
-			attribute highp vec3 aPosition; 
-			attribute highp vec2 aTexture; 
-			varying   highp vec2 vTexture; 
-			void main(void) 
-			{ 
-				// just pass the position and texture coords 
-				gl_Position = vec4(aPosition, 1.0); 
-				vTexture = aTexture; 
-			}`;
-          
-		return code;
+}
+
+class ShaderCode {
+
+  static getShaderCode(type) {
+    switch (type){
+		case "READABLE": 	return ShaderCode.getReadableShaderCode();
+		case "SINGLE": 		return ShaderCode.getSingleTextureCode();
+		case "DUAL": 		return ShaderCode.getDualTextureCode();
+		case "VERTEX": 		return ShaderCode.getVertexShaderCode();
+		default: throw "getShaderCode "+ type+" not known.";
 	}
-	
-	this.getReadableShaderCode = function(){
-		var code =  ` 
+  }
+  static getVertexShaderCode(){
+	var code =  `	
+		// vertex shader for a single quad 
+		// work is performed based on the texels being passed 
+		// through to the texture shader. 
+		#ifdef GL_ES 
+			precision highp float; 
+		#endif 
+		attribute highp vec3 aPosition; 
+		attribute highp vec2 aTexture; 
+		varying   highp vec2 vTexture; 
+		void main(void) 
+		{ 
+			// just pass the position and texture coords 
+			gl_Position = vec4(aPosition, 1.0); 
+			vTexture = aTexture; 
+		}`;
+		return code;
+  }
+  static getReadableShaderCode(){
+	  var code =  ` 
 			// fragment shader that calculates the sum of the passed row and 
 			// column (texture coord). 
 			// we loop over the row and column and sum the product. 
@@ -79,12 +89,9 @@ function Shader(gl){
 				 
 				// coordinate system is explained here
 				// http://learnwebgl.brown37.net/10_surface_properties/texture_mapping_images.html
-				//highp float  row = floor(vTexture.t*uOutRows);
-				//highp float  col = floor(vTexture.s*uOutCols); 
 				highp float  row = vTexture.t;
 				highp float  col = vTexture.s;
 		
-				//highp float v = texture2D(usamplerA, vec2(col,row)).r;
 				highp float v = readValue(col,row,uTargetIndex);				
 				highp float a = abs(v);                   			// encode absolute value + sign
 				highp float exp = floor(log2(a));         			// number of powers of 2
@@ -102,10 +109,10 @@ function Shader(gl){
 			}
 		`;
 		return code;
-	}
-	
-	this.getFragmentShaderCode = function(){
-		var code = ` 
+  }
+  
+  static getDualTextureCode(){
+	  var code = ` 
 			// fragment shader that calculates the sum of the passed row and 
 			// column (texture coord). 
 			// we loop over the row and column and sum the product. 
@@ -117,26 +124,52 @@ function Shader(gl){
 			#endif 
 		 
 			varying highp vec2          vTexture;			// row, column to calculate 
-			uniform highp sampler2D     usamplerA;			// matrixA
-			uniform highp sampler2D     usamplerB;			// matrixB
-			uniform 	  int 			uNumInputColumns;	//
-			uniform highp float	  		uStepInCol; 		// increment across source texture
-		 
-			highp float matrixmul(float col, float row){
+			uniform highp sampler2D     usampler;			// merged matrix texels
+			uniform 	  int 			uNumColumns;	//
+			uniform highp float	  		uStepCol; 		    // column step texture
+			
+		    uniform 	  int 			uRGBAIndexA;        // R,G,B,A index matrixA
+			uniform       int           uRGBAIndexB;        // R,G,B,A index matrixB
+			uniform       int           uTargetIndex;       // vec4 index where to put result
+			
+			float getMatrixValue(float a, float b,int rgbaIndex){
+				if (rgbaIndex == 0) return texture2D(usampler,vec2(a,b)).r;
+				if (rgbaIndex == 1) return texture2D(usampler,vec2(a,b)).g;
+				if (rgbaIndex == 2) return texture2D(usampler,vec2(a,b)).b;
+				if (rgbaIndex == 3) return texture2D(usampler,vec2(a,b)).a;
+				
+				return 0.;
+			}
+			
+			vec4 getResultValue(float col, float row,float value,int targetIndex){
+				vec4 result = texture2D(usampler,vec2(col,row));
+				if (targetIndex == 0) result.x = value; return result;
+				if (targetIndex == 1) result.y = value; return result;
+				if (targetIndex == 2) result.z = value; return result;
+				if (targetIndex == 3) result.w = value; return result;
+				
+				return result;
+			}
+			
+		    float matrixmul(float col, float row){
 				highp float sum = 0.;
 				highp float cc = 0.;
+				highp float rr = 0.;
 				
 				for (int index=0; index < 2048; index ++){
-					if (index>=uNumInputColumns) break;
+					if (index>=uNumColumns) break;
 					
-					float m1 = texture2D(usamplerA,vec2(cc,row)).r;
-					float m2 = texture2D(usamplerB,vec2(col,cc)).r;
+					//float m1 = texture2D(usampler,vec2(cc,row)).r;
+					//float m2 = texture2D(usampler,vec2(col,cc)).g;
 					
-					cc  += uStepInCol;
+					float m1 = getMatrixValue(cc,row,uRGBAIndexA);
+					float m2 = getMatrixValue(col,cc,uRGBAIndexB);
+					
+					cc  += uStepCol;
+					
 					sum += (m1*m2);
 				}
 				return sum;
-				//return texture2D(usamplerA,vec2(col * uStepInCol,row * uStepInCol)).r;
 			}
 			
 			void main(void) { 
@@ -148,14 +181,14 @@ function Shader(gl){
 				
 				
 				float v = matrixmul(col,row);
-				gl_FragColor = vec4(v,0.,0.,0.);
+				gl_FragColor = getResultValue(col,row,v,uTargetIndex);
 			}
 		`;
 		return code;
-	}
-	
-	this.getFragmentShaderCode2 = function(){
-		var code = ` 
+  }
+  
+  static getSingleTextureCode(){
+	  		var code = ` 
 			// fragment shader that calculates the sum of the passed row and 
 			// column (texture coord). 
 			// we loop over the row and column and sum the product. 

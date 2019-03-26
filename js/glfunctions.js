@@ -217,7 +217,8 @@ class Matrix {
 
     multiply(matrixB) {
         //return (new MatrixGL("canvas", this, matrixB)).compute();
-
+		var t0 = performance.now();
+		
         var matrixMerger = new MatrixMerger();
         matrixMerger.addMatrix(this,'R');
         matrixMerger.addMatrix(matrixB,'G');
@@ -238,10 +239,12 @@ class Matrix {
         var resultReader = new ResultReader(program.gl, "canvas", outputDimensions);
         var result = resultReader.read(computationResult.textureResult, textureReadable);
 		
-		result.duration = computationResult.duration;
+		
         textureFactory.free();
         program.free();
-
+		
+		var t1 = performance.now();
+		result.duration = t1 - t0;
         return result;
     }
 

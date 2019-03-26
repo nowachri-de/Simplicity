@@ -3,6 +3,8 @@ function ResultReader(gl,canvasID,outputDimensions){
 	this.program = null;
 	this.canvasID = canvasID;
 	this.outputDimensions = outputDimensions;
+	this.vertexShader 	= shader.getVertexShader(ShaderCode.getShaderCode("VERTEX"));
+	this.fragmentShader = shader.getFragmentShader(ShaderCode.getShaderCode("READABLE"));
 	
 	this.getRenderCanvas = function(canvasID){
 		return document.getElementById(canvasID);
@@ -11,7 +13,7 @@ function ResultReader(gl,canvasID,outputDimensions){
 	this.buildProgram = function(){
 		var shader    = new Shader(this.gl);
 		this.program  = new Program(canvasID);
-		this.program.buildProgram(shader.getVertexShader(shader.getVertexShaderCode()),shader.getFragmentShader(shader.getReadableShaderCode()));
+		this.program.buildProgram(vertexShader,fragmentShader);
 	}
 	
 	this.buildProgram();
