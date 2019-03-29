@@ -61,10 +61,11 @@
 			
 				//compute net value matrix of layer 1 
 				var layer1_net_values = layer1Weights.multiply(inputValues);
-				matrixMessage(layer1_net_values,'net values of layer1',5);
+				
 				
 				//add bias of layer 1
 				addBias(layer1_net_values,layer1Bias);
+				matrixMessage(layer1_net_values,'net values of layer1',5);
 				
 				//out value matrix of layer 1 
 				var layer1_out_values = new Matrix(2,1);
@@ -74,11 +75,10 @@
 				matrixMessage(layer1_out_values,'out values of layer1',5);
 				
 				//compute net value matrix of layer 1 
-				var layer2_net_values = layer2Weights.multiply(layer1_net_values);
+				var layer2_net_values = layer2Weights.multiply(layer1_out_values);
 				
 				//add bias of layer 2
-				layer2_net_values.setValue(0,0,layer2_net_values.getValue(0,0) + layer2Bias);
-				layer2_net_values.setValue(1,0,layer2_net_values.getValue(1,0) + layer2Bias);
+				addBias(layer2_net_values,layer2Bias);
 				
 				//display net value matrix
 				matrixMessage(layer2_net_values,'net values of layer 2',5);
@@ -91,6 +91,10 @@
 				matrixMessage(layer2_out_values,'out values of layer 2',5);
 				
 				displayMessage('messages','error is ' + errorTotal(layer2_out_values,targetMatrix));
+			}
+			
+			function backwardPass(layer1_net_values,layer1_out_values,layer2_net_values,layer2_out_values){
+			
 			}
 			
 			forwardPass();

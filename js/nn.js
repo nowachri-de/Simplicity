@@ -7,7 +7,7 @@ function computeSigmoid(netValue){
 function errorTotal(outMatrix,targetMatrix){
 	var totalError = 0;
 	for (var i=0; i < outMatrix.numRows;++i){
-		totalError += Math.abs(targetMatrix.getValue(i,0) - outMatrix.getValue(i,0));
+		totalError += 0.5 * Math.pow(targetMatrix.getValue(i,0) - outMatrix.getValue(i,0),2);
 	}
 	return totalError;
 }
