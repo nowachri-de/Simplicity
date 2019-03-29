@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en" >
+
+	<head>
+	  <meta charset="UTF-8">
+	  <title>MatMul GPU</title>
+	  <script src="js/glfunctions.js"></script>
+	  <script src="js/shader.js"></script>
+	  <script src="js/program.js"></script>
+	  <script src="js/resultreader.js"></script>
+	  <script src="js/util.js"></script>
+	  <script src="js/nn.js"></script>
+	  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/5.4.2/math.min.js"></script>
+	  
+	</head>
+
+	<body>
+		<div id="messages"/></div>
+		<canvas id="canvas"></canvas>
+		
+		<script>
+		    
+			function addBias(matrix,bias){
+				//add bias of layer 1
+				matrix.setValue(0,0,matrix.getValue(0,0) + bias);
+				matrix.setValue(1,0,matrix.getValue(1,0) + bias);
+			}
+			function matrixMessage(matrix,message,digits){
+				//display net value matrix
+				displayMessage('messages',message);
+				displayMatrix('messages',matrix,digits);
+			}
+			
+			function info(mattMazureValues){
+				matrixMessage (mattMazureValues.inputValues,'inputValues',2);
+				matrixMessage (mattMazureValues.layer1Weights,'layer1 weights',2);
+				matrixMessage (mattMazureValues.layer2Weights,'layer2 weights',2);
+				displayMessage('messages','bias layer 1 ' + mattMazureValues.layer1Bias);
+				displayMessage('messages','bias layer 2 ' + mattMazureValues.layer2Bias);
+				displayMessage('messages','layer 1 has ' + mattMazureValues.layer1Weights.getOutputDimensions(mattMazureValues.inputValues).numRows + ' rows ' + 'and ' + mattMazureValues.layer1Weights.getOutputDimensions(mattMazureValues.inputValues).numColumns + ' columns');			
+			}
+			
+			function forwardPass(){
+				var mattMazureValues = getMattMazureValues();
+				info(mattMazureValues);
+				
+				//target matrix for error calculation
+				var targetMatrix = new Matrix(2,1);
+				targetMatrix.setValue(0,0,.01);
+				targetMatrix.setValue(1,0,.99);
+				
+				var layer1Weights 		= mattMazureValues.layer1Weights;
+				var layer2Weights 		= mattMazureValues.layer2Weights;
+				
+				var layer1Bias    		= mattMazureValues.layer1Bias;
+				var layer2Bias    		= mattMazureValues.layer2Bias;
+				
+				var inputValues 		= mattMazureValues.inputValues;
+				var layer1Dimensions 	= layer1Weights.getOutputDimensions(inputValues);
+				
+			
+				//compute net value matrix of layer 1 
+				var layer1_net_values = layer1Weights.multiply(inputValues);
+				matrixMessage(layer1_net_values,'net values of layer1',5);
+				
+				//add bias of layer 1
+				addBias(layer1_net_values,layer1Bias);
+				
+				//out value matrix of layer 1 
+				var layer1_out_values = new Matrix(2,1);
+				layer1_out_values.setValue(0,0,computeSigmoid(layer1_net_values.getValue(0,0)));
+				layer1_out_values.setValue(1,0,computeSigmoid(layer1_net_values.getValue(1,0)));
+				
+				matrixMessage(layer1_out_values,'out values of layer1',5);
+				
+				//compute net value matrix of layer 1 
+				var layer2_net_values = layer2Weights.multiply(layer1_net_values);
+				
+				//add bias of layer 2
+				layer2_net_values.setValue(0,0,layer2_net_values.getValue(0,0) + layer2Bias);
+				layer2_net_values.setValue(1,0,layer2_net_values.getValue(1,0) + layer2Bias);
+				
+				//display net value matrix
+				matrixMessage(layer2_net_values,'net values of layer 2',5);
+				
+				var layer2_out_values = new Matrix(2,1);
+				layer2_out_values.setValue(0,0,computeSigmoid(layer2_net_values.getValue(0,0)));
+				layer2_out_values.setValue(1,0,computeSigmoid(layer2_net_values.getValue(1,0)));
+				
+				//display net value matrix
+				matrixMessage(layer2_out_values,'out values of layer 2',5);
+				
+				displayMessage('messages','error is ' + errorTotal(layer2_out_values,targetMatrix));
+			}
+			
+			forwardPass();
+			
+			
+			
+		</script>
+		
+	</body>
+</html>

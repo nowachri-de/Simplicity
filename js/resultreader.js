@@ -1,19 +1,19 @@
-function ResultReader(gl,canvasID,outputDimensions){
+function ResultReader(gl,canvasID){
 	this.gl = gl;
 	this.program = null;
 	this.canvasID = canvasID;
-	this.outputDimensions = outputDimensions;
-	this.vertexShader 	= shader.getVertexShader(ShaderCode.getShaderCode("VERTEX"));
-	this.fragmentShader = shader.getFragmentShader(ShaderCode.getShaderCode("READABLE"));
-	
+
 	this.getRenderCanvas = function(canvasID){
 		return document.getElementById(canvasID);
 	};
 	
 	this.buildProgram = function(){
-		var shader    = new Shader(this.gl);
+		this.shader    		= new Shader(this.gl);
+		this.vertexShader 	= this.shader.getVertexShader(ShaderCode.getShaderCode("VERTEX"));
+		this.fragmentShader = this.shader.getFragmentShader(ShaderCode.getShaderCode("READABLE"));
+		
 		this.program  = new Program(canvasID);
-		this.program.buildProgram(vertexShader,fragmentShader);
+		this.program.buildProgram(this.vertexShader,this.fragmentShader);
 	}
 	
 	this.buildProgram();
@@ -46,6 +46,20 @@ function ResultReader(gl,canvasID,outputDimensions){
         var glresult = new Uint8Array(rawBuffer);
         gl.readPixels(0, 0,  textureB.width,textureB.height, gl.RGBA, gl.UNSIGNED_BYTE, glresult);
         var result = new Matrix(textureB.height,textureB.width);
+        result.setData(new Float32Array(rawBuffer));
+	
+		return result;
+	}
+	
+	this.readByResultDimension = function(textureA,textureB,dimension,targetIndex){
+		this.runShaders(textureA,textureB,targetIndex);
+		
+		var gl = this.gl;
+		 // extract the product and return in new matrix
+        var rawBuffer = new ArrayBuffer(dimension.height * dimension.width * 4);
+        var glresult = new Uint8Array(rawBuffer);
+        gl.readPixels(0, 0,  dimension.width,dimension.height, gl.RGBA, gl.UNSIGNED_BYTE, glresult);
+        var result = new Matrix(dimension.height,dimension.width);
         result.setData(new Float32Array(rawBuffer));
 	
 		return result;

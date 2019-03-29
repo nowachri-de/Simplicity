@@ -32,6 +32,13 @@ class Matrix {
         }
         return null;
     }
+	
+	setValue(row, col,value) {
+        if (row < this.numRows && col < this.numColumns) {
+            this.rows[row][col] = value;
+        }
+        return value;
+    }
 
     setData(f32Array) {
         var cnt = 0;
@@ -232,12 +239,19 @@ class Matrix {
         var textureReadable = textureFactory.createReadableTexture('textureReadable', outputDimensions);
 
         var shader = new Shader(program.gl);
+		var vertexShader   = shader.getVertexShader(ShaderCode.getShaderCode("VERTEX"));
+		var fragmentShader = shader.getFragmentShader(ShaderCode.getShaderCode("SINGLE"))
 
-        program.buildProgram(shader.getVertexShader(shader.getVertexShaderCode()), shader.getFragmentShader(shader.getFragmentShaderCode2()));        
+        program.buildProgram(vertexShader,fragmentShader);        
         var computationResult = program.compute2(texture, textureResult, outputDimensions, 0, 1);
 
-        var resultReader = new ResultReader(program.gl, "canvas", outputDimensions);
-        var result = resultReader.read(computationResult.textureResult, textureReadable);
+		var matrixDimension = this.getOutputDimensions(matrixB);
+		var resultDimension = {
+			width : matrixDimension.numColumns,
+			height: matrixDimension.numRows
+		}
+        var resultReader = new ResultReader(program.gl, "canvas");
+        var result = resultReader.readByResultDimension(computationResult.textureResult, textureReadable,resultDimension,0);
 		
 		
         textureFactory.free();

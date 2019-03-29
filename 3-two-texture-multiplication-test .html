@@ -35,9 +35,11 @@
 			var textureB = textureFactory.createTexture('textureB',matrixB,'R'); //Texture holding matrix B values
 			var textureC = textureFactory.createResultTexture('textureC',outputDimensions); //Texture holding multiplication result
 			var textureD = textureFactory.createReadableTexture('textureD',outputDimensions); //Texture that can be read easily from javascript
-
+			var vertexShader   = shader.getVertexShader(ShaderCode.getShaderCode("VERTEX"));
+			var fragmentShader = shader.getFragmentShader(ShaderCode.getShaderCode("DUAL"))
+			
 			//Build the program
-			program.buildProgram(shader.getVertexShader(shader.getVertexShaderCode()),shader.getFragmentShader(shader.getFragmentShaderCode()));			
+			program.buildProgram(vertexShader,fragmentShader);			
 			
 			
 			displayMessage('messages',"multiplying " + getSimpleMatrixInfo(matrixA,matrixB) + " on GPU using two textures");

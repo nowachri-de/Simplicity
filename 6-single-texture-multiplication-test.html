@@ -20,8 +20,8 @@
 		    //Create two matrices 
 			var matrixA  = new Matrix(2,2);
 			var matrixB  = new Matrix(2,2);
-			var matrixC  = new Matrix(2,6);
-			var matrixD  = new Matrix(6,2);
+			var matrixC  = new Matrix(2,2);
+			var matrixD  = new Matrix(2,2);
 			
 			//Do random initialization
 			matrixA.randomInitialize();
@@ -62,8 +62,6 @@
 			var vertexShader   = shader.getVertexShader(ShaderCode.getShaderCode("VERTEX"));
 			var fragmentShader = shader.getFragmentShader(ShaderCode.getShaderCode("SINGLE"))
 			
-			
-			
 			program.buildProgram(vertexShader,fragmentShader);
 			logTime(matrixA,matrixB,program.compute2(texture,textureResult,outputDimensions,0,1,0));
 		
@@ -75,7 +73,8 @@
 			
 			validateMultiplicationResult(matrixA,matrixB,result);
 			
-			console.log("JS MatMul ---------------------");
+			
+			gpuPrint(program,textureResult,textureReadable,0);
 			mathJSPrint(matrixA,matrixB,5);
 			
 			t0 = performance.now();
@@ -108,6 +107,7 @@
 			
 			textureFactory.free();
 			program.free();
+			
 		</script>
 		
 	</body>

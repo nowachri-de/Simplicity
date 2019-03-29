@@ -56,17 +56,12 @@ class ShaderCode {
   }
   static getReadableShaderCode(){
 	  var code =  ` 
-			// fragment shader that calculates the sum of the passed row and 
-			// column (texture coord). 
-			// we loop over the row and column and sum the product. 
-			// product is then rendered to 32-bit IEEE754 floating point in the 
-			// output RGBA canvas. 
-			// readPixel is used to read the bytes. 
+			//Shader that creates a texture that can be converted to byte
 			#ifdef GL_ES 
 				precision highp float; 
 			#endif 
-		 
-			varying highp vec2	   		vTexture;		// row, column to calculate 
+		  
+			varying highp vec2	   		vTexture;		    // row, column to calculate 
 			uniform highp sampler2D     usamplerA;			// matrixA
 			uniform highp sampler2D     usamplerB;			// matrixB
 			uniform highp int 			uNumInputColumns;	//
@@ -112,79 +107,48 @@ class ShaderCode {
   }
   
   static getDualTextureCode(){
-	  var code = ` 
-			// fragment shader that calculates the sum of the passed row and 
-			// column (texture coord). 
-			// we loop over the row and column and sum the product. 
-			// product is then rendered to 32-bit IEEE754 floating point in the 
-			// output RGBA canvas. 
-			// readPixel is used to read the bytes. 
-			#ifdef GL_ES 
-				precision highp float; 
-			#endif 
-		 
-			varying highp vec2          vTexture;			// row, column to calculate 
-			uniform highp sampler2D     usampler;			// merged matrix texels
-			uniform 	  int 			uNumColumns;	//
-			uniform highp float	  		uStepCol; 		    // column step texture
-			
-		    uniform 	  int 			uRGBAIndexA;        // R,G,B,A index matrixA
-			uniform       int           uRGBAIndexB;        // R,G,B,A index matrixB
-			uniform       int           uTargetIndex;       // vec4 index where to put result
-			
-			float getMatrixValue(float a, float b,int rgbaIndex){
-				if (rgbaIndex == 0) return texture2D(usampler,vec2(a,b)).r;
-				if (rgbaIndex == 1) return texture2D(usampler,vec2(a,b)).g;
-				if (rgbaIndex == 2) return texture2D(usampler,vec2(a,b)).b;
-				if (rgbaIndex == 3) return texture2D(usampler,vec2(a,b)).a;
-				
-				return 0.;
+	   var code = `
+			//Do matrix multiplication using two textures
+			#ifdef GL_ES
+					precision highp float;
+			#endif
+
+			varying highp vec2          vTexture;                   	// row, column to calculate
+			uniform highp sampler2D     usamplerA;                  	// matrixA
+			uniform highp sampler2D     usamplerB;                  	// matrixB
+			uniform int					uNumInputColumns;   			
+			uniform highp float                     uStepInCol;         // increment across source texture
+
+			highp float matrixmul(float col, float row){
+					highp float sum = 0.;
+					highp float cc = 0.;
+
+					for (int index=0; index < 2048; index ++){
+							if (index>=uNumInputColumns) break;
+
+							float m1 = texture2D(usamplerA,vec2(cc,row)).r;
+							float m2 = texture2D(usamplerB,vec2(col,cc)).r;
+
+							cc  += uStepInCol;
+							sum += (m1*m2);
+					}
+					return sum;
+					//return texture2D(usamplerA,vec2(col * uStepInCol,row * uStepInCol)).r;
 			}
-			
-			vec4 getResultValue(float col, float row,float value,int targetIndex){
-				vec4 result = texture2D(usampler,vec2(col,row));
-				if (targetIndex == 0) result.x = value; return result;
-				if (targetIndex == 1) result.y = value; return result;
-				if (targetIndex == 2) result.z = value; return result;
-				if (targetIndex == 3) result.w = value; return result;
-				
-				return result;
+
+			void main(void) {
+					// The texture coordinates are coming from the target texture
+					// WebGL coordinate system is explained here
+					// http://learnwebgl.brown37.net/10_surface_properties/texture_mapping_images.html
+					highp float  col = vTexture.s;
+					highp float  row = vTexture.t;
+
+
+					float v = matrixmul(col,row);
+					gl_FragColor = vec4(v,0.,0.,0.);
 			}
-			
-		    float matrixmul(float col, float row){
-				highp float sum = 0.;
-				highp float cc = 0.;
-				highp float rr = 0.;
-				
-				for (int index=0; index < 2048; index ++){
-					if (index>=uNumColumns) break;
-					
-					//float m1 = texture2D(usampler,vec2(cc,row)).r;
-					//float m2 = texture2D(usampler,vec2(col,cc)).g;
-					
-					float m1 = getMatrixValue(cc,row,uRGBAIndexA);
-					float m2 = getMatrixValue(col,cc,uRGBAIndexB);
-					
-					cc  += uStepCol;
-					
-					sum += (m1*m2);
-				}
-				return sum;
-			}
-			
-			void main(void) { 
-				// The texture coordinates are coming from the target texture 
-				// WebGL coordinate system is explained here
-				// http://learnwebgl.brown37.net/10_surface_properties/texture_mapping_images.html
-				highp float  col = vTexture.s;
-				highp float  row = vTexture.t;
-				
-				
-				float v = matrixmul(col,row);
-				gl_FragColor = getResultValue(col,row,v,uTargetIndex);
-			}
-		`;
-		return code;
+	`;
+	return code;
   }
   
   static getSingleTextureCode(){
