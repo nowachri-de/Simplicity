@@ -20,6 +20,47 @@
 		
 		<script>
 		    
+			function Layer(){
+				this.nodes = new Array();
+				
+				this.addNode = function(netValue,outValue,prevOut,target){
+					this.nodes.push({
+						net: netValue, 
+						out: outValue,
+						prev: prevOut,
+						target: target
+					});
+				}
+				
+				this.getNode = function(index){
+					return this.nodes[index];
+				}
+				
+				this.getNodes = function(){
+					return this.nodes;
+				}
+				
+				function toFixed5(value){
+					if (value !== undefined && value !== null){
+						return value.toFixed(5);
+					}
+					return 'n/a'
+				}
+				
+				this.log = function(){
+					var log= "";
+					
+					for(var i=0; i < this.nodes.length; ++i){
+						var node = this.nodes[i];
+						var tmp = i + ' net: ' + toFixed5(node.net)  + ' out: ' + toFixed5(node.out) + ' prevOut: ' + toFixed5(node.prev) + ' target: ' + toFixed5(node.target) ;
+						log += tmp;
+						console.log(tmp);
+					}
+					
+					return log;
+				}
+			}
+			
 			function addBias(matrix,bias){
 				//add bias of layer 1
 				matrix.setValue(0,0,matrix.getValue(0,0) + bias);
@@ -37,7 +78,22 @@
 				matrixMessage (mattMazureValues.layer2Weights,'layer2 weights',2);
 				displayMessage('messages','bias layer 1 ' + mattMazureValues.layer1Bias);
 				displayMessage('messages','bias layer 2 ' + mattMazureValues.layer2Bias);
+				displayMessage('messages','learning rate ' + mattMazureValues.learningRate);
 				displayMessage('messages','layer 1 has ' + mattMazureValues.layer1Weights.getOutputDimensions(mattMazureValues.inputValues).numRows + ' rows ' + 'and ' + mattMazureValues.layer1Weights.getOutputDimensions(mattMazureValues.inputValues).numColumns + ' columns');			
+			}
+			
+			function computeLayerValues(prevOutValues,netValueMatrix,outValueMatrix,bias,target){
+				var layer = new Layer();
+				//add bias 
+				addBias(netValueMatrix,bias);
+				matrixMessage(netValueMatrix,'net values of layer',5);
+				
+				outValueMatrix.setValue(0,0,computeSigmoid(netValueMatrix.getValue(0,0)));
+				outValueMatrix.setValue(1,0,computeSigmoid(netValueMatrix.getValue(1,0)));
+				layer.addNode(netValueMatrix.getValue(0,0),outValueMatrix.getValue(0,0),prevOutValues[0],target[0]);
+				layer.addNode(netValueMatrix.getValue(1,0),outValueMatrix.getValue(1,0),prevOutValues[1],target[1]);
+				
+				return layer;
 			}
 			
 			function forwardPass(){
@@ -58,49 +114,45 @@
 				var inputValues 		= mattMazureValues.inputValues;
 				var layer1Dimensions 	= layer1Weights.getOutputDimensions(inputValues);
 				
-			
+				var layer1_out_values = new Matrix(2,1);
+				var layer2_out_values = new Matrix(2,1);
+				
 				//compute net value matrix of layer 1 
 				var layer1_net_values = layer1Weights.multiply(inputValues);
-				
-				
-				//add bias of layer 1
-				addBias(layer1_net_values,layer1Bias);
-				matrixMessage(layer1_net_values,'net values of layer1',5);
-				
-				//out value matrix of layer 1 
-				var layer1_out_values = new Matrix(2,1);
-				layer1_out_values.setValue(0,0,computeSigmoid(layer1_net_values.getValue(0,0)));
-				layer1_out_values.setValue(1,0,computeSigmoid(layer1_net_values.getValue(1,0)));
-				
-				matrixMessage(layer1_out_values,'out values of layer1',5);
+				var layer1 = computeLayerValues(inputValues.getColumn(0),layer1_net_values,layer1_out_values,layer1Bias,[null,null]);
 				
 				//compute net value matrix of layer 1 
 				var layer2_net_values = layer2Weights.multiply(layer1_out_values);
+				var layer2 = computeLayerValues(layer1_out_values.getColumn(0),layer2_net_values,layer2_out_values,layer2Bias,[.01,.99]);
 				
-				//add bias of layer 2
-				addBias(layer2_net_values,layer2Bias);
-				
-				//display net value matrix
-				matrixMessage(layer2_net_values,'net values of layer 2',5);
-				
-				var layer2_out_values = new Matrix(2,1);
-				layer2_out_values.setValue(0,0,computeSigmoid(layer2_net_values.getValue(0,0)));
-				layer2_out_values.setValue(1,0,computeSigmoid(layer2_net_values.getValue(1,0)));
-				
-				//display net value matrix
-				matrixMessage(layer2_out_values,'out values of layer 2',5);
-				
+				displayMessage('messages',layer1.log());
+				displayMessage('messages',layer2.log());
 				displayMessage('messages','error is ' + errorTotal(layer2_out_values,targetMatrix));
+				
+				return {
+					layers : [layer1,layer2],
+					weights : [layer1Weights,layer2Weights]
+				}
 			}
 			
-			function backwardPass(layer1_net_values,layer1_out_values,layer2_net_values,layer2_out_values){
-			
+			function backwardPass(layer,learningRate,weights){
+				var numNodesInLayer = layer.getNodes().length;
+				
+				for (var i=0; i < numNodesInLayer; ++i){
+					var target  =  layer.getNode(i).target;
+					var net     =  layer.getNode(i).net;
+					var out     =  layer.getNode(i).out;
+					var prevOut =  layer.getNode(i).prev;
+					
+					for (var w=0; w < weights.getRow(i).length; ++w){
+						console.log(newWeight(weights.getRow(i)[w],target,out,prevOut,learningRate));
+					}
+				}
 			}
 			
-			forwardPass();
-			
-			
-			
+			var fp = forwardPass();
+			backwardPass(fp.layers[1],getMattMazureValues().learningRate,fp.weights[1]);
+
 		</script>
 		
 	</body>

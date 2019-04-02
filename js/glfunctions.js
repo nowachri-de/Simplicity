@@ -33,6 +33,25 @@ class Matrix {
         return null;
     }
 	
+	getColumn(col) {
+		var column = new Array();
+		
+		if (col < this.numColumns) {
+            for (var row = 0; row < this.numRows; row++) {
+				column.push(this.rows[row][col]);
+			}
+        }
+		
+        return column;
+    }
+	
+	getRow(row) {
+		if (row < this.numRows) {
+            return this.row[row];
+        }
+		return [];
+    }
+	
 	setValue(row, col,value) {
         if (row < this.numRows && col < this.numColumns) {
             this.rows[row][col] = value;
