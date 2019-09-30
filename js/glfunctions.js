@@ -1,9 +1,8 @@
 class Matrix {
-  
-    constructor(canvasID, columns, rows) {
+
+    constructor(rows, columns) {
         this.numRows = rows;
         this.numColumns = columns;
-        this.canvasID = canvasID;
 
         this.rows = new Array();
         for (var row = 0; row < this.numRows; row++) {
@@ -27,10 +26,43 @@ class Matrix {
         }
     }
 
+    getValue(row, col) {
+        if (row < this.numRows && col < this.numColumns) {
+            return this.rows[row][col];
+        }
+        return null;
+    }
+	
+	getColumn(col) {
+		var column = new Array();
+		
+		if (col < this.numColumns) {
+            for (var row = 0; row < this.numRows; row++) {
+				column.push(this.rows[row][col]);
+			}
+        }
+		
+        return column;
+    }
+	
+	getRow(row) {
+		if (row < this.numRows) {
+            return this.row[row];
+        }
+		return [];
+    }
+	
+	setValue(row, col,value) {
+        if (row < this.numRows && col < this.numColumns) {
+            this.rows[row][col] = value;
+        }
+        return value;
+    }
+
     setData(f32Array) {
         var cnt = 0;
-        for (var col = 0; col < this.numColumns; col++) {
-            for (var row = 0; row < this.numRows; row++) {
+        for (var row = 0; row < this.numRows; row++) {
+            for (var col = 0; col < this.numColumns; col++) {
                 this.rows[row][col] = f32Array[cnt++];
             }
         }
@@ -40,14 +72,16 @@ class Matrix {
         if (decimals === undefined)
             decimals = 15;
 
+		var result = "";
         var rowContent = "";
-        for (var col = 0; col < this.numColumns; col++) {
-            for (var row = 0; row < this.numRows; row++) {
-                rowContent += (this.rows[row][col]).toFixed(decimals) + ";"
+        for (var row = 0; row < this.numRows; row++) {
+            for (var col = 0; col < this.numColumns; col++) {
+                rowContent += (this.rows[row][col]).toFixed(decimals) + " ; "
             }
             console.log(rowContent);
             rowContent = "";
         }
+		return result;
     }
 
     as2DArray() {
@@ -63,27 +97,188 @@ class Matrix {
         return result;
     }
 
-    getTexels(matrix) {
+    getRow(rowIndex) {
+        return this.rows[rowIndex];
+    }
 
-        var result = new Float32Array(3 * this.numRows * this.numColumns);
-        var cnt = 0;
+    mergeRow(texelRowOrig, texelRowCopy, copyComponent, targetComponent) {
+        var length = Math.min(texelRowOrig.length, texelRowCopy.length);
+        var copyOffset = 0;
 
-        for (var row = 0; row < this.numRows; row++) {
-            for (var col = 0; col < this.numColumns; col++) {
-                //value R
-                result[cnt++] = this.rows[row][col];
-                //value G
-                result[cnt++] = matrix.rows[row][col];
-                //Value B
-                result[cnt++] = 0;
+        switch (copyComponent) {
+            //R component of RGBA color
+            case 'R':
+                copyOffset = 4;
+                break;
+                //G component of RGBA color
+            case 'G':
+                copyOffset = 3;
+                break;
+                //B component of RGBA color
+            case 'B':
+                copyOffset = 2;
+                break;
+                //A component of RGBA color
+            case 'A':
+                copyOffset = 1;
+                break;
+            default:
+                throw "mergeRow: copyComponent " + copyComponent + " unknown";
+        }
+
+        for (var cnt = 4; cnt < length; cnt += 4) {
+
+            switch (targetComponent) {
+                //R component of RGBA color
+                case 'R':
+                    texelRowOrig[cnt - 4] = texelRowCopy[cnt - copyOffset];
+                    break;
+                    //G component of RGBA color
+                case 'G':
+                    texelRowOrig[cnt - 3] = texelRowCopy[cnt - copyOffset];
+                    break;
+                    //B component of RGBA color
+                case 'B':
+                    texelRowOrig[cnt - 2] = texelRowCopy[cnt - copyOffset];
+                    break;
+                    //A component of RGBA color
+                case 'A':
+                    texelRowOrig[cnt - 1] = texelRowCopy[cnt - copyOffset];
+                    break;
+                default:
+                    throw "mergeRow: targetComponent " + targetComponent + " unknown";
+            }
+        }
+    }
+
+    mergeTexels(sourceTexels, copyTexels, copyComponent, targetComponent) {
+
+        var maxLength = Math.max(sourceTexels.length, copyTexels.length);
+        var result = new Float32Array(maxLength);
+
+        var indexOfCopyComponent = componentToIndex(copyComponent);
+        var indexOfTargetComponent = componentToIndex(targetComponent);
+
+        for (var index = 0; index < maxLength; index++) {
+            if (index < sourceTexels.length) {
+                result[index] = sourceTexels[index];
             }
         }
 
         return result;
     }
 
+    componentToIndex(component) {
+        switch (component) {
+            //R component of RGBA color
+            case 'R':
+                return 0;
+                //G component of RGBA color
+            case 'G':
+                return 1;
+                //B component of RGBA color
+            case 'B':
+                return 2;
+                //A component of RGBA color
+            case 'A':
+                return 3;
+            default:
+                throw "componentToIndex: component " + component + " unknown";
+        }
+    }
+
+    getTexels(component) {
+
+        var result = new Float32Array(4 * this.numRows * this.numColumns);
+        var cnt = 0;
+
+        if (component === undefined) {
+            component = "R";
+        }
+
+        for (var row = 0; row < this.numRows; row++) {
+            for (var col = 0; col < this.numColumns; col++) {
+                result[cnt++] = 0.;
+                result[cnt++] = 0.;
+                result[cnt++] = 0.;
+                result[cnt++] = 0.;
+
+                switch (component) {
+                    //R component of RGBA color
+                    case 'R':
+                        result[cnt - 4] = this.rows[row][col];
+                        break;
+                        //G component of RGBA color
+                    case 'G':
+                        result[cnt - 3] = this.rows[row][col];
+                        break;
+                        //B component of RGBA color
+                    case 'B':
+                        result[cnt - 2] = this.rows[row][col];
+                        break;
+                        //A component of RGBA color
+                    case 'A':
+                        result[cnt - 1] = this.rows[row][col];
+                        break;
+                    default:
+                        throw "getTexels: component " + component + " unknown";
+                }
+            }
+        }
+
+        return result;
+    }
+
+    getOutputDimensions(matrixB) {
+        var thisRows = this.numRows;
+        var otherColumns = matrixB.numColumns;
+
+        var result = {
+            numRows: thisRows,
+            numColumns: otherColumns
+        };
+
+        return result;
+    }
+
     multiply(matrixB) {
-        return (new MatrixGL("canvas", this, matrixB)).compute();
+        //return (new MatrixGL("canvas", this, matrixB)).compute();
+		var t0 = performance.now();
+		
+        var matrixMerger = new MatrixMerger();
+        matrixMerger.addMatrix(this,'R');
+        matrixMerger.addMatrix(matrixB,'G');
+
+        var program = new Program("canvas");
+        var textureFactory = new TextureFactory("canvas");
+        var outputDimensions = matrixMerger.getOutputDimensions();
+
+        var texture = textureFactory.createTextureByDimension("inputTexture", matrixMerger.maxRows, matrixMerger.maxColumns, matrixMerger.getTexels());
+        var textureResult = textureFactory.createResultTexture('resultTexture', outputDimensions);
+        var textureReadable = textureFactory.createReadableTexture('textureReadable', outputDimensions);
+
+        var shader = new Shader(program.gl);
+		var vertexShader   = shader.getVertexShader(ShaderCode.getShaderCode("VERTEX"));
+		var fragmentShader = shader.getFragmentShader(ShaderCode.getShaderCode("SINGLE"))
+
+        program.buildProgram(vertexShader,fragmentShader);        
+        var computationResult = program.compute2(texture, textureResult, outputDimensions, 0, 1);
+
+		var matrixDimension = this.getOutputDimensions(matrixB);
+		var resultDimension = {
+			width : matrixDimension.numColumns,
+			height: matrixDimension.numRows
+		}
+        var resultReader = new ResultReader(program.gl, "canvas");
+        var result = resultReader.readByResultDimension(computationResult.textureResult, textureReadable,resultDimension,0);
+		
+		
+        textureFactory.free();
+        program.free();
+		
+		var t1 = performance.now();
+		result.duration = t1 - t0;
+        return result;
     }
 
     set numRows(rows) {
@@ -133,13 +328,87 @@ class Matrix {
     get renderBuffer() {
         return this._renderBuffer;
     }
+}
 
-    get canvasID() {
-        return _canvasID;
+/*
+	This class can write 4 matrices into one texture. This class will take care to create a texture of the appropriate size
+	depending on the size of the given matrices.
+*/
+function MatrixMerger() {
+    this.mergeInstructions = new Array();
+    this.maxColumns = 0;
+    this.maxRows = 0;
+    this.maxColumMatrix = null;
+
+	/**
+	 * Add matrix. The maximum number of matrices that can be added is 4.
+	 * If it is attempted to add more than 4 matrices an exception will be thrown.
+	 * 
+	 * @param {Matrix} matrix - The matrix to be added.
+	 * @param {integer} targetComponent - The component (R,G,B or A) where to write the value in the texture.
+    */
+		
+    this.addMatrix = function(matrix,targetComponent) {
+        if (this.mergeInstructions.length >= 4) {
+            throw "Can not add another matrix, class already contains 4 matrices";
+        }
+
+        var mergInstruction = {
+            targetComponent: targetComponent,
+            matrix: matrix
+        }
+
+        this.mergeInstructions.push(mergInstruction);
+
+        if (matrix.numRows > this.maxRows) {
+            this.maxRows = matrix.numRows;
+        }
+
+        if (matrix.numColumns > this.maxColumns) {
+            this.maxColumns = matrix.numColumns;
+            this.maxColumMatrix = matrix;
+        }
     }
 
-    set canvasID(canvasID) {
-        this._canvasID = canvasID;
+    this.getTexels = function() {
+        var result = new Float32Array(this.maxColumns * this.maxRows * 4);
+        var resultIndex = 0;
+
+        for (var row = 0; row < this.maxRows; ++row) {
+            for (var column = 0; column < this.maxColumns; ++column) {
+                for (var mi = 0; mi < this.mergeInstructions.length; ++mi) {
+                    var mergeInstruction = this.mergeInstructions[mi];
+                    var matrix = mergeInstruction.matrix;
+                    //var sourceComponentOffset = matrix.componentToIndex(mergeInstruction.sourceComponent);
+					var sourceComponentOffset = matrix.componentToIndex('R');
+                    var targetComponentOffset = matrix.componentToIndex(mergeInstruction.targetComponent);
+
+                    var matrixValue = matrix.getValue(row, column);
+
+                    if (matrixValue != null) {
+                        result[resultIndex + targetComponentOffset] = matrixValue;
+                    } else {
+                        result[resultIndex + targetComponentOffset] = 0;
+                    }
+                }
+                resultIndex += 4;
+            }
+        }
+
+        return result;
+    }
+
+    this.getOutputDimensions = function() {
+
+        var outRows = this.maxRows;
+        var outColumns = this.maxColumns;
+
+        var result = {
+            numRows: outRows,
+            numColumns: outColumns
+        };
+
+        return result;
     }
 }
 
@@ -153,9 +422,43 @@ class MatrixGL {
         this.numColumns = matrixA.numColumns;
         this.init(canvasID, this.numRows, this.numColumns);
         this.buildRenderer();
-        this.createMatrixTexture();
-        this.doBindings();
-        this.bindFrameBuffer(this.createDestinationTexture());
+        this.doBindings(0);
+        this.sourceTexture = this.createTexture(0, this.numRows, this.numColumns, this.matrixA.getTexels(this.matrixB));
+        this.destinationTexture = this.createTexture(1, this.numRows, this.numColumns, null);
+        this.readTexture = this.createReadableTexture(2, this.numRows, this.numColumns, null);
+        this.sourceFrameBuffer = this.createFrameBuffer(this.sourceTexture);
+        this.destinationFrameBuffer = this.createFrameBuffer(this.destinationTexture);
+        this.readFrameBuffer = this.createFrameBuffer(this.readTexture);
+    }
+
+    compute() {
+        var gl = this.gl;
+        gl.bindTexture(gl.TEXTURE_2D, this.sourceTexture);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.destinationFrameBuffer);
+        this.gl.viewport(0, 0, this.numColumns, this.numRows);
+        gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
+
+        //gl.activeTexture(gl.TEXTURE0+1);
+        gl.bindTexture(gl.TEXTURE_2D, this.destinationTexture);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.readFrameBuffer);
+        this.doBindings(1);
+        this.gl.viewport(0, 0, this.numColumns, this.numRows);
+        gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
+
+
+        // extract the product and return in new matrix
+        var rawBuffer = new ArrayBuffer(this.numColumns * this.numRows * 4);
+        var glresult = new Uint8Array(rawBuffer);
+        gl.readPixels(0, 0, this.numColumns, this.numRows, gl.RGBA, gl.UNSIGNED_BYTE, glresult);
+        var result = new Matrix(this.canvasID, this.numColumns, this.numRows);
+        result.setData(new Float32Array(rawBuffer));
+
+        //draw to canvas
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
+
+
+        return result;
     }
 
     init(canvasID, rows, columns) {
@@ -170,7 +473,7 @@ class MatrixGL {
                 premultipliedAlpha: false,
                 preserveDrawingBuffer: false
             });
-			
+
             if (this.gl === undefined)
                 throw "webgl is not supported.";
             // must support float texture
@@ -178,27 +481,27 @@ class MatrixGL {
             try {
                 ext = this.gl.getExtension("OES_texture_float");
             } catch (e) {}
-			
+
             if (!ext) {
                 console.log("Your browser does not support OES_texture_float extension.");
             }
         }
 
         this.gl.viewport(0, 0, columns, rows);
-		this.printGLInfo();
+        this.printGLInfo();
         return this.gl;
     }
-	
-	printGLInfo(){
-		console.log(this.getMaximumTextureUnits());
-	}
+
+    printGLInfo() {
+        console.log('Maximum texture uints ' + this.getMaximumTextureUnits());
+    }
 
     buildRenderer(vertexShaderCode, fragmentShaderCode) {
         var gl = this.gl;
         // get compiled shaders
         var vertexShader = this.getVertexShader(this.getVertexShaderCode());
         var fragmentShader = this.getFragmentShader(this.getFragmentShaderCode());
-
+        // var fragmentShader = this.getFragmentShader(this.test());
         // link into a program
         this.renderer = gl.createProgram();
         gl.attachShader(this.renderer, vertexShader);
@@ -209,33 +512,58 @@ class MatrixGL {
         return this.renderer;
     }
 
-    createMatrixTexture() {
-
+    createReadableTexture(index) {
         var gl = this.gl;
-        var texels = this.matrixA.getTexels(this.matrixB);
-        var texture = gl.createTexture();
+        var renderCanvas = this.getRenderCanvas(this.canvasID);
 
-        gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, texture);
-        gl.texImage2D(gl.TEXTURE_2D, /*level*/ 0, gl.RGB, this.numColumns, this.numRows, 0, gl.RGB, gl.FLOAT, texels);
-        // clamp to edge to support non-power of two textures
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-        // don't interpolate when getting data from texture
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        // create and bind texture to render to
+        var dstTex = gl.createTexture();
 
-        return texture;
+        gl.activeTexture(gl.TEXTURE0 + index);
+        gl.bindTexture(gl.TEXTURE_2D, dstTex);
+        //gl.texImage2D(gl.TEXTURE_2D, /*level*/ 0, gl.RGBA, gl.RGBA, gl.FLOAT, renderCanvas);
+
+        //This is the original line
+        gl.texImage2D(gl.TEXTURE_2D, /*level*/ 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, renderCanvas);
+
+        return dstTex;
     }
+
 
     getRenderCanvas(canvasID) {
         // Safari readPixels will not work from an 'off-screen' canvas
         return document.getElementById(canvasID);
     }
 
-    bindFrameBuffer(dstTex) {
+    createTexture(textureIndex, width, height, data) {
         var gl = this.gl;
-		
+        var texture = gl.createTexture();
+        gl.activeTexture(gl.TEXTURE0 + textureIndex);
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        //gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, width, height, 0, gl.RGB, gl.FLOAT, data);
+
+        // clamp to edge to support non-power of two textures
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+        // don't interpolate when getting data from texture
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.FLOAT, data);
+        return texture;
+    }
+
+    createFrameBufferAndAttachTexture(texture) {
+        var gl = this.gl;
+        var frameBuffer = gl.createFramebuffer();
+        gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, /*level*/ 0);
+    }
+
+    createFrameBuffer(dstTex) {
+        var gl = this.gl;
+
         // create and bind renderbuffer
         var renderBuffer = gl.createRenderbuffer();
         gl.bindRenderbuffer(gl.RENDERBUFFER, null);
@@ -256,41 +584,14 @@ class MatrixGL {
         return frameBuffer;
     }
 
-    compute() {
-        var gl = this.gl;
-        gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
 
-        // extract the product and return in new matrix
-        var rawBuffer = new ArrayBuffer(this.numColumns * this.numRows * 4);
-        var glresult = new Uint8Array(rawBuffer);
-        gl.readPixels(0, 0, this.numColumns, this.numRows, gl.RGBA, gl.UNSIGNED_BYTE, glresult);
 
-        var result = new Matrix(this.numColumns, this.numRows);
-        result.setData(new Float32Array(rawBuffer));
-
-        return result;
-    }
-
-    createDestinationTexture() {
-        var gl = this.gl;
-        var renderCanvas = this.getRenderCanvas(this.canvasID);
-
-        // create and bind texture to render to
-        var dstTex = gl.createTexture();
-
-        gl.activeTexture(gl.TEXTURE2);
-        gl.bindTexture(gl.TEXTURE_2D, dstTex);
-        gl.texImage2D(gl.TEXTURE_2D, /*level*/ 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, renderCanvas);
-
-        return dstTex;
-    }
-
-    doBindings() {
-        this.doUnifromBindings();
+    doBindings(textureUnit) {
+        this.doUnifromBindings(textureUnit);
         this.doVertexBindings();
     }
 
-    doUnifromBindings() {
+    doUnifromBindings(textureUnit) {
         var gl = this.gl;
         var renderer = this.renderer;
         // get var locations
@@ -299,9 +600,9 @@ class MatrixGL {
         var outC = gl.getUniformLocation(renderer, "uOutCols");
         var stepS = gl.getUniformLocation(renderer, "uStepS");
         var stepT = gl.getUniformLocation(renderer, "uStepT");
-		
-        gl.uniform1i(gl.getUniformLocation(this.renderer, "usampler"), 0);
-		
+
+        gl.uniform1i(gl.getUniformLocation(this.renderer, "usampler"), textureUnit);
+
         // bind length of one multiply run
         gl.uniform1i(length, this.numRows);
         gl.uniform1f(outR, this.numRows);
@@ -326,7 +627,7 @@ class MatrixGL {
         var aTex = gl.getAttribLocation(this.renderer, "aTex");
         var texCoords = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, texCoords);
-        var textureCoords = [0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, ];
+        var textureCoords = [0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0];
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoords), gl.STATIC_DRAW);
         gl.vertexAttribPointer(aTex, /*item size*/ 2, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(aTex);
@@ -449,11 +750,30 @@ class MatrixGL {
             "	} ";
         return fragmentShader;
     }
-	
-	getMaximumTextureUnits(){
-		return this.gl.getParameter(this.gl.MAX_COMBINED_TEXTURE_IMAGE_UNITS);
-	}
-	
+
+    test() {
+        var result = `
+	    #ifdef GL_ES  
+            	precision highp float;  
+            #endif  
+            varying vec2	  vTex;         // row, column to calculate
+            uniform sampler2D usampler;		// left in .r, right in .g 
+            uniform int		  uLength;      // r1xc1.r2xc2 => product has r2 (or c1) terms
+            uniform float	  uStepS;       // increment across source texture
+            uniform float	  uStepT;       // increment down source texture
+            uniform float	  uOutRows;     // size of output in rows
+            uniform float	  uOutCols;     // size of output in columns
+            
+            void main(void) {  
+        	gl_FragColor = vec4(vTex.s,vTex.t,0.,2.);
+            }`
+        return result;
+    }
+
+    getMaximumTextureUnits() {
+        return this.gl.getParameter(this.gl.MAX_COMBINED_TEXTURE_IMAGE_UNITS);
+    }
+
     get renderer() {
         return this._renderer;
     }
@@ -492,5 +812,53 @@ class MatrixGL {
 
     get canvasID() {
         return this._canvasID;
+    }
+
+    get sourceTexture() {
+        return this._sourceTexture;
+    }
+
+    set sourceTexture(sourceTexture) {
+        this._sourceTexture = sourceTexture;
+    }
+
+    get destinationTexture() {
+        return this._destinationTexture;
+    }
+
+    set destinationTexture(destinationTexture) {
+        this._destinationTexture = destinationTexture;
+    }
+
+    get readTexture() {
+        return this._readTexture;
+    }
+
+    set readTexture(readTexture) {
+        this._readTexture = readTexture;
+    }
+
+    set sourceFrameBuffer(frameBuffer) {
+        this._sourceFrameBuffer = frameBuffer;
+    }
+
+    get sourceFrameBuffer() {
+        return this._sourceFrameBuffer;
+    }
+
+    set destinationFrameBuffer(frameBuffer) {
+        this._destinationFrameBuffer = frameBuffer;
+    }
+
+    get destinationFrameBuffer() {
+        return this._destinationFrameBuffer;
+    }
+
+    set readFrameBuffer(readFrameBuffer) {
+        this._readFrameBuffer = readFrameBuffer;
+    }
+
+    get readFrameBuffer() {
+        return this._readFrameBuffer;
     }
 }

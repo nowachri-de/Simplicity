@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en" >
+
+	<head>
+	  <meta charset="UTF-8">
+	  <title>MatMul GPU</title>
+	  <script src="js/glfunctions.js"></script>
+	  <script src="js/shader.js"></script>
+	  <script src="js/program.js"></script>
+	  <script src="js/resultreader.js"></script>
+	  <script src="js/util.js"></script>
+	  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/5.4.2/math.min.js"></script>
+	  
+	</head>
+
+	<body>
+		<canvas id="canvas"></canvas>
+		
+		<script>
+		    //Create two matrices 
+			var matrixA  = new Matrix(2,2);
+			var matrixB  = new Matrix(2,2);
+			var matrixC  = new Matrix(2,2);
+			var matrixD  = new Matrix(2,2);
+			
+			//Do random initialization
+			matrixA.randomInitialize();
+			matrixB.randomInitialize();
+			matrixC.randomInitialize();
+			matrixD.randomInitialize();
+			
+			console.log("Matrix A");
+			matrixA.print(5);
+			
+			console.log("Matrix B");
+			matrixB.print(5);
+			
+			console.log("Matrix C");
+			matrixC.print(5);
+			
+			console.log("Matrix D");
+			matrixD.print(5);
+			
+			var matrixMerger = new MatrixMerger();
+			matrixMerger.addMatrix(matrixA,'R');
+			matrixMerger.addMatrix(matrixB,'G');
+			matrixMerger.addMatrix(matrixC,'B');
+			matrixMerger.addMatrix(matrixD,'A');
+				
+			var program			 = new Program("canvas");
+			var textureFactory 	 = new TextureFactory("canvas");
+			var outputDimensions = matrixMerger.getOutputDimensions();
+			
+			console.log(outputDimensions);
+			console.log(matrixMerger.getTexels());
+			
+			var texture 				= textureFactory.createTextureByDimension("inputTexture",matrixMerger.maxRows,matrixMerger.maxColumns,matrixMerger.getTexels());
+			var textureResult   		= textureFactory.createResultTexture('resultTexture',outputDimensions);
+			var textureReadable 		= textureFactory.createReadableTexture('textureReadable',outputDimensions);
+			
+			var shader =  new Shader(program.gl);
+			var vertexShader   = shader.getVertexShader(ShaderCode.getShaderCode("VERTEX"));
+			var fragmentShader = shader.getFragmentShader(ShaderCode.getShaderCode("SINGLE"))
+			
+			program.buildProgram(vertexShader,fragmentShader);
+			logTime(matrixA,matrixB,program.compute2(texture,textureResult,outputDimensions,0,1,0));
+		
+			//console.log("GPU MatMul ---------------------");
+			//gpuPrint(program,textureResult,textureReadable,0);
+			
+			var resultReader = new ResultReader(program.gl,"canvas");
+			var result = resultReader.read(textureResult,textureReadable,0);
+			
+			validateMultiplicationResult(matrixA,matrixB,result);
+			
+			
+			gpuPrint(program,textureResult,textureReadable,0);
+			mathJSPrint(matrixA,matrixB,5);
+			
+			t0 = performance.now();
+			program.compute2(texture,textureResult,outputDimensions,2,3,0);
+			t1 = performance.now();
+			console.log("GPU time for matmul " + (t1 - t0) + " milliseconds.")
+			
+			resultReader = new ResultReader(program.gl,"canvas");
+			result = resultReader.read(textureResult,textureReadable,0);
+			console.log("GPU MatMul ---------------------");
+			result.print(5);
+			
+			/*
+				Compare the result of the GPU matrix multiplication
+				With the result of a matrix multiplication on CPU
+			*/
+			mat1 = math.matrix(matrixC.as2DArray());
+			mat2 = math.matrix(matrixD.as2DArray());
+			resultDimensions = matrixC.getOutputDimensions(matrixD);
+			
+			result2 = math.multiply(mat1,mat2);
+			console.log("JS MatMul ---------------------");
+			for (var row = 0; row < resultDimensions.numRows; row++) {
+				var tmp = "";
+				for (var col = 0; col < resultDimensions.numColumns; col++) {
+					 tmp += (result2.subset(math.index(row, col))).toFixed(5) + " ; ";
+				}
+				console.log(tmp);
+			}
+			
+			textureFactory.free();
+			program.free();
+			
+		</script>
+		
+	</body>
+</html>
