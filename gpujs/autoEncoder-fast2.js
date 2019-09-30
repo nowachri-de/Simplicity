@@ -1,13 +1,14 @@
 "use strict";
 const { GPU } = require('gpu.js');
 const fs = require("fs");
+var mnist = require('mnist'); // this line is not needed in the browser
 
 const gpu = new GPU({
     mode: 'headlessgl'
 });
 
 let nN = 128;
-let nZ = 128;
+let nZ = 1;
 
 function sigmoidActivation(i) {
     return 1 / (1 + Math.pow(Math.E, -i));
@@ -408,10 +409,14 @@ function defaultTest() {
     b1 = updateBias(b1, sumU, l1Out.dOut2dNet, learningRate);
 
     console.log(w1.toArray());
-    process.exit();
 }
 
 function asTexture(obj, d1, d2) {
     dataToTexture.setOutput([d1, d2]);
     return dataToTexture(obj);
+}
+
+function getMnistImage(){
+    var set = mnist.set(1, 1);
+    return set.training[0];
 }
