@@ -31,7 +31,7 @@ function saveObject(fileName, obj) {
     fs.writeFileSync(fileName, JSON.stringify(obj));
 }
 let nN = 128;
-let nZ = 2;
+let nZ = 128;
 
 let w1 = randomNumbers(nN, nN);
 saveObject("./data/w1",w1);

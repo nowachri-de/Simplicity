@@ -11,8 +11,30 @@ function errorTotal(outMatrix,targetMatrix){
 	}
 	return totalError;
 }
+function Backprop(){
+	
+	this.newWeightOutLayer = function (weight,target,out,prevOut,learningRate){
+		return weight - learningRate * this.dEtotal_dWeight(target,out,prevOut)
+	}
 
-function newWeight(weight,target,out,prevOut,learningRate){
+	this.dEtotal_dWeight = 	function (target,out,prevOut){
+		return this.dEtotal_dOut(out,target) * this.dOut_dNet(out) * this.dNet_dWeight(prevOut);
+	}
+
+	this.dEtotal_dOut = function (out,target){
+		return (out-target);
+	}
+	
+	this.dOut_dNet = function (out){
+		return out*(1-out);
+	}
+	
+	this.dNet_dWeight = function(prevOut){
+		return prevOut;
+	}
+}
+
+function newWeightOutLayer(weight,target,out,prevOut,learningRate){
 	return weight - learningRate * dEtotal_dWeight(target,out,prevOut)
 }
 

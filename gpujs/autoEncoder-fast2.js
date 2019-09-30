@@ -7,7 +7,7 @@ const gpu = new GPU({
 });
 
 let nN = 128;
-let nZ = 2;
+let nZ = 128;
 
 function sigmoidActivation(i) {
     return 1 / (1 + Math.pow(Math.E, -i));
@@ -23,13 +23,13 @@ function matrixmul(dataIn, weights, numInputs) {
     }
     return sum;
 }
-const dataInToTexture = gpu.createKernel(function (dataIn) {
+const dataToTexture = gpu.createKernel(function (dataIn) {
     return dataIn[this.thread.y][this.thread.x];
 });
 
-dataInToTexture.setDynamicArguments(true);
-dataInToTexture.setDynamicOutput(true);
-dataInToTexture.setPipeline(true);
+dataToTexture.setDynamicArguments(true);
+dataToTexture.setDynamicOutput(true);
+dataToTexture.setPipeline(true);
 
 const feedForward = gpu.createKernelMap({
     dOut2dNet: function dOut2dNet(out) {
@@ -48,6 +48,10 @@ feedForward.setDynamicOutput(true);
 feedForward.setDynamicArguments(true);
 feedForward.setPipeline(true);
 
+/**
+ * 
+ * 
+ */
 const error = gpu.createKernelMap({
     dEtot2dOut: function derivative(out, target) {
         return -(target - out);
@@ -56,20 +60,30 @@ const error = gpu.createKernelMap({
     derivative(outputs[this.thread.y][this.thread.x], targets[this.thread.y][this.thread.x]);
     return Math.pow(targets[this.thread.y][this.thread.x] - outputs[this.thread.y][this.thread.x], 2) * 0.5;
 }
-).setOutput([nN]); //num output neurons + 1 bias (bias error = 0;)
+).setOutput([nN]); //num output neurons
 error.setDynamicOutput(true);
 error.setDynamicArguments(true);
 error.setPipeline(true);
 
+const errorTot = gpu.createKernel(function (dError, lenght) {
+    let total = 0;
+    for (let index = 0; index < lenght; index++) {
+        total += dError[index];
+    }
+    return total;
+}).setOutput([1]); //single value
+errorTot.setDynamicArguments(true);
+errorTot.setDynamicOutput(true);
+
 const backPropOutput = gpu.createKernel(
     function (weights, dEtot2dOut, dOut2dNet, prevOutput, learningRate) {
-        //X,Y  O   W    Err
-        //0,0  0  0,0    0
-        //1,0  1  0,1    1
-        //0,1  0  1,0    0
-        //1,1  1  1,1    1
-        //0,2  0  2,0    0
-        //1,2  1  2,1    1
+        //X,Y   W    dETot2dOut  dNet2dWeight
+        //0,0  0,0        0           0
+        //1,0  0,1        1           1
+        //0,1  1,0        0           0
+        //1,1  1,1        1           1
+        //0,2  2,0        0           0
+        //1,2  2,1        1           1
 
         let weight = weights[this.thread.y][this.thread.x]; //this is the weight betwenn output layer neuron and hidden layer neuron
         let dETot2dOut = dEtot2dOut[this.thread.x]; //this is dEOut2dOut
@@ -80,6 +94,25 @@ const backPropOutput = gpu.createKernel(
 backPropOutput.setDynamicOutput(true);
 backPropOutput.setDynamicArguments(true);
 backPropOutput.setPipeline(true);
+
+const backPropHidden = gpu.createKernel(function (sums, dOut2dNet, prevOutput, weights, learningRate) {
+        //X,Y   W       dETot     dOut2dNet     prevOutput
+        //0,0  0,0        0           0             0
+        //1,0  0,1        0           0             0
+        //0,1  1,0        1           1             1
+        //1,1  1,1        1           1             1
+        //0,2  2,0        2           2             2
+        //1,2  2,1        2           2             2
+
+    let dETot = sums[this.thread.y];
+    let dETot2dOutPre = dETot * dOut2dNet[this.thread.y] * prevOutput[this.thread.y]; 
+    let updatedWeight = weights[this.thread.y][this.thread.x] - (learningRate * dETot2dOutPre);
+    return updatedWeight;
+}).setOutput([nN, nN]);
+backPropHidden.setDynamicOutput(true);
+backPropHidden.setDynamicArguments(true);
+backPropHidden.setPipeline(true);
+
 
 const updateBias = gpu.createKernel(
     function (bias, dEtot2dOut, dOut2dNet, learningRate) {
@@ -99,6 +132,7 @@ const updateBias = gpu.createKernel(
 updateBias.setDynamicOutput(true);
 updateBias.setDynamicArguments(true);
 updateBias.setPipeline(true);
+
 const computeDerivatives = gpu.createKernel(function (weights, dEtot2dOut, dOut2dNet) {
     //X,Y  O   W    Err
     //0,0  0  0,0    0         
@@ -118,7 +152,6 @@ computeDerivatives.setDynamicOutput(true);
 computeDerivatives.setDynamicArguments(true);
 computeDerivatives.setPipeline(true);
 
-
 const sumUp = gpu.createKernel(function (derivatives, numTargets) {
     let sum = 0;
     for (let i = 0; i < numTargets; ++i) {
@@ -130,36 +163,6 @@ sumUp.setDynamicOutput(true);
 sumUp.setDynamicArguments(true);
 sumUp.setPipeline(true);
 
-const backPropHidden = gpu.createKernel(function (sums, dOut2dNet, input, weights, learningRate) {
-    let dETot = sums[this.thread.y];//sum(derivatives);
-    let dETot2dOutPre = dETot * dOut2dNet[this.thread.y] * input[this.thread.y];
-    let updatedWeight = weights[this.thread.y][this.thread.x] - (learningRate * dETot2dOutPre);
-    return updatedWeight;
-}).setOutput([nN, nN]);
-backPropHidden.setDynamicOutput(true);
-backPropHidden.setDynamicArguments(true);
-backPropHidden.setPipeline(true);
-
-
-const errorTot = gpu.createKernel(function (dError, lenght) {
-    let total = 0;
-    for (let index = 0; index < lenght; index++) {
-        total += Math.sqrt(Math.pow(dError[index], 2));
-    }
-    return total;
-}).setOutput([1]); //single value
-
-function randomNumbers(x, y) {
-    var matrix = []; // Initialize array
-    var i;
-    for (i = 0; i < y; i++) {
-        matrix[i] = []; // Initialize inner array
-        for (var j = 0; j < x; j++) { // i++ needs to be j++
-            matrix[i][j] = (Math.random() / 1000.0);
-        }
-    }
-    return matrix;
-}
 function randomNumbersAtScale(x, y, divisor) {
     var matrix = []; // Initialize array
     var i;
@@ -173,7 +176,6 @@ function randomNumbersAtScale(x, y, divisor) {
 }
 
 function saveObject(fileName, obj) {
-
     fs.writeFileSync(fileName, JSON.stringify(obj));
 }
 
@@ -183,8 +185,8 @@ function readObject(fileName) {
 
 function readAsTexture(file, d1, d2) {
     let obj = readObject(file);
-    dataInToTexture.setOutput([d1, d2]);
-    return dataInToTexture(obj);
+    dataToTexture.setOutput([d1, d2]);
+    return dataToTexture(obj);
 }
 
 let w1 = readAsTexture("./data/w1", nN, nN);
@@ -203,12 +205,9 @@ let b3 = readAsTexture("./data/b3", nZ, 1);
 let w4 = readAsTexture("./data/w4", nN, nZ);
 let b4 = readAsTexture("./data/b4", nN, 1);
 
-//let w5 = randomNumbers(nN, nN);
-//let b5 = randomNumbers(nN, 1);
 let w5 = readAsTexture("./data/w5", nN, nN);
 let b5 = readAsTexture("./data/b5", nN, 1);
 
-//let dataIn = randomNumbersAtScale(nN, 1,100);
 let dataIn = readAsTexture("./data/dataIn", nN, 1);
 let target = dataIn;
 
@@ -226,7 +225,7 @@ let learningRate = .5;
     However the arguments may not be larger in size when calling the kernel the second time.
 */
 updateBias.setOutput([nN]); //set maximum outputsize
-updateBias(b1, w1, b1, learningRate);
+updateBias(b1, w1, b1, learningRate); //The arguments have been choosen because they have the largest dimenions possible
 
 /*  This is a dummy call. It is needed since there is a bug in gpu.js
     Any kernel with dynamic arguments has to be called initially (the first time)
@@ -235,20 +234,25 @@ updateBias(b1, w1, b1, learningRate);
     However the arguments may not be larger in size when calling the kernel the second time.
 */
 computeDerivatives.setOutput([nN, nN]);//set maximum outputsize
-computeDerivatives(w1, b1, w1);
+computeDerivatives(w1, b1, w1); //The arguments have been choosen because they have the largest dimenions possible
 
+defaultTest();
 for (let j = 0; j < 100; ++j) {
     for (let i = 0; i < 100; ++i) {
-        feedForward.setOutput([1, nN]);
-        l1Out = feedForward(dataIn, w1, nN, b1);
-        feedForward.setOutput([1, nN]);
-        l2Out = feedForward(l1Out.result, w2, nN, b2);
-        feedForward.setOutput([1, nZ]);
-        l3Out = feedForward(l2Out.result, w3, nN, b3);
-        feedForward.setOutput([1, nN]);
-        l4Out = feedForward(l3Out.result, w4, nZ, b4);
-        feedForward.setOutput([1, nN]);
-        l5Out = feedForward(l4Out.result, w5, nN, b5);
+        feedForward.setOutput([1, nN]); //dimension l1 = nN
+        l1Out = feedForward(dataIn, w1, nN, b1); // num inputs (3rd argument) = nN
+
+        feedForward.setOutput([1, nN]); //dimension l2 = nN
+        l2Out = feedForward(l1Out.result, w2, nN, b2); // num inputs (3rd argument) = nN
+
+        feedForward.setOutput([1, nZ]); //dimension l3 = nZ
+        l3Out = feedForward(l2Out.result, w3, nN, b3); // num inputs (3rd argument) = nN
+
+        feedForward.setOutput([1, nN]); //dimension l4 = nZ
+        l4Out = feedForward(l3Out.result, w4, nZ, b4); // num inputs (3rd argument) = nZ
+
+        feedForward.setOutput([1, nN]); //dimension l5 = nZ
+        l5Out = feedForward(l4Out.result, w5, nN, b5); // num inputs (3rd argument) = nN
 
         e = error(l5Out.result, target);
 
@@ -257,7 +261,7 @@ for (let j = 0; j < 100; ++j) {
         OUTPUT LAYER L5 - update of w5 matrix
         ------------------------------------------------------------
         */
-       
+
         backPropOutput.setOutput([nN, nN]);
         w5t = backPropOutput(w5, e.dEtot2dOut, l5Out.dOut2dNet, l4Out.result, learningRate);
 
@@ -271,15 +275,23 @@ for (let j = 0; j < 100; ++j) {
         */
 
         //nZ input neurons and nN target neurons
-        //let w4 = randomNumbers(256, 3);
+        //let w4 = randomNumbers(nN, nZ);
         //let b4 = randomNumbers(nN, 1);
         backPropHidden.setOutput([nN, nZ]); //[target neurons, input neurons]
         computeDerivatives.setOutput([nN, nZ]); //[target neurons, input neurons]
         sumUp.setOutput([nZ]); //number input neurons
 
+        /**
+         * For every neuron of layer compute 
+         * dEtot2dOut_ * dOut2dNet_ * dNet2dOprev_
+        */
         derivatives = computeDerivatives(w4, e.dEtot2dOut, l4Out.dOut2dNet);
 
-        sumU = sumUp(derivatives, nN);
+        /**
+         * Sum all dEtot2dOut_ * dOut2dNet_ * dNet2dOprev_ per neuron
+        */
+        sumU = sumUp(derivatives, nN); //second parameter is the number of target neurons
+
         w4t = backPropHidden(sumU, l4Out.dOut2dNet, l3Out.result, w4, learningRate);
         b4 = updateBias(b4, sumU, l4Out.dOut2dNet, learningRate);
 
@@ -289,15 +301,21 @@ for (let j = 0; j < 100; ++j) {
        ------------------------------------------------------------
        */
 
-        //let w3 = randomNumbers(3, 256);
-        //let b3 = randomNumbers(3, 1);
+        //let w3 = randomNumbers(nZ, nN);
+        //let b3 = randomNumbers(nZ, 1);
         backPropHidden.setOutput([nZ, nN]);
         updateBias.setOutput([nZ]);
         computeDerivatives.setOutput([nN, nZ]);
         sumUp.setOutput([nN]);
-
         sumU = sumUp(derivatives, nZ);
+
+        /**
+         * For every neuron of layer compute 
+         * dEtot2dOut_ * dOut2dNet_ * dNet2dOprev_
+        */
         derivatives = computeDerivatives(w3, sumU, l3Out.dOut2dNet);
+
+
         w3t = backPropHidden(sumU, l3Out.dOut2dNet, l2Out.result, w3, learningRate);
         b3 = updateBias(b3, sumU, l3Out.dOut2dNet, learningRate);
 
@@ -338,4 +356,62 @@ for (let j = 0; j < 100; ++j) {
     }
 
     console.log(errorTot(e.result, 2));
+}
+
+function defaultTest() {
+    let nN = 2;
+
+    let w1 = [[.15, .25], [.20, .30]];
+    let b1 = [[.35, .35]];
+
+    let w2 = [[.15, .25], [.20, .30]];
+    let b2 = [[.60, .60]];
+
+    let dataIn = [[.05, .10]];
+    let target = [[0.01, 0.99]];
+
+    w1 = asTexture(w1, nN, nN);
+    b1 = asTexture(b1, 2, 1);
+
+    w2 = asTexture(w2, nN, nN);
+    b2 = asTexture(b2, 2, 1);
+
+    dataIn = asTexture(dataIn, 2, 1);
+    target = asTexture(target, 2, 1);
+
+    let l1Out, l2Out;
+   
+
+    feedForward.setOutput([1, nN]);
+    l1Out = feedForward(dataIn, w1, nN, b1);
+
+    feedForward.setOutput([1, nN]);
+    l2Out = feedForward(l1Out.result, w2, nN, b2);
+
+    e = error(l2Out.result, target);
+
+    backPropOutput.setOutput([nN, nN]);
+    w2 = backPropOutput(w2, e.dEtot2dOut, l2Out.dOut2dNet, l1Out.result, learningRate);
+
+    updateBias.setOutput([nN]);
+    b2 = updateBias(b2, e.dEtot2dOut, l2Out.dOut2dNet, learningRate);
+
+
+    backPropHidden.setOutput([nN, nN]); //[target neurons, input neurons]
+    computeDerivatives.setOutput([nN, nN]); //[target neurons, input neurons]
+    sumUp.setOutput([nN]); //number input neurons
+
+    derivatives = computeDerivatives(w1, e.dEtot2dOut, l1Out.dOut2dNet);
+    sumU = sumUp(derivatives, nN);
+
+    w1 = backPropHidden(sumU, l1Out.dOut2dNet, dataIn, w1, learningRate);
+    b1 = updateBias(b1, sumU, l1Out.dOut2dNet, learningRate);
+
+    console.log(w1.toArray());
+    process.exit();
+}
+
+function asTexture(obj, d1, d2) {
+    dataToTexture.setOutput([d1, d2]);
+    return dataToTexture(obj);
 }

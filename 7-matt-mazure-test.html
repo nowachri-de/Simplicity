@@ -135,9 +135,9 @@
 				}
 			}
 			
-			function backwardPass(layer,learningRate,weights){
+			function backwardPass(layer,learningRate,weights,funct){
 				var numNodesInLayer = layer.getNodes().length;
-				
+
 				for (var i=0; i < numNodesInLayer; ++i){
 					var target  =  layer.getNode(i).target;
 					var net     =  layer.getNode(i).net;
@@ -145,14 +145,15 @@
 					var prevOut =  layer.getNode(i).prev;
 					
 					for (var w=0; w < weights.getRow(i).length; ++w){
-						console.log(newWeight(weights.getRow(i)[w],target,out,prevOut,learningRate));
+						console.log(funct(weights.getRow(i)[w],target,out,prevOut,learningRate));	
 					}
 				}
 			}
 			
 			var fp = forwardPass();
-			backwardPass(fp.layers[1],getMattMazureValues().learningRate,fp.weights[1]);
-
+			var backProp = new Backprop();
+			backwardPass(fp.layers[1],getMattMazureValues().learningRate,fp.weights[1],newWeightOutLayer);
+			backwardPass(fp.layers[1],getMattMazureValues().learningRate,fp.weights[1],backProp.newWeightOutLayer);
 		</script>
 		
 	</body>
