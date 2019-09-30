@@ -25,15 +25,15 @@ dataToTexture.setDynamicArguments(true);
 dataToTexture.setDynamicOutput(true);
 dataToTexture.setPipeline(true);
 
-module.exports.Layer = function (numberOfNeurons, activation) {
+module.exports.Layer = function (numberOfNeurons, activation,numInputValues) {
     let activation_ = activation;
-    if (activation_ === null || activation_ === 'undefined'){
+    if (activation_ === null || typeof activation_ === 'undefined') {
         activation_ = 'sigmoid';
     }
+    this.layerIndex = 0;
     this.activation = activation_;
     this.numberOfNeurons = numberOfNeurons;
-    this.numberOfInputNeurons = 0;
-    this.numberOfTargetNeurons = 0;
+    this.numberOfInputNeurons = numInputValues;
     this.biasWeights = null;
     this.scale = 100;
     this.output = null;
@@ -75,23 +75,28 @@ module.exports.Layer = function (numberOfNeurons, activation) {
     this.getNumberOfInputNeurons = function () {
         return this.numberOfInputNeurons;
     };
-    this.setNumberOfTargetNeurons = function (number) {
-        this.numberOfTargetNeurons = number;
-    };
-    this.getNumberOfTargetNeurons = function () {
-        return this.numberOfTargetNeurons;
-    };
+
+    this.getInputWeights = function(){
+        return this.inputWeights;
+    }
 
     this.compile = function () {
-        if (this.biasWeights !== null) {
+        //for the input layer
+        if (this.numberOfInputNeurons === null || typeof this.numberOfInputNeurons === 'undefined') {
+            this.numberOfInputNeurons = this.numberOfNeurons;
+        }
+
+        if (this.biasWeights === null) {
             dataToTexture.setOutput([this.numberOfNeurons, 1]);
             this.biasWeights = dataToTexture(randomNumbersAtScale(this.numberOfNeurons, 1, this.scale));
         }
 
-        if (this.inputWeights !== null){
-            dataToTexture.setOutput([this.numberOfTargetNeurons, this.numberOfNeurons]);
-            this.weights = dataToTexture(randomNumbersAtScale(this.numberOfTargetNeurons, this.numberOfNeurons, this.scale));
+        if (this.inputWeights === null) {
+            dataToTexture.setOutput([this.numberOfNeurons, this.numberOfInputNeurons]);
+            this.inputWeights = dataToTexture(randomNumbersAtScale(this.numberOfNeurons, this.numberOfInputNeurons, this.scale));
         }
+
+        return "layer "+ this.layerIndex+ ":  #inputs: " + this.numberOfInputNeurons + " #neurons: " + this.numberOfNeurons + " activation: " + this.activation + "\r\n" ; 
     };
 
     this.feedForward = function (dataIn) {
@@ -105,25 +110,32 @@ module.exports.Network = function () {
 
     this.addLayer = function (layer) {
         this.layers.push(layer);
+        return this;
     };
 
     this.compile = function () {
+        if (this.layers.length <= 1) {
+            throw "A network must consist at least of 2 layers. " + " However this network consists of " + this.layers.length + " layers.";
+        }
+        let info = '';
         let prevLayer = null;
         this.layers.forEach(layer => {
             if (prevLayer === null) {
-                layer.compile();
+                info += layer.compile();
                 prevLayer = layer;
             } else {
                 layer.setNumberOfInputNeurons(prevLayer.getNumberOfNeurons());
                 layer.prevLayer = prevLayer;
-
-                prevLayer.setNumberOfTargetNeurons(layer.getNumberOfNeurons());
-                prevLayer.nextLayer = layer;
+                layer.layerIndex = prevLayer.layerIndex + 1;
+                info += layer.compile();
                 
+                prevLayer.nextLayer = layer;
                 prevLayer = layer;
-                layer.compile();
             }
+            
         });
+       
+        return info;
     }
 
     this.getNumberOfLayers = function () {

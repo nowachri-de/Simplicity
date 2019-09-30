@@ -6,11 +6,13 @@ const gpu = new GPU({
     mode: 'headlessgl'
 });
 
-let layer = new simplicity.Layer(8,'sigmoid');
+let inputLayer = new simplicity.Layer(8,'sigmoid');
+let hiddenLayer = new simplicity.Layer(4,'sigmoid');
+let hiddenLayer2 = new simplicity.Layer(12,'tanh');
+
 let network = new simplicity.Network();
-network.addLayer(layer);
-network.compile();
-console.log(network.getNumberOfLayers());
+network.addLayer(inputLayer).addLayer(hiddenLayer).addLayer(hiddenLayer2);
+console.log(network.compile());
 
 function randomNumbersAtScale(x, y, divisor) {
     var matrix = []; // Initialize array
