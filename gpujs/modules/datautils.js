@@ -60,7 +60,7 @@ kernelData2Texture1D.setDynamicArguments(true);
 kernelData2Texture1D.setDynamicOutput(true);
 kernelData2Texture1D.setPipeline(true);
 
-function data2Texture1D(data,length){
+function data2Texture1D(data, length) {
     kernelData2Texture1D.setOutput([length]);
     return kernelData2Texture1D(data);
 }
@@ -87,13 +87,80 @@ error.setDynamicArguments(true);
 error.setDynamicOutput(true);
 error.setPipeline(true);
 
-function computeError(result,target,numNeurons){
+const updateBias = gpu.createKernel(
+    function (bias, dEtot2dOut, dOut2dNet, learningRate) {
+        //X,Y  O   W    Err
+        //0,0  0  0,0    0
+        //1,0  1  0,1    1
+        //0,1  0  1,0    0
+        //1,1  1  1,1    1
+        //0,2  0  2,0    0
+        //1,2  1  2,1    1
+
+        let biasWeight = bias[this.thread.x]; //this is the weight betwenn output layer neuron and hidden layer neuron
+        let dETot2dOut = dEtot2dOut[this.thread.x]; //this is dEOut2dOut
+        let dOut2dNet_ = dOut2dNet[this.thread.x];  //this is dOut2dNet
+        return biasWeight - (learningRate * (dETot2dOut * dOut2dNet_ * 1)); //updated bias
+    }) //num Bias
+updateBias.setDynamicOutput(true);
+updateBias.setDynamicArguments(true);
+updateBias.setPipeline(true);
+
+const backPropHidden = gpu.createKernel(function (sums, dOut2dNet, prevOutput, weights, learningRate) {
+    //X,Y   W       dETot     dOut2dNet     prevOutput
+    //0,0  0,0        0           0             0
+    //1,0  0,1        0           0             0
+    //0,1  1,0        1           1             1
+    //1,1  1,1        1           1             1
+    //0,2  2,0        2           2             2
+    //1,2  2,1        2           2             2
+
+let dETot = sums[this.thread.y];
+let dETot2dOutPre = dETot * dOut2dNet[this.thread.y] * prevOutput[this.thread.y]; 
+let updatedWeight = weights[this.thread.y][this.thread.x] - (learningRate * dETot2dOutPre);
+return updatedWeight;
+});
+backPropHidden.setDynamicOutput(true);
+backPropHidden.setDynamicArguments(true);
+backPropHidden.setPipeline(true);
+
+const computeDerivatives = gpu.createKernel(function (weights, dEtot2dOut, dOut2dNet) {
+    //X,Y  O   W    Err
+    //0,0  0  0,0    0         
+    //1,0  1  0,1    1
+    //0,1  0  1,0    0
+    //1,1  1  1,1    1
+    //0,2  0  2,0    0
+    //1,2  1  2,1    1
+
+    let dEtot2dOut_ = dEtot2dOut[this.thread.x];
+    let dOut2dNet_ = dOut2dNet[this.thread.x];
+    let dNet2dOprev_ = weights[this.thread.y][this.thread.x];
+
+    return dEtot2dOut_ * dOut2dNet_ * dNet2dOprev_;
+}); //[num output neurons, num output neurons + 1 bias] 
+computeDerivatives.setDynamicOutput(true);
+computeDerivatives.setDynamicArguments(true);
+computeDerivatives.setPipeline(true);
+
+const sumUp = gpu.createKernel(function (derivatives, numTargets) {
+    let sum = 0;
+    for (let i = 0; i < numTargets; ++i) {
+        sum += derivatives[this.thread.x][i];
+    }
+    return sum;
+}); //num neurons in current layer
+sumUp.setDynamicOutput(true);
+sumUp.setDynamicArguments(true);
+sumUp.setPipeline(true);
+
+function computeError(result, target, numNeurons) {
     error.setOutput([numNeurons]);
-    return error(result,target);
+    return error(result, target);
 }
 
-function data2Texture2D(data,x,y){
-    kernelData2Texture2D.setOutput([x,y]);
+function data2Texture2D(data, x, y) {
+    kernelData2Texture2D.setOutput([x, y]);
     return kernelData2Texture2D(data);
 }
 
@@ -119,25 +186,56 @@ function randomNumbersAtScale2D(x, y, divisor) {
     return matrix;
 }
 
-function randomBias(length,divisor){
-    return data2Texture1D(randomNumbersAtScale1D(length,divisor),length);
+function randomBias(length, divisor) {
+    return data2Texture1D(randomNumbersAtScale1D(length, divisor), length);
 }
 
-function randomWeights(x,y,divisor){
-    return data2Texture2D(randomNumbersAtScale2D(x,y,divisor),x,y);
+function randomWeights(x, y, divisor) {
+    return data2Texture2D(randomNumbersAtScale2D(x, y, divisor), x, y);
 }
 
-function backpropagateOutput(numberOfNeurons,numberOfInputNeurons,weights,dEtot2dOut,dOut2dNet,input,learningRate){
+function backpropagateOutput(numberOfNeurons, numberOfInputNeurons, weights, biasWeights,dEtot2dOut, dOut2dNet, input, learningRate) {
     backPropOutput.setOutput([numberOfNeurons, numberOfInputNeurons]);
+    updateBias.setOutput([numberOfNeurons]);
 
-    //will return updated weights
-    return backPropOutput(weights, dEtot2dOut, dOut2dNet, input, learningRate);
+    //will return updated bias weights
+    return{
+        weights: backPropOutput(weights, dEtot2dOut, dOut2dNet, input, learningRate),
+        updateBias: updateBias(biasWeights, dEtot2dOut, dOut2dNet, learningRate),
+    } 
 }
-module.exports.GPUFeedForward   = GPUFeedForward;
-module.exports.data2Texture1D   = data2Texture1D;
-module.exports.data2Texture2D   = data2Texture2D;
-module.exports.randomBias       = randomBias;
-module.exports.randomWeights    = randomWeights;
-module.exports.computeError     = computeError;
+
+function backpropagateHidden(numInputNeurons, numNeurons, dEtot2dOut, dOut2dNet, input, weights, biasWeights, learningRate) {
+
+    backPropHidden.setOutput([numNeurons, numInputNeurons]); //[target neurons, input neurons]
+    computeDerivatives.setOutput([numNeurons, numInputNeurons]); //[target neurons, input neurons]
+    sumUp.setOutput([numInputNeurons]); //number input neurons
+
+    /**
+     * Sum all dEtot2dOut_ * dOut2dNet_ * dNet2dOprev_ per neuron
+    */
+    let sumU = sumUp(computeDerivatives(weights, dEtot2dOut, dOut2dNet), numNeurons); //second parameter is the number of target neurons
+
+    return {
+        weights: backPropHidden(sumU, dOut2dNet, input, weights, learningRate),
+        biasWeights: updateBias(biasWeights, sumU, dOut2dNet, learningRate),
+    }
+}
+
+function updateBiasWeights(length, bias, dEtot2dOut, dOut2dNet, learningRate) {
+    updateBias.setOutput([length]);
+
+    //will return updated bias weights
+    return updateBias(bias, dEtot2dOut, dOut2dNet, learningRate);
+}
+module.exports.GPUFeedForward = GPUFeedForward;
+module.exports.data2Texture1D = data2Texture1D;
+module.exports.data2Texture2D = data2Texture2D;
+module.exports.randomBias = randomBias;
+module.exports.randomWeights = randomWeights;
+module.exports.computeError = computeError;
 module.exports.backpropagateOutput = backpropagateOutput;
+module.exports.backpropagateHidden = backpropagateHidden;
+module.exports.updateBiasWeights = updateBiasWeights;
+
 module.exports.GPU = gpu;
