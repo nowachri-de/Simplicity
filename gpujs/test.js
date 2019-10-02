@@ -8,17 +8,18 @@ const gpu = new GPU({
 
 let inputLayer = new simplicity.Layer(2,'sigmoid');
 inputLayer.setWeights([[.15, .25], [.20, .30]]);
-inputLayer.setBiasWeights([[.35, .35]]);
-
-let hiddenLayer = new simplicity.Layer(2,'sigmoid');
-hiddenLayer.setWeights( [[.40, .50], [.45, .55]]);
-hiddenLayer.setBiasWeights([[.60, .60]]);
+inputLayer.setBiasWeights([.35, .35]);
 
 let outputLayer = new simplicity.Layer(2,'sigmoid');
+outputLayer.setWeights( [[.40, .50], [.45, .55]]);
+outputLayer.setBiasWeights([.60, .60]);
+
 
 let network = new simplicity.Network();
-network.addLayer(inputLayer).addLayer(hiddenLayer).addLayer(outputLayer);
-console.log(network.feedForward([.05,.10]).result.toArray());
+network.addLayer(inputLayer).addLayer(outputLayer);
+
+console.log(network.feedForward([.05,.10],[0.01,0.99]).result.toArray());
+network.backPropagate(0.5);
 
 function randomNumbersAtScale(x, y, divisor) {
     var matrix = []; // Initialize array

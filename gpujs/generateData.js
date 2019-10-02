@@ -14,6 +14,15 @@ function randomNumbers(x, y) {
     }
     return matrix;
 }
+function randomNumbersAtScale1D(dimensions, divisor) {
+    var matrix = []; // Initialize array
+
+    for (var j = 0; j < dimensions; j++) { // i++ needs to be j++
+        matrix[j] = (Math.random() / divisor);
+    }
+
+    return matrix;
+}
 function randomNumbersAtScale(x, y, divisor) {
     var matrix = []; // Initialize array
     var i;
@@ -30,34 +39,34 @@ function saveObject(fileName, obj) {
 
     fs.writeFileSync(fileName, JSON.stringify(obj));
 }
-let nN = 128;
-let nZ = 1;
+let nN = 2;
+let nZ = 2;
 
 let w1 = randomNumbers(nN, nN);
-saveObject("./data/w1",w1);
-let b1 = randomNumbers(nN, 1);
-saveObject("./data/b1",b1);
+saveObject("./data/w1", w1);
+let b1 = randomNumbersAtScale1D(nN, 1);
+saveObject("./data/b1", b1);
 let w2 = randomNumbers(nN, nN);
-saveObject("./data/w2",w2);
-let b2 = randomNumbers(nN, 1);
-saveObject("./data/b2",b2);
+saveObject("./data/w2", w2);
+let b2 = randomNumbersAtScale1D(nN, 1);
+saveObject("./data/b2", b2);
 //let w3 = randomNumbers(nN, nN);
 //let b3 = randomNumbers(nN, 1);
 
 let w3 = randomNumbers(nZ, nN);
-saveObject("./data/w3",w3);
-let b3 = randomNumbers(nZ, 1);
-saveObject("./data/b3",b3);
+saveObject("./data/w3", w3);
+let b3 = randomNumbersAtScale1D(nZ, 1);
+saveObject("./data/b3", b3);
 
 let w4 = randomNumbers(nN, nZ);
-saveObject("./data/w4",w4);
-let b4 = randomNumbers(nN, 1);
-saveObject("./data/b4",b4);
+saveObject("./data/w4", w4);
+let b4 = randomNumbersAtScale1D(nN, 1);
+saveObject("./data/b4", b4);
 
 let w5 = randomNumbers(nN, nN);
-saveObject("./data/w5",w4);
-let b5 = randomNumbers(nN, 1);
-saveObject("./data/b5",w4);
+saveObject("./data/w5", w5);
+let b5 = randomNumbersAtScale1D(nN, 1);
+saveObject("./data/b5", b5);
 
-let dataIn = randomNumbersAtScale(nN, 1,100);
-saveObject("./data/dataIn",dataIn);
+let dataIn = randomNumbersAtScale1D(nN, 100);
+saveObject("./data/dataIn", dataIn);
