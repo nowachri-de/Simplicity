@@ -17,13 +17,7 @@ function sigmoidActivation(i) {
 function derivativeSigmoid(out) {
     return out - Math.pow(out, 2);
 }
-function matrixmul(dataIn, weights, numInputs) {
-    let sum = 0;
-    for (let i = 0; i < numInputs; i++) {
-        sum += dataIn[i] * weights[i][this.thread.y];
-    }
-    return sum;
-}
+
 const dataToTexture = gpu.createKernel(function (dataIn) {
     return dataIn[this.thread.y][this.thread.x];
 });
@@ -39,7 +33,7 @@ const feedForward = gpu.createKernelMap({
 }, function (dataIn, weights, numInputs, bias) {
     let sum = 0;
     for (let i = 0; i < numInputs; i++) {
-        sum += dataIn[i] * weights[i][this.thread.y];
+        sum += dataIn[i][0] * weights[i][this.thread.y];
     }
     let out = sigmoidActivation(sum + bias[this.thread.y]);
     dOut2dNet(out); //store for later use in backpropagation
@@ -209,12 +203,12 @@ let b4 = readAsTexture("./data/b4", nN, 1);
 let w5 = readAsTexture("./data/w5", nN, nN);
 let b5 = readAsTexture("./data/b5", nN, 1);
 
-let dataIn = readAsTexture("./data/dataIn", nN, 1);
+let dataIn = readAsTexture("./data/dataIn", 1, nN);
 let target = dataIn;
 
 gpu.addFunction(sigmoidActivation);
 gpu.addFunction(derivativeSigmoid);
-gpu.addFunction(matrixmul);
+
 
 let e, l1Out, l2Out, l3Out, l4Out, l5Out, derivatives, sumU, w1t, w2t, w3t, w4t, w5t;
 let learningRate = .5;
@@ -365,11 +359,13 @@ function defaultTest() {
     let w1 = [[.15, .25], [.20, .30]];
     let b1 = [[.35, .35]];
 
-    let w2 = [[.15, .25], [.20, .30]];
+    let w2 = [[.40, .50], [.45, .55]];
     let b2 = [[.60, .60]];
 
     let dataIn = [[.05, .10]];
     let target = [[0.01, 0.99]];
+
+    let l1Out, l2Out;
 
     w1 = asTexture(w1, nN, nN);
     b1 = asTexture(b1, 2, 1);
@@ -379,9 +375,6 @@ function defaultTest() {
 
     dataIn = asTexture(dataIn, 2, 1);
     target = asTexture(target, 2, 1);
-
-    let l1Out, l2Out;
-   
 
     feedForward.setOutput([1, nN]);
     l1Out = feedForward(dataIn, w1, nN, b1);
@@ -396,7 +389,6 @@ function defaultTest() {
 
     updateBias.setOutput([nN]);
     b2 = updateBias(b2, e.dEtot2dOut, l2Out.dOut2dNet, learningRate);
-
 
     backPropHidden.setOutput([nN, nN]); //[target neurons, input neurons]
     computeDerivatives.setOutput([nN, nN]); //[target neurons, input neurons]

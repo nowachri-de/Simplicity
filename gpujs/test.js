@@ -6,13 +6,19 @@ const gpu = new GPU({
     mode: 'headlessgl'
 });
 
-let inputLayer = new simplicity.Layer(8,'sigmoid');
-let hiddenLayer = new simplicity.Layer(4,'sigmoid');
-let hiddenLayer2 = new simplicity.Layer(12,'tanh');
+let inputLayer = new simplicity.Layer(2,'sigmoid');
+inputLayer.setWeights([[.15, .25], [.20, .30]]);
+inputLayer.setBiasWeights([[.35, .35]]);
+
+let hiddenLayer = new simplicity.Layer(2,'sigmoid');
+hiddenLayer.setWeights( [[.40, .50], [.45, .55]]);
+hiddenLayer.setBiasWeights([[.60, .60]]);
+
+let outputLayer = new simplicity.Layer(2,'sigmoid');
 
 let network = new simplicity.Network();
-network.addLayer(inputLayer).addLayer(hiddenLayer).addLayer(hiddenLayer2);
-console.log(network.compile());
+network.addLayer(inputLayer).addLayer(hiddenLayer).addLayer(outputLayer);
+console.log(network.feedForward([.05,.10]).result.toArray());
 
 function randomNumbersAtScale(x, y, divisor) {
     var matrix = []; // Initialize array

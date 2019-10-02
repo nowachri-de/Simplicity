@@ -1,31 +1,29 @@
 "use strict";
-const { GPU } = require('gpu.js');
+const UTILS = require(__dirname + '/datautils.js');
 
-const gpu = new GPU({
-    mode: 'headlessgl'
-});
 
-function randomNumbersAtScale(x, y, divisor) {
-    var matrix = []; // Initialize array
-    var i;
-    for (i = 0; i < y; i++) {
-        matrix[i] = []; // Initialize inner array
-        for (var j = 0; j < x; j++) { // i++ needs to be j++
-            matrix[i][j] = (Math.random() / divisor);
-        }
-    }
-    return matrix;
+
+function debugLog(dataIn, weights, biasWeights) {
+    console.log("Input data");
+    if (typeof dataIn.result === 'undefined')
+        console.log(dataIn.toArray());
+    else
+        console.log(dataIn.result.toArray());
+
+    console.log("Weights");
+    if (typeof weights.result === 'undefined')
+        console.log(weights.toArray());
+    else
+        console.log(weights.result.toArray());
+
+    console.log("biasWeights");
+    if (typeof biasWeights.result === 'undefined')
+        console.log(biasWeights.toArray());
+    else
+        console.log(biasWeights.result.toArray());
 }
 
-const dataToTexture = gpu.createKernel(function (dataIn) {
-    return dataIn[this.thread.y][this.thread.x];
-});
-
-dataToTexture.setDynamicArguments(true);
-dataToTexture.setDynamicOutput(true);
-dataToTexture.setPipeline(true);
-
-module.exports.Layer = function (numberOfNeurons, activation,numInputValues) {
+module.exports.Layer = function (numberOfNeurons, activation, numInputValues) {
     let activation_ = activation;
     if (activation_ === null || typeof activation_ === 'undefined') {
         activation_ = 'sigmoid';
@@ -37,16 +35,25 @@ module.exports.Layer = function (numberOfNeurons, activation,numInputValues) {
     this.biasWeights = null;
     this.scale = 100;
     this.output = null;
-    this.inputWeights = null;
+    this.weights = null;
     this.prevLayer = null;
     this.nextLayer = null;
+    this.isCompiled = false;
 
-    this.setInputWeight = function (weights) {
-        this.inputWeights = weights;
+    this.setWeights = function (weights) {
+        this.weights = weights;
     }
 
-    this.getInputWeight = function () {
-        return inputWeights;
+    this.getWeights = function () {
+        return weights;
+    }
+
+    this.setBiasWeights = function (biasWeights) {
+        this.biasWeights = biasWeights;
+    }
+
+    this.getBiasWeights = function () {
+        return this.biasWeights;
     }
 
     this.setScale = function (scale) {
@@ -76,8 +83,8 @@ module.exports.Layer = function (numberOfNeurons, activation,numInputValues) {
         return this.numberOfInputNeurons;
     };
 
-    this.getInputWeights = function(){
-        return this.inputWeights;
+    this.getweights = function () {
+        return this.weights;
     }
 
     this.compile = function () {
@@ -87,26 +94,100 @@ module.exports.Layer = function (numberOfNeurons, activation,numInputValues) {
         }
 
         if (this.biasWeights === null) {
-            dataToTexture.setOutput([this.numberOfNeurons, 1]);
-            this.biasWeights = dataToTexture(randomNumbersAtScale(this.numberOfNeurons, 1, this.scale));
+            this.biasWeights = UTILS.randomBias(this.numberOfNeurons, this.scale);
+        } else if (!isGLTextureFloat(this.biasWeights)) {
+            this.biasWeights = UTILS.randomBias(this.numberOfNeurons, this.scale);
         }
 
-        if (this.inputWeights === null) {
-            dataToTexture.setOutput([this.numberOfNeurons, this.numberOfInputNeurons]);
-            this.inputWeights = dataToTexture(randomNumbersAtScale(this.numberOfNeurons, this.numberOfInputNeurons, this.scale));
+        if (this.weights === null) {
+            this.weights = UTILS.randomWeights(this.numberOfNeurons, this.numberOfInputNeurons, this.scale);
+        } else if (!isGLTextureFloat2D(this.weights)) {
+            this.weights = UTILS.randomWeights(this.numberOfNeurons, this.numberOfInputNeurons, this.scale);
         }
 
-        return "layer "+ this.layerIndex+ ":  #inputs: " + this.numberOfInputNeurons + " #neurons: " + this.numberOfNeurons + " activation: " + this.activation + "\r\n" ; 
+        return "layer " + this.layerIndex + ":  #inputs: " + this.numberOfInputNeurons + " #neurons: " + this.numberOfNeurons + " activation: " + this.activation + " weights: " + this.weights.output + "\r\n";
     };
 
     this.feedForward = function (dataIn) {
-        feedForward.setOutput([1, this.numberOfNeurons]);
-        this.output = feedForward(dataIn, this.weights, this.numberOfNeurons, this.biasWeights);
+
+        if (!isGLTextureFloat(dataIn)) {
+            dataIn = UTILS.data2Texture1D(dataIn, this.numberOfNeurons);
+        }
+        verifyInputDimension(dataIn,this);
+        verifyWeightDimension(this.weights,this);
+
+        UTILS.GPUFeedForward.setOutput([1, this.numberOfNeurons]);
+        console.log("Layer " + this.layerIndex);
+        debugLog(dataIn, this.weights, this.biasWeights);
+        this.output = UTILS.GPUFeedForward(dataIn, this.weights, this.numberOfNeurons, this.biasWeights);
+
+        if (this.nextLayer !== null && typeof this.nextLayer != 'undefined') {
+            this.nextLayer.feedForward(this.output.result);
+        }
+        return this.output;
+    };
+
+
+    function verifyGLTextureFloat2D(obj) {
+        if (!isGLTextureFloat2D(obj)) {
+            throw "object not of type GLTextureFloat2D";
+        }
+    }
+
+    function verifyGLTextureFloat(obj) {
+        if (!isGLTextureFloat(obj)) {
+            throw "object not of type GLTextureFloat";
+        }
+    }
+
+
+    function checkType(obj, type2check) {
+        if (typeof obj.result !== 'undefined') {
+            return true;
+        }
+        if (typeof obj.constructor != 'undefined' && obj.constructor.name === type2check) {
+            return true;
+        }
+        return false;
+    }
+
+    function isGLTextureFloat (obj) {
+        return checkType(obj, 'GLTextureFloat');
+    }
+
+    function isGLTextureFloat2D (obj) {
+        return checkType(obj, 'GLTextureFloat2D');
+    }
+
+    function verifyInputDimension(dataIn,reference) {
+        verifyGLTextureFloat(dataIn);
+
+        if (dataIn.output[0] != reference.numberOfInputNeurons) {
+            throw "input data length does not match expected length. expected: " + reference.numberOfInputNeurons + " actual: " + dataIn.output[0];
+        }
+
+        if (typeof dataIn.output[1] != 'undefined') {
+            throw "input data must not have a y dimension but it has";
+        }
+    };
+
+     function verifyWeightDimension(weights,reference) {
+        verifyGLTextureFloat2D(weights);
+        let dimensions = weights.output;
+
+        if (dimensions[0] != reference.numberOfNeurons) {
+            throw "weights x dimension mismatch. Should be equal to this number of neurons. Expected: " + reference.numberOfNeurons + " actual: " + dimensions.x;
+        }
+
+        if (dimensions[1] != reference.numberOfInputNeurons) {
+            throw "weights y dimension mismatch. Should be equal to this number of input neurons. Expected: " + reference.numberOfInputNeurons + " actual: " + dimensions.y;
+        }
     }
 }
 
 module.exports.Network = function () {
     this.layers = [];
+    this.isCompiled = false;
 
     this.addLayer = function (layer) {
         this.layers.push(layer);
@@ -128,13 +209,13 @@ module.exports.Network = function () {
                 layer.prevLayer = prevLayer;
                 layer.layerIndex = prevLayer.layerIndex + 1;
                 info += layer.compile();
-                
+
                 prevLayer.nextLayer = layer;
                 prevLayer = layer;
             }
-            
+
         });
-       
+
         return info;
     }
 
@@ -142,4 +223,13 @@ module.exports.Network = function () {
         return this.layers.length;
     }
 
+    this.feedForward = function (dataIn) {
+        if (this.isCompiled !== true) {
+            console.log("Feedforward online compilation");
+            console.log(this.compile());
+        }
+
+        let layer = this.layers[0];
+        return layer.feedForward(dataIn);
+    }
 }
