@@ -59,7 +59,6 @@ module.exports.Layer = function (numberOfNeurons, activation, numInputValues) {
     this.prevLayer = null;
     this.nextLayer = null;
     this.isCompiled = false;
-    this.result = null;
     this.dataIn = null; // only used for input layer
 
     this.setWeights = function (weights) {
@@ -148,9 +147,9 @@ module.exports.Layer = function (numberOfNeurons, activation, numInputValues) {
 
         //output layer
         if (this.nextLayer === null) {
-            this.backPropagationResult = UTILS.backpropagateOutput(this.numberOfNeurons, this.numberOfInputNeurons, this.weights, this.biasWeights, error.dEtot2dOut, this.output.dOut2dNet, input, learningRate);
+            this.feedForwardResult = UTILS.backpropagateOutput(this.numberOfNeurons, this.numberOfInputNeurons, this.weights, this.biasWeights, error.dEtot2dOut, this.output.dOut2dNet, input, learningRate);
         } else {
-            this.backPropagationResult = UTILS.backpropagateHidden(this.numberOfInputNeurons, this.numberOfNeurons, error.dEtot2dOut, this.output.dOut2dNet, input, this.weights, this.biasWeights, learningRate);
+            this.feedForwardResult = UTILS.backpropagateHidden(this.numberOfInputNeurons, this.numberOfNeurons, error.dEtot2dOut, this.output.dOut2dNet, input, this.weights, this.biasWeights, learningRate);
         }
         
         if (this.prevLayer !== null){
@@ -160,8 +159,8 @@ module.exports.Layer = function (numberOfNeurons, activation, numInputValues) {
     }
 
     this.updateWeights = function(){
-        this.weights = this.backPropagationResult.weights;
-        this.biasWeights = this.backPropagationResult.biasWeights;
+        this.weights = this.feedForwardResult.weights;
+        this.biasWeights = this.feedForwardResult.biasWeights;
 
         if (this.prevLayer !== null){
             this.prevLayer.updateWeights();
@@ -291,7 +290,7 @@ module.exports.Network = function () {
         this.target = target2Texture(target, lastLayer.numberOfNeurons);
         this.error = UTILS.computeError(this.feedForwardResult.result, target, lastLayer.numberOfNeurons);
         return {
-            backPropagationResult: this.feedForwardResult.result,
+            feedForwardResult: this.feedForwardResult.result,
             error: this.error,
         }
     }

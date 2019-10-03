@@ -9,7 +9,7 @@ const gpu = new GPU({
     mode: 'headlessgl'
 });
 
-let nN = 2;
+let nN = 10;
 let nZ = 2;
 
 
@@ -57,16 +57,17 @@ l4.setBiasWeights(b4);
 l5.setWeights(w5);
 l5.setBiasWeights(b5);
 
+let result = null;
 let network = new simplicity.Network();
 network.addLayer(l1).addLayer(l2).addLayer(l3).addLayer(l4).addLayer(l5);
 
-for(let j=0; j < 1;++j){
-    for(let i=0; i < 5000;++i){
-        network.feedForward(dataIn,target);
+for(let j=0; j < 100;++j){
+    for(let i=0; i < 50;++i){
+        result = network.feedForward(dataIn,target).feedForwardResult;
         network.backPropagate(0.5);
-        //console.log(l2.biasWeights.toArray());
+        
     }
-    console.log("target");
+    /*console.log("target");
     console.log(dataIn.toArray());
 
     console.log("result");
@@ -74,7 +75,9 @@ for(let j=0; j < 1;++j){
     console.log("l1.weights");
     console.log(l1.weights.toArray());
     console.log("l1.bias");
-    console.log(l1.biasWeights.toArray());
-
-    //console.log(network.getTotalError() + " " +l1.getBiasWeights().toArray());
+    console.log(l1.biasWeights.toArray());*/
+    //console.log(dataIn.toArray()[122] + "," + dataIn.toArray()[127]);
+    //console.log(result.toArray()[122] + "," + result.toArray()[127]);
+    //console.log(l1.biasWeights.toArray()[5]);
+    console.log(network.getTotalError());   
 }

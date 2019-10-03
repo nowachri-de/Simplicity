@@ -7,7 +7,7 @@ const gpu = new GPU({
     mode: 'headlessgl'
 });
 
-let nN = 2;
+let nN = 128;
 let nZ = 2;
 
 function sigmoidActivation(i) {
@@ -43,22 +43,20 @@ feedForward.setDynamicOutput(true);
 feedForward.setDynamicArguments(true);
 feedForward.setPipeline(true);
 
-/**
- * 
- * 
- */
 const error = gpu.createKernelMap({
     dEtot2dOut: function derivative(out, target) {
         return -(target - out);
     }
 }, function (outputs, targets) {
-    derivative(outputs[this.thread.y][this.thread.x], targets[this.thread.y][this.thread.x]);
-    return Math.pow(targets[this.thread.y][this.thread.x] - outputs[this.thread.y][this.thread.x], 2) * 0.5;
+    derivative(outputs[this.thread.x], targets[this.thread.x]);
+    return Math.pow(targets[this.thread.x] - outputs[this.thread.x], 2) * 0.5;
 }
-).setOutput([nN]); //num output neurons
-error.setDynamicOutput(true);
+); //num output neurons
 error.setDynamicArguments(true);
+error.setDynamicOutput(true);
 error.setPipeline(true);
+
+
 
 const errorTot = gpu.createKernel(function (dError, lenght) {
     let total = 0;
@@ -91,19 +89,19 @@ backPropOutput.setDynamicArguments(true);
 backPropOutput.setPipeline(true);
 
 const backPropHidden = gpu.createKernel(function (sums, dOut2dNet, prevOutput, weights, learningRate) {
-        //X,Y   W       dETot     dOut2dNet     prevOutput
-        //0,0  0,0        0           0             0
-        //1,0  0,1        0           0             0
-        //0,1  1,0        1           1             1
-        //1,1  1,1        1           1             1
-        //0,2  2,0        2           2             2
-        //1,2  2,1        2           2             2
+    //X,Y   W       dETot     dOut2dNet     prevOutput
+    //0,0  0,0        0           0             0
+    //1,0  0,1        0           0             0
+    //0,1  1,0        1           1             1
+    //1,1  1,1        1           1             1
+    //0,2  2,0        2           2             2
+    //1,2  2,1        2           2             2
 
-    let dETot = sums[this.thread.y];
-    let dETot2dOutPre = dETot * dOut2dNet[this.thread.y] * prevOutput[this.thread.y]; 
-    let updatedWeight = weights[this.thread.y][this.thread.x] - (learningRate * dETot2dOutPre);
-    return updatedWeight;
-}).setOutput([nN, nN]);
+let dETot = sums[this.thread.y];
+let dETot2dOutPre = dETot * dOut2dNet[this.thread.y] * prevOutput[this.thread.y]; 
+let updatedWeight = weights[this.thread.y][this.thread.x] - (learningRate * dETot2dOutPre);
+return updatedWeight;
+});
 backPropHidden.setDynamicOutput(true);
 backPropHidden.setDynamicArguments(true);
 backPropHidden.setPipeline(true);
@@ -142,7 +140,7 @@ const computeDerivatives = gpu.createKernel(function (weights, dEtot2dOut, dOut2
     let dNet2dOprev_ = weights[this.thread.y][this.thread.x];
 
     return dEtot2dOut_ * dOut2dNet_ * dNet2dOprev_;
-}).setOutput([nN, nN]); //[num output neurons, num output neurons + 1 bias] 
+}); //[num output neurons, num output neurons + 1 bias] 
 computeDerivatives.setDynamicOutput(true);
 computeDerivatives.setDynamicArguments(true);
 computeDerivatives.setPipeline(true);
@@ -153,7 +151,7 @@ const sumUp = gpu.createKernel(function (derivatives, numTargets) {
         sum += derivatives[this.thread.x][i];
     }
     return sum;
-}).setOutput([nN]); //num neurons in current layer
+}); //num neurons in current layer
 sumUp.setDynamicOutput(true);
 sumUp.setDynamicArguments(true);
 sumUp.setPipeline(true);
@@ -245,7 +243,7 @@ computeDerivatives(w1, b1, w1); //The arguments have been choosen because they h
 
 //defaultTest();
 for (let j = 0; j < 1; ++j) {
-    for (let i = 0; i < 5000; ++i) {
+    for (let i = 0; i < 100; ++i) {
         feedForward.setOutput([nN]); //dimension l1 = nN
         l1Out = feedForward(dataIn, w1, nN, b1); // num inputs (3rd argument) = nN
        
@@ -370,8 +368,8 @@ for (let j = 0; j < 1; ++j) {
         w2 = w2t;
         w1 = w1t;
     }
-    console.log("target");
-    console.log(dataIn.toArray());
+    console.log("error");
+    console.log(errorTot());
     console.log("result");
     console.log(l5Out.result.toArray());
     console.log("w1");
