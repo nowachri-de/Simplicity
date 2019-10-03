@@ -116,7 +116,7 @@ module.exports.Layer = function (numberOfNeurons, activation, numInputValues) {
 
     }
 
-    this.backPropagate = function (error,learningRate) {
+    this.backPropagate = function (error, learningRate) {
         let input = null;
         if (this.prevLayer !== null) {
             input = this.prevLayer.output.result;
@@ -126,15 +126,18 @@ module.exports.Layer = function (numberOfNeurons, activation, numInputValues) {
 
         //output layer
         if (this.nextLayer === null) {
-            let result = UTILS.backpropagateOutput(this.numberOfNeurons, this.numberOfInputNeurons, this.weights, this.biasWeights,error.dEtot2dOut, this.output.dOut2dNet, input, learningRate)
+            let result = UTILS.backpropagateOutput(this.numberOfNeurons, this.numberOfInputNeurons, this.weights, this.biasWeights, error.dEtot2dOut, this.output.dOut2dNet, input, learningRate)
+            this.weights = result.weights;
+            this.biasWeights = result.biasWeights;
+        } else {
+            let result = UTILS.backpropagateHidden(this.numberOfInputNeurons, this.numberOfNeurons, error.dEtot2dOut, this.output.dOut2dNet, input, this.weights, this.biasWeights, learningRate);
             this.weights = result.weights;
             this.biasWeights = result.biasWeights;
         }
-       
-        let result = UTILS.backpropagateHidden(this.numInputNeurons, this.numNeurons, error.dEtot2dOut, this.output.dOut2dNet, input , this.weights, this.biasWeights, learningRate);
-        this.weights = result.weights;
-        this.biasWeights = result.biasWeights;
-        this.prevLayer.backpropagateHidden(learningRate, error);
+        if (this.prevLayer !== null){
+            this.prevLayer.backPropagate(error,learningRate);
+        }
+        
     }
 
     this.feedForward = function (dataIn) {
@@ -151,10 +154,7 @@ module.exports.Layer = function (numberOfNeurons, activation, numInputValues) {
         verifyInputDimension(dataIn, this);
         verifyWeightDimension(this.weights, this);
 
-        UTILS.GPUFeedForward.setOutput([1, this.numberOfNeurons]);
-        //console.log("Layer " + this.layerIndex);
-        debugLog(dataIn, this.weights, this.biasWeights);
-        this.output = UTILS.GPUFeedForward(dataIn, this.weights, this.numberOfNeurons, this.biasWeights);
+        this.output = UTILS.feedForward(dataIn, this.weights, this.biasWeights, this.numberOfNeurons);
 
         if (this.nextLayer !== null && typeof this.nextLayer != 'undefined') {
             return this.nextLayer.feedForward(this.output.result);
@@ -258,7 +258,7 @@ module.exports.Network = function () {
             }
 
         });
-
+        this.isCompiled = true;
         return info;
     }
 
@@ -284,8 +284,10 @@ module.exports.Network = function () {
 
     this.backPropagate = function (learningRate) {
         let lastLayer = this.layers[this.layers.length - 1];
-        lastLayer.backPropagate(this.error,learningRate);
+        lastLayer.backPropagate(this.error, this.target.output[0]);
     }
 
-
+    this.getTotalError = function(){
+        return UTILS.getTotalError(this.error.result,this.error.result.output[0]);
+    }
 }

@@ -87,6 +87,16 @@ error.setDynamicArguments(true);
 error.setDynamicOutput(true);
 error.setPipeline(true);
 
+const errorTot = gpu.createKernel(function (dError, lenght) {
+    let total = 0;
+    for (let index = 0; index < lenght; index++) {
+        total += dError[index];
+    }
+    return total;
+}).setOutput([1]); //single value
+errorTot.setDynamicArguments(true);
+errorTot.setDynamicOutput(true);
+
 const updateBias = gpu.createKernel(
     function (bias, dEtot2dOut, dOut2dNet, learningRate) {
         //X,Y  O   W    Err
@@ -154,6 +164,10 @@ sumUp.setDynamicOutput(true);
 sumUp.setDynamicArguments(true);
 sumUp.setPipeline(true);
 
+function getTotalError(error,length){
+    return errorTot(error, length);
+}
+
 function computeError(result, target, numNeurons) {
     error.setOutput([numNeurons]);
     return error(result, target);
@@ -193,7 +207,10 @@ function randomBias(length, divisor) {
 function randomWeights(x, y, divisor) {
     return data2Texture2D(randomNumbersAtScale2D(x, y, divisor), x, y);
 }
-
+function feedForward(dataIn,weights,biasWeights,numberOfNeurons){
+    GPUFeedForward.setOutput([numberOfNeurons]);
+    return GPUFeedForward(dataIn,weights, numberOfNeurons, biasWeights);
+}
 function backpropagateOutput(numberOfNeurons, numberOfInputNeurons, weights, biasWeights,dEtot2dOut, dOut2dNet, input, learningRate) {
     backPropOutput.setOutput([numberOfNeurons, numberOfInputNeurons]);
     updateBias.setOutput([numberOfNeurons]);
@@ -201,7 +218,7 @@ function backpropagateOutput(numberOfNeurons, numberOfInputNeurons, weights, bia
     //will return updated bias weights
     return{
         weights: backPropOutput(weights, dEtot2dOut, dOut2dNet, input, learningRate),
-        updateBias: updateBias(biasWeights, dEtot2dOut, dOut2dNet, learningRate),
+        biasWeights: updateBias(biasWeights, dEtot2dOut, dOut2dNet, learningRate),
     } 
 }
 
@@ -228,14 +245,15 @@ function updateBiasWeights(length, bias, dEtot2dOut, dOut2dNet, learningRate) {
     //will return updated bias weights
     return updateBias(bias, dEtot2dOut, dOut2dNet, learningRate);
 }
-module.exports.GPUFeedForward = GPUFeedForward;
 module.exports.data2Texture1D = data2Texture1D;
 module.exports.data2Texture2D = data2Texture2D;
+module.exports.feedForward = feedForward;
 module.exports.randomBias = randomBias;
 module.exports.randomWeights = randomWeights;
 module.exports.computeError = computeError;
 module.exports.backpropagateOutput = backpropagateOutput;
 module.exports.backpropagateHidden = backpropagateHidden;
 module.exports.updateBiasWeights = updateBiasWeights;
+module.exports.getTotalError = getTotalError;
 
 module.exports.GPU = gpu;
