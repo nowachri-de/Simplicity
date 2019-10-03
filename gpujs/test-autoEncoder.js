@@ -9,8 +9,8 @@ const gpu = new GPU({
     mode: 'headlessgl'
 });
 
-let nN = 10;
-let nZ = 2;
+let nN = 800;
+let nZ = 10;
 
 
 
