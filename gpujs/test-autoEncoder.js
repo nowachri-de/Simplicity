@@ -61,7 +61,7 @@ let network = new simplicity.Network();
 network.addLayer(l1).addLayer(l2).addLayer(l3).addLayer(l4).addLayer(l5);
 
 for(let j=0; j < 1;++j){
-    for(let i=0; i < 1000;++i){
+    for(let i=0; i < 5000;++i){
         network.feedForward(dataIn,target);
         network.backPropagate(0.5);
         //console.log(l2.biasWeights.toArray());
@@ -71,6 +71,10 @@ for(let j=0; j < 1;++j){
 
     console.log("result");
     console.log(l5.output.result.toArray());
-   
+    console.log("l1.weights");
+    console.log(l1.weights.toArray());
+    console.log("l1.bias");
+    console.log(l1.biasWeights.toArray());
+
     //console.log(network.getTotalError() + " " +l1.getBiasWeights().toArray());
 }

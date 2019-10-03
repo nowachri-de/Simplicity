@@ -374,9 +374,10 @@ for (let j = 0; j < 1; ++j) {
     console.log(dataIn.toArray());
     console.log("result");
     console.log(l5Out.result.toArray());
+    console.log("w1");
+    console.log(w1.toArray());
     console.log("b1");
     console.log(b1.toArray());
-
     
 
     //console.log(errorTot(e.result, 2));
