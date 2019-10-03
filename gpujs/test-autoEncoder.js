@@ -73,8 +73,15 @@ network.addLayer(l1).addLayer(l2).addLayer(l3).addLayer(l4).addLayer(l5);
 
 for(let j=0; j < 100;++j){
     for(let i=0; i < 100;++i){
-        network.feedForward(dataIn,target).result.toArray();
+        network.feedForward(dataIn,target);
         network.backPropagate(0.5);
+        //console.log(l2.biasWeights.toArray());
     }
-    console.log(network.getTotalError());
+    console.log("target");
+    console.log(dataIn.toArray());
+
+    console.log("result");
+    console.log(l5.output.result.toArray());
+   
+    //console.log(network.getTotalError() + " " +l1.getBiasWeights().toArray());
 }

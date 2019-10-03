@@ -1,7 +1,27 @@
 "use strict";
 const UTILS = require(__dirname + '/datautils.js');
 
+function checkType(obj, type2check) {
+    if (typeof obj.result !== 'undefined') {
+        return true;
+    }
+    if (typeof obj.constructor != 'undefined' && obj.constructor.name === type2check) {
+        return true;
+    }
+    return false;
+}
 
+function isGLTextureFloat(obj) {
+    return checkType(obj, 'GLTextureFloat');
+}
+
+function isGLTextureFloat2D(obj) {
+    return checkType(obj, 'GLTextureFloat2D');
+}
+
+function isGLTextureFloat1D(obj) {
+    return checkType(obj, 'GLTextureFloat');
+}
 
 function debugLog(dataIn, weights, biasWeights) {
     console.log("Input data");
@@ -39,10 +59,16 @@ module.exports.Layer = function (numberOfNeurons, activation, numInputValues) {
     this.prevLayer = null;
     this.nextLayer = null;
     this.isCompiled = false;
+    this.result = null;
     this.dataIn = null; // only used for input layer
 
     this.setWeights = function (weights) {
-        this.weights = weights;
+        if (!isGLTextureFloat2D(weights)){
+            this.weights = UTILS.data2Texture2D(weights,weights[0].length,weights.length);
+        }else{
+            this.weights = weights;
+        }
+        
     }
 
     this.getWeights = function () {
@@ -50,7 +76,11 @@ module.exports.Layer = function (numberOfNeurons, activation, numInputValues) {
     }
 
     this.setBiasWeights = function (biasWeights) {
-        this.biasWeights = biasWeights;
+        if (!isGLTextureFloat1D(biasWeights)){
+            this.biasWeights = UTILS.data2Texture1D(biasWeights,biasWeights.length);
+        }else{
+            this.biasWeights = biasWeights;
+        }
     }
 
     this.getBiasWeights = function () {
@@ -96,19 +126,11 @@ module.exports.Layer = function (numberOfNeurons, activation, numInputValues) {
 
         if (this.biasWeights === null) {
             this.biasWeights = UTILS.randomBias(this.numberOfNeurons, this.scale);
-        } else if (this.biasWeights !== null && !isGLTextureFloat(this.biasWeights)) {
-            this.biasWeights = UTILS.data2Texture1D(this.biasWeights, this.numberOfNeurons);
-        } else {
-            this.biasWeights = UTILS.randomBias(this.numberOfNeurons, this.scale);
-        }
+        } 
 
         if (this.weights === null) {
             this.weights = UTILS.randomWeights(this.numberOfNeurons, this.numberOfInputNeurons, this.scale);
-        } else if (this.weights !== null && !isGLTextureFloat2D(this.weights)) {
-            this.weights = UTILS.data2Texture2D(this.weights, this.numberOfNeurons, this.numberOfInputNeurons);
-        } else {
-            this.weights = UTILS.randomWeights(this.numberOfNeurons, this.numberOfInputNeurons, this.scale);
-        }
+        } 
 
         return "layer " + this.layerIndex + ":  #inputs: " + this.numberOfInputNeurons + " #neurons: " + this.numberOfNeurons + " activation: " + this.activation + " weights: " + this.weights.output + "\r\n";
     };
@@ -126,21 +148,30 @@ module.exports.Layer = function (numberOfNeurons, activation, numInputValues) {
 
         //output layer
         if (this.nextLayer === null) {
-            let result = UTILS.backpropagateOutput(this.numberOfNeurons, this.numberOfInputNeurons, this.weights, this.biasWeights, error.dEtot2dOut, this.output.dOut2dNet, input, learningRate)
-            this.weights = result.weights;
-            this.biasWeights = result.biasWeights;
+            this.backPropagationResult = UTILS.backpropagateOutput(this.numberOfNeurons, this.numberOfInputNeurons, this.weights, this.biasWeights, error.dEtot2dOut, this.output.dOut2dNet, input, learningRate);
         } else {
-            let result = UTILS.backpropagateHidden(this.numberOfInputNeurons, this.numberOfNeurons, error.dEtot2dOut, this.output.dOut2dNet, input, this.weights, this.biasWeights, learningRate);
-            this.weights = result.weights;
-            this.biasWeights = result.biasWeights;
+            this.backPropagationResult = UTILS.backpropagateHidden(this.numberOfInputNeurons, this.numberOfNeurons, error.dEtot2dOut, this.output.dOut2dNet, input, this.weights, this.biasWeights, learningRate);
         }
+        
         if (this.prevLayer !== null){
             this.prevLayer.backPropagate(error,learningRate);
         }
         
     }
 
+    this.updateWeights = function(){
+        this.weights = this.backPropagationResult.weights;
+        this.biasWeights = this.backPropagationResult.biasWeights;
+
+        if (this.prevLayer !== null){
+            this.prevLayer.updateWeights();
+        }
+    }
+
     this.feedForward = function (dataIn) {
+
+        verifyInputDimension(dataIn, this);
+        verifyWeightDimension(this.weights, this);
 
         if (!isGLTextureFloat(dataIn)) {
             dataIn = UTILS.data2Texture1D(dataIn, this.numberOfNeurons);
@@ -151,12 +182,9 @@ module.exports.Layer = function (numberOfNeurons, activation, numInputValues) {
             this.dataIn = dataIn;
         }
 
-        verifyInputDimension(dataIn, this);
-        verifyWeightDimension(this.weights, this);
-
         this.output = UTILS.feedForward(dataIn, this.weights, this.biasWeights, this.numberOfNeurons);
-
-        if (this.nextLayer !== null && typeof this.nextLayer != 'undefined') {
+       
+        if (this.nextLayer !== null ) {
             return this.nextLayer.feedForward(this.output.result);
         } else {
             return this.output;
@@ -177,23 +205,7 @@ module.exports.Layer = function (numberOfNeurons, activation, numInputValues) {
     }
 
 
-    function checkType(obj, type2check) {
-        if (typeof obj.result !== 'undefined') {
-            return true;
-        }
-        if (typeof obj.constructor != 'undefined' && obj.constructor.name === type2check) {
-            return true;
-        }
-        return false;
-    }
 
-    function isGLTextureFloat(obj) {
-        return checkType(obj, 'GLTextureFloat');
-    }
-
-    function isGLTextureFloat2D(obj) {
-        return checkType(obj, 'GLTextureFloat2D');
-    }
 
     function verifyInputDimension(dataIn, reference) {
         verifyGLTextureFloat(dataIn);
@@ -243,20 +255,21 @@ module.exports.Network = function () {
         }
         let info = '';
         let prevLayer = null;
+        let layerIndex = 0;
         this.layers.forEach(layer => {
             if (prevLayer === null) {
+                layer.layerIndex = layerIndex;
                 info += layer.compile();
                 prevLayer = layer;
             } else {
                 layer.setNumberOfInputNeurons(prevLayer.getNumberOfNeurons());
                 layer.prevLayer = prevLayer;
-                layer.layerIndex = prevLayer.layerIndex + 1;
-                info += layer.compile();
-
+                layer.layerIndex = layerIndex;
                 prevLayer.nextLayer = layer;
+                info += layer.compile();
                 prevLayer = layer;
             }
-
+            layerIndex ++;
         });
         this.isCompiled = true;
         return info;
@@ -268,8 +281,7 @@ module.exports.Network = function () {
 
     this.feedForward = function (dataIn, target) {
         if (this.isCompiled !== true) {
-            console.log("Feedforward on the fly compilation");
-            console.log(this.compile());
+            this.compile();
         }
 
         let lastLayer = this.layers[this.layers.length - 1];
@@ -277,14 +289,15 @@ module.exports.Network = function () {
         this.target = target2Texture(target, lastLayer.numberOfNeurons);
         this.error = UTILS.computeError(this.feedForwardResult.result, target, lastLayer.numberOfNeurons);
         return {
-            result: this.feedForwardResult.result,
+            backPropagationResult: this.feedForwardResult.result,
             error: this.error,
         }
     }
 
     this.backPropagate = function (learningRate) {
         let lastLayer = this.layers[this.layers.length - 1];
-        lastLayer.backPropagate(this.error, this.target.output[0]);
+        lastLayer.backPropagate(this.error, learningRate);
+        lastLayer.updateWeights();
     }
 
     this.getTotalError = function(){

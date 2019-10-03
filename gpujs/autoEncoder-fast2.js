@@ -7,8 +7,8 @@ const gpu = new GPU({
     mode: 'headlessgl'
 });
 
-let nN = 128;
-let nZ = 1;
+let nN = 2;
+let nZ = 2;
 
 function sigmoidActivation(i) {
     return 1 / (1 + Math.pow(Math.E, -i));
@@ -33,7 +33,7 @@ const feedForward = gpu.createKernelMap({
 }, function (dataIn, weights, numInputs, bias) {
     let sum = 0;
     for (let i = 0; i < numInputs; i++) {
-        sum += dataIn[i][0] * weights[i][this.thread.y];
+        sum += dataIn[i] * weights[i][this.thread.y];
     }
     let out = sigmoidActivation(sum + bias[this.thread.y]);
     dOut2dNet(out); //store for later use in backpropagation
@@ -184,26 +184,26 @@ function readAsTexture(file, d1, d2) {
     return dataToTexture(obj);
 }
 
-let w1 = readAsTexture("./data/w1", nN, nN);
-let b1 = readAsTexture("./data/b1", nN, 1);
+let w1 = readAsTexture(__dirname+"/data/w1", nN, nN);
+let b1 = readAsTexture(__dirname+"/data/b1", nN, 1);
 
-let w2 = readAsTexture("./data/w2", nN, nN);
-let b2 = readAsTexture("./data/b2", nN, 1);
+let w2 = readAsTexture(__dirname+"/data/w2", nN, nN);
+let b2 = readAsTexture(__dirname+"/data/b2", nN, 1);
 
 //let w3 = randomNumbers(nZ, nN);
 //let b3 = randomNumbers(nZ, 1);
-let w3 = readAsTexture("./data/w3", nZ, nN);
-let b3 = readAsTexture("./data/b3", nZ, 1);
+let w3 = readAsTexture(__dirname+"/data/w3", nZ, nN);
+let b3 = readAsTexture(__dirname+"/data/b3", nZ, 1);
 
 //let w4 = randomNumbers(nN, nZ);
 //let b4 = randomNumbers(nN, 1);
-let w4 = readAsTexture("./data/w4", nN, nZ);
-let b4 = readAsTexture("./data/b4", nN, 1);
+let w4 = readAsTexture(__dirname+"/data/w4", nN, nZ);
+let b4 = readAsTexture(__dirname+"/data/b4", nN, 1);
 
-let w5 = readAsTexture("./data/w5", nN, nN);
-let b5 = readAsTexture("./data/b5", nN, 1);
+let w5 = readAsTexture(__dirname+"/data/w5", nN, nN);
+let b5 = readAsTexture(__dirname+"/data/b5", nN, 1);
 
-let dataIn = readAsTexture("./data/dataIn", 1, nN);
+let dataIn = readAsTexture(__dirname+"/data/dataIn",nN, 1);
 let target = dataIn;
 
 gpu.addFunction(sigmoidActivation);
@@ -231,24 +231,24 @@ updateBias(b1, w1, b1, learningRate); //The arguments have been choosen because 
 computeDerivatives.setOutput([nN, nN]);//set maximum outputsize
 computeDerivatives(w1, b1, w1); //The arguments have been choosen because they have the largest dimenions possible
 
-defaultTest();
+//defaultTest();
 for (let j = 0; j < 100; ++j) {
     for (let i = 0; i < 100; ++i) {
         feedForward.setOutput([1, nN]); //dimension l1 = nN
         l1Out = feedForward(dataIn, w1, nN, b1); // num inputs (3rd argument) = nN
-
+       
         feedForward.setOutput([1, nN]); //dimension l2 = nN
         l2Out = feedForward(l1Out.result, w2, nN, b2); // num inputs (3rd argument) = nN
-
+      
         feedForward.setOutput([1, nZ]); //dimension l3 = nZ
         l3Out = feedForward(l2Out.result, w3, nN, b3); // num inputs (3rd argument) = nN
-
+      
         feedForward.setOutput([1, nN]); //dimension l4 = nZ
         l4Out = feedForward(l3Out.result, w4, nZ, b4); // num inputs (3rd argument) = nZ
-
+       
         feedForward.setOutput([1, nN]); //dimension l5 = nZ
         l5Out = feedForward(l4Out.result, w5, nN, b5); // num inputs (3rd argument) = nN
-
+       
         e = error(l5Out.result, target);
 
         /*
@@ -258,8 +258,9 @@ for (let j = 0; j < 100; ++j) {
         */
 
         backPropOutput.setOutput([nN, nN]);
+       
         w5t = backPropOutput(w5, e.dEtot2dOut, l5Out.dOut2dNet, l4Out.result, learningRate);
-
+       
         updateBias.setOutput([nN]);
         b5 = updateBias(b5, e.dEtot2dOut, l5Out.dOut2dNet, learningRate);
 
@@ -290,6 +291,8 @@ for (let j = 0; j < 100; ++j) {
         w4t = backPropHidden(sumU, l4Out.dOut2dNet, l3Out.result, w4, learningRate);
         b4 = updateBias(b4, sumU, l4Out.dOut2dNet, learningRate);
 
+       
+
         /*
        ------------------------------------------------------------
        OUTPUT LAYER L3 - update of w3 matrix
@@ -312,6 +315,7 @@ for (let j = 0; j < 100; ++j) {
 
 
         w3t = backPropHidden(sumU, l3Out.dOut2dNet, l2Out.result, w3, learningRate);
+       
         b3 = updateBias(b3, sumU, l3Out.dOut2dNet, learningRate);
 
         /*
@@ -328,7 +332,10 @@ for (let j = 0; j < 100; ++j) {
         sumU = sumUp(derivatives, nN);
         derivatives = computeDerivatives(w2, sumU, l2Out.dOut2dNet);
         w2t = backPropHidden(sumU, l2Out.dOut2dNet, l1Out.result, w2, learningRate);
+        
         b2 = updateBias(b2, sumU, l2Out.dOut2dNet, learningRate);
+       // console.log(sumU.toArray());
+       // console.log(l1Out.dOut2dNet.toArray());
 
         /*
        ------------------------------------------------------------
@@ -341,16 +348,24 @@ for (let j = 0; j < 100; ++j) {
         derivatives = computeDerivatives(w1, sumU, l1Out.dOut2dNet);
 
         w1t = backPropHidden(derivatives, l1Out.dOut2dNet, dataIn, w1, learningRate);
+        
         b1 = updateBias(b1, sumU, l1Out.dOut2dNet, learningRate);
-
+        
+        
         w5 = w5t;
         w4 = w4t;
         w3 = w3t;
         w2 = w2t;
         w1 = w1t;
     }
+    console.log("target");
+    console.log(dataIn.toArray());
+    console.log("result");
+    console.log(l5Out.result.toArray());
 
-    console.log(errorTot(e.result, 2));
+    
+
+    //console.log(errorTot(e.result, 2));
 }
 
 function defaultTest() {

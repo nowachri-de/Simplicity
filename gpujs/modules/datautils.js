@@ -43,9 +43,9 @@ const GPUFeedForward = gpu.createKernelMap({
 }, function (dataIn, weights, numInputs, bias) {
     let sum = 0;
     for (let i = 0; i < numInputs; i++) {
-        sum += dataIn[i] * weights[i][this.thread.y];
+        sum += dataIn[i] * weights[i][this.thread.x];
     }
-    let out = sigmoidActivation(sum + bias[this.thread.y]);
+    let out = sigmoidActivation(sum + bias[this.thread.x]);
     dOut2dNet(out); //store for later use in backpropagation
     return out;
 })
@@ -79,8 +79,8 @@ const error = gpu.createKernelMap({
         return -(target - out);
     }
 }, function (outputs, targets) {
-    derivative(outputs[this.thread.y][this.thread.x], targets[this.thread.y][this.thread.x]);
-    return Math.pow(targets[this.thread.y][this.thread.x] - outputs[this.thread.y][this.thread.x], 2) * 0.5;
+    derivative(outputs[this.thread.x], targets[this.thread.x]);
+    return Math.pow(targets[this.thread.x] - outputs[this.thread.x], 2) * 0.5;
 }
 ); //num output neurons
 error.setDynamicArguments(true);
@@ -133,6 +133,7 @@ return updatedWeight;
 backPropHidden.setDynamicOutput(true);
 backPropHidden.setDynamicArguments(true);
 backPropHidden.setPipeline(true);
+ 
 
 const computeDerivatives = gpu.createKernel(function (weights, dEtot2dOut, dOut2dNet) {
     //X,Y  O   W    Err
@@ -214,7 +215,7 @@ function feedForward(dataIn,weights,biasWeights,numberOfNeurons){
 function backpropagateOutput(numberOfNeurons, numberOfInputNeurons, weights, biasWeights,dEtot2dOut, dOut2dNet, input, learningRate) {
     backPropOutput.setOutput([numberOfNeurons, numberOfInputNeurons]);
     updateBias.setOutput([numberOfNeurons]);
-
+    
     //will return updated bias weights
     return{
         weights: backPropOutput(weights, dEtot2dOut, dOut2dNet, input, learningRate),
