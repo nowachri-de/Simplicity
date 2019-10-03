@@ -17,7 +17,7 @@ outputLayer.setBiasWeights([.60, .60]);
 let network = new simplicity.Network();
 network.addLayer(inputLayer).addLayer(outputLayer);
 
-console.log(network.feedForward([.05,.10],[0.01,0.99]).result.toArray());
+console.log(network.feedForward([.05,.10],[0.01,0.99]).backPropagationResult.toArray());
 network.backPropagate(0.5);
 
 console.log(inputLayer.weights.toArray());

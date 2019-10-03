@@ -173,9 +173,7 @@ module.exports.Layer = function (numberOfNeurons, activation, numInputValues) {
         verifyInputDimension(dataIn, this);
         verifyWeightDimension(this.weights, this);
 
-        if (!isGLTextureFloat(dataIn)) {
-            dataIn = UTILS.data2Texture1D(dataIn, this.numberOfNeurons);
-        }
+        
 
         //save the input data in case this is the input (first) layer
         if (this.prevLayer === null) {
@@ -280,6 +278,10 @@ module.exports.Network = function () {
     }
 
     this.feedForward = function (dataIn, target) {
+        if (!isGLTextureFloat(dataIn)) {
+            dataIn = UTILS.data2Texture1D(dataIn, dataIn.length);
+        }
+
         if (this.isCompiled !== true) {
             this.compile();
         }

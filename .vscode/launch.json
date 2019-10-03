@@ -8,7 +8,7 @@
             "type": "node",
             "request": "launch",
             "name": "Launch Program",
-            "program": "${workspaceFolder}\\gpujs\\test-autoEncoder.js"
+            "program": "${workspaceFolder}\\gpujs\\autoEncoder-fast2.js"
         }
     ]
 }

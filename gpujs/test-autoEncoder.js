@@ -12,39 +12,28 @@ const gpu = new GPU({
 let nN = 2;
 let nZ = 2;
 
-function readObject(fileName) {
-    return JSON.parse(fs.readFileSync(fileName, 'utf8'));
-}
 
 
-function readAsTexture2D(file, d1, d2) {
-    return UTILS.data2Texture2D(readObject(file), d1,d2);
-}
+let w1 = UTILS.readAsTexture2D(__dirname+"/data/w1", nN, nN);
+let b1 = UTILS.readAsTexture1D(__dirname+"/data/b1", nN);
 
-function readAsTexture1D(file, dimensions) {
-    return UTILS.data2Texture1D(readObject(file), dimensions);
-}
-
-let w1 = readAsTexture2D(__dirname+"/data/w1", nN, nN);
-let b1 = readAsTexture1D(__dirname+"/data/b1", nN);
-
-let w2 = readAsTexture2D(__dirname+"/data/w2", nN, nN);
-let b2 = readAsTexture1D(__dirname+"/data/b2", nN);
+let w2 = UTILS.readAsTexture2D(__dirname+"/data/w2", nN, nN);
+let b2 = UTILS.readAsTexture1D(__dirname+"/data/b2", nN);
 
 //let w3 = randomNumbers(nZ, nN);
 //let b3 = randomNumbers(nZ, 1);
-let w3 = readAsTexture2D(__dirname+"/data/w3", nZ, nN);
-let b3 = readAsTexture1D(__dirname+"/data/b3", nZ);
+let w3 = UTILS.readAsTexture2D(__dirname+"/data/w3", nZ, nN);
+let b3 = UTILS.readAsTexture1D(__dirname+"/data/b3", nZ);
 
 //let w4 = randomNumbers(nN, nZ);
 //let b4 = randomNumbers(nN, 1);
-let w4 = readAsTexture2D(__dirname+"/data/w4", nN, nZ);
-let b4 = readAsTexture1D(__dirname+"/data/b4",  nN);
+let w4 = UTILS.readAsTexture2D(__dirname+"/data/w4", nN, nZ);
+let b4 = UTILS.readAsTexture1D(__dirname+"/data/b4",  nN);
 
-let w5 = readAsTexture2D(__dirname+"/data/w5", nN, nN);
-let b5 = readAsTexture1D(__dirname+"/data/b5",  nN);
+let w5 = UTILS.readAsTexture2D(__dirname+"/data/w5", nN, nN);
+let b5 = UTILS.readAsTexture1D(__dirname+"/data/b5",  nN);
 
-let dataIn = readAsTexture1D(__dirname+"/data/dataIn", nN);
+let dataIn = UTILS.readAsTexture1D(__dirname+"/data/dataIn", nN);
 let target = dataIn;
 
 let l1 = new simplicity.Layer(nN,'sigmoid');
@@ -71,8 +60,8 @@ l5.setBiasWeights(b5);
 let network = new simplicity.Network();
 network.addLayer(l1).addLayer(l2).addLayer(l3).addLayer(l4).addLayer(l5);
 
-for(let j=0; j < 100;++j){
-    for(let i=0; i < 100;++i){
+for(let j=0; j < 1;++j){
+    for(let i=0; i < 1000;++i){
         network.feedForward(dataIn,target);
         network.backPropagate(0.5);
         //console.log(l2.biasWeights.toArray());

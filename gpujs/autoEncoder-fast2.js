@@ -33,12 +33,12 @@ const feedForward = gpu.createKernelMap({
 }, function (dataIn, weights, numInputs, bias) {
     let sum = 0;
     for (let i = 0; i < numInputs; i++) {
-        sum += dataIn[i] * weights[i][this.thread.y];
+        sum += dataIn[i] * weights[i][this.thread.x];
     }
-    let out = sigmoidActivation(sum + bias[this.thread.y]);
+    let out = sigmoidActivation(sum + bias[this.thread.x]);
     dOut2dNet(out); //store for later use in backpropagation
     return out;
-}).setOutput([1, nN]);//[always 1, num target neurons]
+})
 feedForward.setDynamicOutput(true);
 feedForward.setDynamicArguments(true);
 feedForward.setPipeline(true);
@@ -158,53 +158,65 @@ sumUp.setDynamicOutput(true);
 sumUp.setDynamicArguments(true);
 sumUp.setPipeline(true);
 
-function randomNumbersAtScale(x, y, divisor) {
-    var matrix = []; // Initialize array
-    var i;
-    for (i = 0; i < y; i++) {
-        matrix[i] = []; // Initialize inner array
-        for (var j = 0; j < x; j++) { // i++ needs to be j++
-            matrix[i][j] = (Math.random() / divisor);
-        }
-    }
-    return matrix;
+const kernelData2Texture2D = gpu.createKernel(function (dataIn) {
+    return dataIn[this.thread.y][this.thread.x];
+});
+
+const kernelData2Texture1D = gpu.createKernel(function (dataIn) {
+    return dataIn[this.thread.x];
+});
+kernelData2Texture1D.setDynamicArguments(true);
+kernelData2Texture1D.setDynamicOutput(true);
+kernelData2Texture1D.setPipeline(true);
+
+kernelData2Texture2D.setDynamicArguments(true);
+kernelData2Texture2D.setDynamicOutput(true);
+kernelData2Texture2D.setPipeline(true);
+
+function data2Texture2D(data, x, y) {
+    kernelData2Texture2D.setOutput([x, y]);
+    return kernelData2Texture2D(data);
 }
 
-function saveObject(fileName, obj) {
-    fs.writeFileSync(fileName, JSON.stringify(obj));
+function data2Texture1D(data, length) {
+    kernelData2Texture1D.setOutput([length]);
+    return kernelData2Texture1D(data);
 }
 
 function readObject(fileName) {
     return JSON.parse(fs.readFileSync(fileName, 'utf8'));
 }
 
-function readAsTexture(file, d1, d2) {
-    let obj = readObject(file);
-    dataToTexture.setOutput([d1, d2]);
-    return dataToTexture(obj);
+function readAsTexture2D(file, d1, d2) {
+    return data2Texture2D(readObject(file), d1,d2);
 }
 
-let w1 = readAsTexture(__dirname+"/data/w1", nN, nN);
-let b1 = readAsTexture(__dirname+"/data/b1", nN, 1);
+function readAsTexture1D(file, dimensions) {
+    return data2Texture1D(readObject(file), dimensions);
+}
 
-let w2 = readAsTexture(__dirname+"/data/w2", nN, nN);
-let b2 = readAsTexture(__dirname+"/data/b2", nN, 1);
+let w1 = readAsTexture2D(__dirname+"/data/w1", nN, nN);
+let b1 = readAsTexture1D(__dirname+"/data/b1", nN);
+
+let w2 = readAsTexture2D(__dirname+"/data/w2", nN, nN);
+let b2 = readAsTexture1D(__dirname+"/data/b2", nN);
 
 //let w3 = randomNumbers(nZ, nN);
 //let b3 = randomNumbers(nZ, 1);
-let w3 = readAsTexture(__dirname+"/data/w3", nZ, nN);
-let b3 = readAsTexture(__dirname+"/data/b3", nZ, 1);
+let w3 = readAsTexture2D(__dirname+"/data/w3", nZ, nN);
+let b3 = readAsTexture1D(__dirname+"/data/b3", nZ);
 
 //let w4 = randomNumbers(nN, nZ);
 //let b4 = randomNumbers(nN, 1);
-let w4 = readAsTexture(__dirname+"/data/w4", nN, nZ);
-let b4 = readAsTexture(__dirname+"/data/b4", nN, 1);
+let w4 = readAsTexture2D(__dirname+"/data/w4", nN, nZ);
+let b4 = readAsTexture1D(__dirname+"/data/b4",  nN);
 
-let w5 = readAsTexture(__dirname+"/data/w5", nN, nN);
-let b5 = readAsTexture(__dirname+"/data/b5", nN, 1);
+let w5 = readAsTexture2D(__dirname+"/data/w5", nN, nN);
+let b5 = readAsTexture1D(__dirname+"/data/b5",  nN);
 
-let dataIn = readAsTexture(__dirname+"/data/dataIn",nN, 1);
+let dataIn = readAsTexture1D(__dirname+"/data/dataIn", nN);
 let target = dataIn;
+
 
 gpu.addFunction(sigmoidActivation);
 gpu.addFunction(derivativeSigmoid);
@@ -232,21 +244,21 @@ computeDerivatives.setOutput([nN, nN]);//set maximum outputsize
 computeDerivatives(w1, b1, w1); //The arguments have been choosen because they have the largest dimenions possible
 
 //defaultTest();
-for (let j = 0; j < 100; ++j) {
-    for (let i = 0; i < 100; ++i) {
-        feedForward.setOutput([1, nN]); //dimension l1 = nN
+for (let j = 0; j < 1; ++j) {
+    for (let i = 0; i < 5000; ++i) {
+        feedForward.setOutput([nN]); //dimension l1 = nN
         l1Out = feedForward(dataIn, w1, nN, b1); // num inputs (3rd argument) = nN
        
-        feedForward.setOutput([1, nN]); //dimension l2 = nN
+        feedForward.setOutput([nN]); //dimension l2 = nN
         l2Out = feedForward(l1Out.result, w2, nN, b2); // num inputs (3rd argument) = nN
       
-        feedForward.setOutput([1, nZ]); //dimension l3 = nZ
+        feedForward.setOutput([nZ]); //dimension l3 = nZ
         l3Out = feedForward(l2Out.result, w3, nN, b3); // num inputs (3rd argument) = nN
       
-        feedForward.setOutput([1, nN]); //dimension l4 = nZ
+        feedForward.setOutput([nN]); //dimension l4 = nZ
         l4Out = feedForward(l3Out.result, w4, nZ, b4); // num inputs (3rd argument) = nZ
        
-        feedForward.setOutput([1, nN]); //dimension l5 = nZ
+        feedForward.setOutput([nN]); //dimension l5 = nZ
         l5Out = feedForward(l4Out.result, w5, nN, b5); // num inputs (3rd argument) = nN
        
         e = error(l5Out.result, target);
@@ -362,6 +374,8 @@ for (let j = 0; j < 100; ++j) {
     console.log(dataIn.toArray());
     console.log("result");
     console.log(l5Out.result.toArray());
+    console.log("b1");
+    console.log(b1.toArray());
 
     
 

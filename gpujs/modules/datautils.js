@@ -1,5 +1,6 @@
 "use strict";
 const { GPU } = require('gpu.js');
+const fs = require("fs");
 
 const gpu = new GPU({
     mode: 'headlessgl'
@@ -53,12 +54,7 @@ GPUFeedForward.setDynamicOutput(true);
 GPUFeedForward.setDynamicArguments(true);
 GPUFeedForward.setPipeline(true);
 
-const kernelData2Texture1D = gpu.createKernel(function (dataIn) {
-    return dataIn[this.thread.x];
-});
-kernelData2Texture1D.setDynamicArguments(true);
-kernelData2Texture1D.setDynamicOutput(true);
-kernelData2Texture1D.setPipeline(true);
+
 
 function data2Texture1D(data, length) {
     kernelData2Texture1D.setOutput([length]);
@@ -68,6 +64,13 @@ function data2Texture1D(data, length) {
 const kernelData2Texture2D = gpu.createKernel(function (dataIn) {
     return dataIn[this.thread.y][this.thread.x];
 });
+
+const kernelData2Texture1D = gpu.createKernel(function (dataIn) {
+    return dataIn[this.thread.x];
+});
+kernelData2Texture1D.setDynamicArguments(true);
+kernelData2Texture1D.setDynamicOutput(true);
+kernelData2Texture1D.setPipeline(true);
 
 kernelData2Texture2D.setDynamicArguments(true);
 kernelData2Texture2D.setDynamicOutput(true);
@@ -246,6 +249,19 @@ function updateBiasWeights(length, bias, dEtot2dOut, dOut2dNet, learningRate) {
     //will return updated bias weights
     return updateBias(bias, dEtot2dOut, dOut2dNet, learningRate);
 }
+
+function readObject(fileName) {
+    return JSON.parse(fs.readFileSync(fileName, 'utf8'));
+}
+
+function readAsTexture2D(file, d1, d2) {
+    return data2Texture2D(readObject(file), d1,d2);
+}
+
+function readAsTexture1D(file, dimensions) {
+    return data2Texture1D(readObject(file), dimensions);
+}
+
 module.exports.data2Texture1D = data2Texture1D;
 module.exports.data2Texture2D = data2Texture2D;
 module.exports.feedForward = feedForward;
@@ -256,5 +272,7 @@ module.exports.backpropagateOutput = backpropagateOutput;
 module.exports.backpropagateHidden = backpropagateHidden;
 module.exports.updateBiasWeights = updateBiasWeights;
 module.exports.getTotalError = getTotalError;
+module.exports.readAsTexture1D = readAsTexture1D;
+module.exports.readAsTexture2D = readAsTexture2D;
 
 module.exports.GPU = gpu;
