@@ -62,7 +62,7 @@ describe('Matrix', function () {
       this.timeout(0);//disable timeout
       var matrixA = new Matrix.Matrix(3, 200);//rows, columns
       var matrixB = new Matrix.Matrix(200, 10);//rows, columns
-      for (let i = 0; i < 100; i++) {
+      for (let i = 0; i < 10; i++) {
         //Do random initialization
         matrixA.randomInitialize();
         matrixB.randomInitialize();
@@ -84,6 +84,8 @@ describe('Matrix', function () {
       }
     });
   });
+
+  
 });
 
 function jsMatMul(matrixA, matrixB) {
