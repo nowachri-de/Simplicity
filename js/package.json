@@ -1,0 +1,41 @@
+{
+  "name": "shader-utils",
+  "version": "0.0.1",
+  "description": "GLSL Shader Utility functions for Node.js",
+  "main": "package-entry.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "gl": "^4.4.0",
+    "mathjs": "^6.2.2"
+  },
+  "devDependencies": {
+    "mocha": "^6.2.1"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nowachri-de"
+  },
+  "keywords": [
+    "gpu",
+    "shader",
+    "matrix",
+    "multiplication",
+    "gpu.js",
+    "neuronal",
+    "network",
+    "feedforward",
+    "ai",
+    "machine",
+    "learning",
+    "backpropagation",
+    "gradient",
+    "descent"
+  ],
+  "author": "Christian Nowak (nowachri-de)",
+  "license": "ISC"
+}

@@ -32,27 +32,27 @@ class Matrix {
         }
         return null;
     }
-	
-	getColumn(col) {
-		var column = new Array();
-		
-		if (col < this.numColumns) {
+
+    getColumn(col) {
+        var column = new Array();
+
+        if (col < this.numColumns) {
             for (var row = 0; row < this.numRows; row++) {
-				column.push(this.rows[row][col]);
-			}
+                column.push(this.rows[row][col]);
+            }
         }
-		
+
         return column;
     }
-	
-	getRow(row) {
-		if (row < this.numRows) {
+
+    getRow(row) {
+        if (row < this.numRows) {
             return this.row[row];
         }
-		return [];
+        return [];
     }
-	
-	setValue(row, col,value) {
+
+    setValue(row, col, value) {
         if (row < this.numRows && col < this.numColumns) {
             this.rows[row][col] = value;
         }
@@ -72,7 +72,7 @@ class Matrix {
         if (decimals === undefined)
             decimals = 15;
 
-		var result = "";
+        var result = "";
         var rowContent = "";
         for (var row = 0; row < this.numRows; row++) {
             for (var col = 0; col < this.numColumns; col++) {
@@ -81,7 +81,7 @@ class Matrix {
             console.log(rowContent);
             rowContent = "";
         }
-		return result;
+        return result;
     }
 
     as2DArray() {
@@ -110,15 +110,15 @@ class Matrix {
             case 'R':
                 copyOffset = 4;
                 break;
-                //G component of RGBA color
+            //G component of RGBA color
             case 'G':
                 copyOffset = 3;
                 break;
-                //B component of RGBA color
+            //B component of RGBA color
             case 'B':
                 copyOffset = 2;
                 break;
-                //A component of RGBA color
+            //A component of RGBA color
             case 'A':
                 copyOffset = 1;
                 break;
@@ -133,15 +133,15 @@ class Matrix {
                 case 'R':
                     texelRowOrig[cnt - 4] = texelRowCopy[cnt - copyOffset];
                     break;
-                    //G component of RGBA color
+                //G component of RGBA color
                 case 'G':
                     texelRowOrig[cnt - 3] = texelRowCopy[cnt - copyOffset];
                     break;
-                    //B component of RGBA color
+                //B component of RGBA color
                 case 'B':
                     texelRowOrig[cnt - 2] = texelRowCopy[cnt - copyOffset];
                     break;
-                    //A component of RGBA color
+                //A component of RGBA color
                 case 'A':
                     texelRowOrig[cnt - 1] = texelRowCopy[cnt - copyOffset];
                     break;
@@ -173,13 +173,13 @@ class Matrix {
             //R component of RGBA color
             case 'R':
                 return 0;
-                //G component of RGBA color
+            //G component of RGBA color
             case 'G':
                 return 1;
-                //B component of RGBA color
+            //B component of RGBA color
             case 'B':
                 return 2;
-                //A component of RGBA color
+            //A component of RGBA color
             case 'A':
                 return 3;
             default:
@@ -208,15 +208,15 @@ class Matrix {
                     case 'R':
                         result[cnt - 4] = this.rows[row][col];
                         break;
-                        //G component of RGBA color
+                    //G component of RGBA color
                     case 'G':
                         result[cnt - 3] = this.rows[row][col];
                         break;
-                        //B component of RGBA color
+                    //B component of RGBA color
                     case 'B':
                         result[cnt - 2] = this.rows[row][col];
                         break;
-                        //A component of RGBA color
+                    //A component of RGBA color
                     case 'A':
                         result[cnt - 1] = this.rows[row][col];
                         break;
@@ -243,11 +243,11 @@ class Matrix {
 
     multiply(matrixB) {
         //return (new MatrixGL("canvas", this, matrixB)).compute();
-		var t0 = performance.now();
-		
+        var t0 = performance.now();
+
         var matrixMerger = new MatrixMerger();
-        matrixMerger.addMatrix(this,'R');
-        matrixMerger.addMatrix(matrixB,'G');
+        matrixMerger.addMatrix(this, 'R');
+        matrixMerger.addMatrix(matrixB, 'G');
 
         var program = new Program("canvas");
         var textureFactory = new TextureFactory("canvas");
@@ -258,26 +258,26 @@ class Matrix {
         var textureReadable = textureFactory.createReadableTexture('textureReadable', outputDimensions);
 
         var shader = new Shader(program.gl);
-		var vertexShader   = shader.getVertexShader(ShaderCode.getShaderCode("VERTEX"));
-		var fragmentShader = shader.getFragmentShader(ShaderCode.getShaderCode("SINGLE"))
+        var vertexShader = shader.getVertexShader(Shader.ShaderCode.getShaderCode("VERTEX"));
+        var fragmentShader = shader.getFragmentShader(Shader.ShaderCode.getShaderCode("SINGLE"))
 
-        program.buildProgram(vertexShader,fragmentShader);        
+        program.buildProgram(vertexShader, fragmentShader);
         var computationResult = program.compute2(texture, textureResult, outputDimensions, 0, 1);
 
-		var matrixDimension = this.getOutputDimensions(matrixB);
-		var resultDimension = {
-			width : matrixDimension.numColumns,
-			height: matrixDimension.numRows
-		}
+        var matrixDimension = this.getOutputDimensions(matrixB);
+        var resultDimension = {
+            width: matrixDimension.numColumns,
+            height: matrixDimension.numRows
+        }
         var resultReader = new ResultReader(program.gl, "canvas");
-        var result = resultReader.readByResultDimension(computationResult.textureResult, textureReadable,resultDimension,0);
-		
-		
+        var result = resultReader.readByResultDimension(computationResult.textureResult, textureReadable, resultDimension, 0);
+
+
         textureFactory.free();
         program.free();
-		
-		var t1 = performance.now();
-		result.duration = t1 - t0;
+
+        var t1 = performance.now();
+        result.duration = t1 - t0;
         return result;
     }
 
@@ -347,8 +347,8 @@ function MatrixMerger() {
 	 * @param {Matrix} matrix - The matrix to be added.
 	 * @param {integer} targetComponent - The component (R,G,B or A) where to write the value in the texture.
     */
-		
-    this.addMatrix = function(matrix,targetComponent) {
+
+    this.addMatrix = function (matrix, targetComponent) {
         if (this.mergeInstructions.length >= 4) {
             throw "Can not add another matrix, class already contains 4 matrices";
         }
@@ -370,7 +370,7 @@ function MatrixMerger() {
         }
     }
 
-    this.getTexels = function() {
+    this.getTexels = function () {
         var result = new Float32Array(this.maxColumns * this.maxRows * 4);
         var resultIndex = 0;
 
@@ -380,7 +380,7 @@ function MatrixMerger() {
                     var mergeInstruction = this.mergeInstructions[mi];
                     var matrix = mergeInstruction.matrix;
                     //var sourceComponentOffset = matrix.componentToIndex(mergeInstruction.sourceComponent);
-					var sourceComponentOffset = matrix.componentToIndex('R');
+                    var sourceComponentOffset = matrix.componentToIndex('R');
                     var targetComponentOffset = matrix.componentToIndex(mergeInstruction.targetComponent);
 
                     var matrixValue = matrix.getValue(row, column);
@@ -398,7 +398,7 @@ function MatrixMerger() {
         return result;
     }
 
-    this.getOutputDimensions = function() {
+    this.getOutputDimensions = function () {
 
         var outRows = this.maxRows;
         var outColumns = this.maxColumns;
@@ -480,7 +480,7 @@ class MatrixGL {
             var ext;
             try {
                 ext = this.gl.getExtension("OES_texture_float");
-            } catch (e) {}
+            } catch (e) { }
 
             if (!ext) {
                 console.log("Your browser does not support OES_texture_float extension.");
@@ -513,6 +513,8 @@ class MatrixGL {
     }
 
     createReadableTexture(index) {
+
+        throw "Do not use any more";
         var gl = this.gl;
         var renderCanvas = this.getRenderCanvas(this.canvasID);
 
@@ -753,7 +755,7 @@ class MatrixGL {
 
     test() {
         var result = `
-	    #ifdef GL_ES  
+	        #ifdef GL_ES  
             	precision highp float;  
             #endif  
             varying vec2	  vTex;         // row, column to calculate

@@ -65,6 +65,10 @@ const kernelData2Texture2D = gpu.createKernel(function (dataIn) {
     return dataIn[this.thread.y][this.thread.x];
 });
 
+kernelData2Texture2D.setDynamicArguments(true);
+kernelData2Texture2D.setDynamicOutput(true);
+kernelData2Texture2D.setPipeline(true);
+
 const kernelData2Texture1D = gpu.createKernel(function (dataIn) {
     return dataIn[this.thread.x];
 });
@@ -72,9 +76,6 @@ kernelData2Texture1D.setDynamicArguments(true);
 kernelData2Texture1D.setDynamicOutput(true);
 kernelData2Texture1D.setPipeline(true);
 
-kernelData2Texture2D.setDynamicArguments(true);
-kernelData2Texture2D.setDynamicOutput(true);
-kernelData2Texture2D.setPipeline(true);
 
 
 const error = gpu.createKernelMap({
