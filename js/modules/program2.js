@@ -244,14 +244,14 @@ module.exports.Program = function Program(width, height, gl) {
 			gl.deleteRenderbuffer(value.renderBuffer);
 			gl.deleteTexture(value.texture.texture);
 
-			//console.log("Called gl.deleteFramebuffer for framebuffer " + value.name + " holding texture with texture index " + value.texture.textureIndex);
+			console.log("Called gl.deleteFramebuffer for framebuffer " + value.name + " holding texture with texture index " + value.texture.textureIndex);
 		});
 		gl.deleteShader(this.vShader);
-		//console.log("Deleted vertex shader");
+		console.log("Deleted vertex shader");
 		gl.deleteShader(this.fShader);
-		//console.log("Deleted fragment shader");
+		console.log("Deleted fragment shader");
 		gl.deleteProgram(this.program);
-		//console.log("Deleted program");
+		console.log("Deleted program");
 
 	}
 }
@@ -259,6 +259,29 @@ module.exports.Program = function Program(width, height, gl) {
 module.exports.TextureFactory = function TextureFactory(gl) {
 	this.textureIndex = 0;
 	this.textures = new Map();
+
+	/*this.getGl = function() {
+        var canvas = this.getRenderCanvas(canvasID);
+		
+        var gl = canvas.getContext("experimental-webgl", {
+			premultipliedAlpha: false,
+            preserveDrawingBuffer: false
+        });
+
+        if (gl === undefined)
+			throw "webgl is not supported.";
+		// must support float texture
+		var ext;
+		try {
+			ext = gl.getExtension("OES_texture_float");
+		} catch (e) {}
+
+		if (!ext) {
+			console.log("Your browser does not support OES_texture_float extension.");
+		}
+		
+        return gl;
+    }*/
 
 	this.gl = gl;
 
@@ -339,8 +362,7 @@ module.exports.TextureFactory = function TextureFactory(gl) {
 		var gl = this.gl;
 		this.textures.forEach(function logMapElements(value, key, map) {
 			gl.deleteTexture(value.texture);
-			//console.log("Called gl.deleteTexture for texture " + value.name + " with index " + value.textureIndex);
+			console.log("Called gl.deleteTexture for texture " + value.name + " with index " + value.textureIndex);
 		});
-		this.textures.clear()
 	}
 }

@@ -264,7 +264,7 @@ class Matrix {
         var shader = new Shader.Shader(program.gl);
         var vertexShader = shader.getVertexShader(Shader.ShaderCode.getShaderCode("VERTEX"));
         var fragmentShader = shader.getFragmentShader(Shader.ShaderCode.getShaderCode("SINGLE"))
-
+        program.free();
         program.buildProgram(vertexShader, fragmentShader);
         var computationResult = program.compute2(texture, textureResult, outputDimensions, 0, 1);
 

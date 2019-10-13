@@ -40,11 +40,35 @@ describe('Matrix', function () {
       validateMultiplicationResult(matrixA, matrixB, matrixA.multiply(matrixB));
     });
   });
+  describe('#multiply(Matrix)', function () {
+    it('should multiply matrix a with matrix b 100 times. Different matrix dimensions', function () {
+      this.timeout(0);//disable timeout
+      var matrixA = new Matrix.Matrix(3, 200);//rows, columns
+      var matrixB = new Matrix.Matrix(200, 10);//rows, columns
+      for (let i = 0; i < 100; i++) {
+        //Do random initialization
+        matrixA.randomInitialize();
+        matrixB.randomInitialize();
+        validateMultiplicationResult(matrixA, matrixB, matrixA.multiply(matrixB));
+      }
+    });
+  });
+
+  describe('#multiply(Matrix)', function () {
+    it('should multiply matrix a with matrix b 100 times. Same matrix dimensions', function () {
+      this.timeout(0);//disable timeout
+      var matrixA = new Matrix.Matrix(200, 200);//rows, columns
+      var matrixB = new Matrix.Matrix(200, 200);//rows, columns
+      for (let i = 0; i < 100; i++) {
+        //Do random initialization
+        matrixA.randomInitialize();
+        matrixB.randomInitialize();
+        validateMultiplicationResult(matrixA, matrixB, matrixA.multiply(matrixB));
+      }
+    });
+  });
 });
 
-
-
-//console.log(jsMatMul(matrixA,matrixB));
 function jsMatMul(matrixA, matrixB) {
   var mat1 = math.matrix(matrixA.as2DArray());
   var mat2 = math.matrix(matrixB.as2DArray());

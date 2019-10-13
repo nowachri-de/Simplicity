@@ -194,7 +194,6 @@ module.exports.ShaderCode = class ShaderCode {
 		    float matrixmul(float col, float row){
 				highp float sum = 0.;
 				highp float cc = 0.;
-				highp float rr = 0.;
 				
 				for (int index=0; index < 2048; index ++){
 					if (index>=uNumColumns) break;
@@ -206,7 +205,6 @@ module.exports.ShaderCode = class ShaderCode {
 					float m2 = getMatrixValue(col,cc,uRGBAIndexB);
 					
 					cc  += uStepCol;
-					
 					sum += (m1*m2);
 				}
 				return sum;
