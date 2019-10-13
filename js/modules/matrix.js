@@ -272,8 +272,21 @@ class Matrix {
     */
     readResult(){
         let matrixMerger = this.matrixMerger;
+        let mergInstruction = matrixMerger.mergeInstructions[0];
+        var mergInstruction = {
+            targetComponent: targetComponent,
+            matrix: matrix
+        }
+
+        var matrixDimension = matrixMerger.mergeInstructions[0].getOutputDimensions(matrixMerger.mergeInstructions[1]);
+        
+        var resultDimension = {
+            width: matrixDimension.numColumns,
+            height: matrixDimension.numRows
+        }
+
         var resultReader = new ResultReader.ResultReader(program.gl, resultDimension.width, resultDimension.height);
-        var result = resultReader.readByResultDimension(computationResult.textureResult, textureReadable, resultDimension, 0);
+        var result = resultReader.readByResultDimension(this.resultTexture, textureReadable, resultDimension, 0);
     }
     multiply(matrixB) {
         let t0 = Date.now();

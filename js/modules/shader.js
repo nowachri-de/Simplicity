@@ -56,7 +56,9 @@ module.exports.ShaderCode = class ShaderCode {
   }
   static getReadableShaderCode(){
 	  var code =  ` 
-			//Shader that creates a texture that can be converted to byte
+			/*Shader that creates a texture that can be converted to byte.
+			 *This is needed when reading a texture from javascript.*/
+
 			#ifdef GL_ES 
 				precision highp float; 
 			#endif 
@@ -72,10 +74,15 @@ module.exports.ShaderCode = class ShaderCode {
 				
 				highp vec4 result = texture2D(usamplerA, vec2(col,row));
 				
-				if (targetIndex == 0) return result.x;
+				/*if (targetIndex == 0) return result.x;
 				if (targetIndex == 1) return result.y;
 				if (targetIndex == 2) return result.z;
-				if (targetIndex == 3) return result.w;
+				if (targetIndex == 3) return result.w;*/
+
+				if (targetIndex == 0) return result.r;
+				if (targetIndex == 1) return result.g;
+				if (targetIndex == 2) return result.b;
+				if (targetIndex == 3) return result.a;
 				
 				//This return statement should not be reached
 				return result.x;
@@ -153,19 +160,20 @@ module.exports.ShaderCode = class ShaderCode {
   
   static getSingleTextureCode(){
 	  		var code = ` 
-			// fragment shader that calculates the sum of the passed row and 
-			// column (texture coord). 
-			// we loop over the row and column and sum the product. 
+			// Do matrix multiplication using a single texture 
+			// Upto four matrices can be stored in a single texture
+			// using the RGBA components. 
 			// product is then rendered to 32-bit IEEE754 floating point in the 
 			// output RGBA canvas. 
 			// readPixel is used to read the bytes. 
+			
 			#ifdef GL_ES 
 				precision highp float; 
 			#endif 
 		 
 			varying highp vec2          vTexture;			// row, column to calculate 
 			uniform highp sampler2D     usampler;			// merged matrix texels
-			uniform 	  int 			uNumColumns;	//
+			uniform 	  int 			uNumColumns;	    // number of columns
 			uniform highp float	  		uStepCol; 		    // column step texture
 			
 		    uniform 	  int 			uRGBAIndexA;        // R,G,B,A index matrixA
@@ -183,11 +191,17 @@ module.exports.ShaderCode = class ShaderCode {
 			
 			vec4 getResultValue(float col, float row,float value,int targetIndex){
 				vec4 result = texture2D(usampler,vec2(col,row));
-				if (targetIndex == 0) result.x = value; return result;
+				
+				/*if (targetIndex == 0) result.x = value; return result;
 				if (targetIndex == 1) result.y = value; return result;
 				if (targetIndex == 2) result.z = value; return result;
-				if (targetIndex == 3) result.w = value; return result;
+				if (targetIndex == 3) result.w = value; return result;*/
 				
+				if (targetIndex == 0) result.r = value; return result;
+				if (targetIndex == 1) result.g = value; return result;
+				if (targetIndex == 2) result.b = value; return result;
+				if (targetIndex == 3) result.a = value; return result;
+
 				return result;
 			}
 			
