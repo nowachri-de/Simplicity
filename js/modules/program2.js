@@ -1,16 +1,27 @@
 var headlessGL = require('gl');
 
-module.exports.Program = function Program(width, height, gl) {
-	this.frameBuffers = new Map();
-	this.self = this;
-	this.program = null;
-	this.vShader = null;
-	this.fShader = null;
-	this.width = width;
-	this.height = height;
+module.exports.Program = class Program {
 
-	this.getGl = function (width, height) {
+	constructor(width, height, gl) {
+		this.frameBuffers = new Map();
+		this.self = this;
+		this.program = null;
+		this.vShader = null;
+		this.fShader = null;
+		this.width = width;
+		this.height = height;
+		this.textureIndex = 0;
+		this.debug = false;
 
+		if (typeof gl === 'undefined') {
+			this.gl = this.createGl(width, height);
+		} else {
+			this.gl = gl;
+		}
+	}
+
+
+	createGl(width, height) {
 		var gl = headlessGL(width, height, {
 			premultipliedAlpha: false,
 			preserveDrawingBuffer: false
@@ -32,7 +43,7 @@ module.exports.Program = function Program(width, height, gl) {
 		return gl;
 	}
 
-	this.getOutputDimensions = function (matrixA, matrixB) {
+	getOutputDimensions(matrixA, matrixB) {
 
 		var outRows = matrixA.numRows;
 		var outColumns = matrixB.numColumns;
@@ -45,15 +56,7 @@ module.exports.Program = function Program(width, height, gl) {
 		return result;
 	}
 
-	if (typeof gl === 'undefined') {
-		this.gl = this.getGl(width, height);
-	} else {
-		this.gl = gl;
-	}
-
-	this.textureIndex = 0;
-
-	this.createFrameBuffer = function (texture,name) {
+	createFrameBuffer(texture, name) {
 		var gl = this.gl;
 
 		// create and bind renderbuffer
@@ -72,7 +75,7 @@ module.exports.Program = function Program(width, height, gl) {
 
 		if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) != gl.FRAMEBUFFER_COMPLETE)
 			console.log("Error: binding of framebuffer failed");
-		
+
 		var result = {
 			texture: texture,
 			frameBuffer: frameBuffer,
@@ -87,17 +90,17 @@ module.exports.Program = function Program(width, height, gl) {
 		return result;
 	}
 
-	this.doBindings = function (textureA, textureB, program, targetIndex) {
+	doBindings(textureA, textureB, program, targetIndex) {
 		this.doUnifromBindings(textureA, textureB, program, targetIndex);
 		this.doVertexBindings(program);
 	}
 
-	this.doBindings2 = function (texture, program, componentIndexA, componentIndexB) {
-		this.doUnifromBindings2(texture, program, componentIndexA, componentIndexB,0);
+	doBindings2(texture, program, componentIndexA, componentIndexB) {
+		this.doUnifromBindings2(texture, program, componentIndexA, componentIndexB, 0);
 		this.doVertexBindings(program);
 	}
 
-	this.doUnifromBindings = function (textureA, textureB, program, targetIndex) {
+	doUnifromBindings(textureA, textureB, program, targetIndex) {
 		var gl = this.gl;
 
 		var uStepInCol = gl.getUniformLocation(program, "uStepInCol");
@@ -118,7 +121,7 @@ module.exports.Program = function Program(width, height, gl) {
 		}
 	}
 
-	this.doUnifromBindings2 = function (texture, program, componentIndexA, componentIndexB, targetIndex) {
+	doUnifromBindings2(texture, program, componentIndexA, componentIndexB, targetIndex) {
 		var gl = this.gl;
 
 		var uStepCol = gl.getUniformLocation(program, "uStepCol");
@@ -140,7 +143,7 @@ module.exports.Program = function Program(width, height, gl) {
 
 	}
 
-	this.doVertexBindings = function (program) {
+	doVertexBindings(program) {
 		var gl = this.gl;
 		// bind vertices
 		var aPosition = gl.getAttribLocation(program, "aPosition");
@@ -169,7 +172,7 @@ module.exports.Program = function Program(width, height, gl) {
 		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(vertexIndices), gl.STATIC_DRAW);
 	}
 
-	this.buildProgram = function (vertexShader, fragmentShader) {
+	buildProgram(vertexShader, fragmentShader) {
 		var gl = this.gl;
 
 		this.vShader = vertexShader;
@@ -193,7 +196,7 @@ module.exports.Program = function Program(width, height, gl) {
 		return program;
 	}
 
-	this.compute = function (textureA, textureB, textureC, outputDimensions) {
+	compute(textureA, textureB, textureC, outputDimensions) {
 		var t0 = Date.now();
 		var gl = this.gl;
 		var canvas = this.getRenderCanvas(this.width, this.height);
@@ -215,7 +218,7 @@ module.exports.Program = function Program(width, height, gl) {
 		return textureC;
 	}
 
-	this.compute2 = function (texture, textureResult, outputDimensions, componentA, componentB, targetIndex) {
+	compute2(texture, textureResult, outputDimensions, componentA, componentB, targetIndex) {
 		var t0 = Date.now();
 		var gl = this.gl;
 
@@ -223,7 +226,7 @@ module.exports.Program = function Program(width, height, gl) {
 		gl.useProgram(this.program);
 		gl.viewport(0, 0, outputDimensions.numColumns, outputDimensions.numRows);
 
-		var frameBuffer = this.createFrameBuffer(textureResult,"compute2");
+		var frameBuffer = this.createFrameBuffer(textureResult, "compute2");
 
 		gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.frameBuffer);
 		this.doBindings2(texture, this.program, componentA, componentB);
@@ -237,62 +240,47 @@ module.exports.Program = function Program(width, height, gl) {
 		}
 	}
 
-	this.free = function () {
-		var gl = this.gl;
+	debugPrint(message) {
+		if (this.debug === true) {
+			console.log(message);
+		}
+	}
+	free() {
+		let gl = this.gl;
+		let self = this;
 		this.frameBuffers.forEach(function logMapElements(value, key, map) {
 			gl.deleteFramebuffer(value.frameBuffer);
 			gl.deleteRenderbuffer(value.renderBuffer);
 			gl.deleteTexture(value.texture.texture);
 
-			console.log("Called gl.deleteFramebuffer for framebuffer " + value.name + " holding texture with texture index " + value.texture.textureIndex);
+			self.debugPrint("Called gl.deleteFramebuffer for framebuffer " + value.name + " holding texture with texture index " + value.texture.textureIndex);
 		});
 		gl.deleteShader(this.vShader);
-		console.log("Deleted vertex shader");
+		this.debugPrint("Deleted vertex shader");
 		gl.deleteShader(this.fShader);
-		console.log("Deleted fragment shader");
+		this.debugPrint("Deleted fragment shader");
 		gl.deleteProgram(this.program);
-		console.log("Deleted program");
-
+		this.debugPrint("Deleted program");
 	}
 }
 
-module.exports.TextureFactory = function TextureFactory(gl) {
-	this.textureIndex = 0;
-	this.textures = new Map();
+module.exports.TextureFactory = class TextureFactory {
 
-	/*this.getGl = function() {
-        var canvas = this.getRenderCanvas(canvasID);
-		
-        var gl = canvas.getContext("experimental-webgl", {
-			premultipliedAlpha: false,
-            preserveDrawingBuffer: false
-        });
+	constructor(gl) {
+		this.gl = gl;
+		this.textureIndex = 0;
+		this.textures = new Map();
+	}
 
-        if (gl === undefined)
-			throw "webgl is not supported.";
-		// must support float texture
-		var ext;
-		try {
-			ext = gl.getExtension("OES_texture_float");
-		} catch (e) {}
 
-		if (!ext) {
-			console.log("Your browser does not support OES_texture_float extension.");
-		}
-		
-        return gl;
-    }*/
-
-	this.gl = gl;
-
-	this.createReadableTexture = function (name, outputdimensions) {
+	createReadableTexture(name, outputdimensions) {
 		var gl = this.gl;
 
-        /*var renderCanvas = this.getRenderCanvas(this.canvasID);
+		/*var renderCanvas = this.getRenderCanvas(this.canvasID);
 		renderCanvas.width = outputdimensions.numColumns;
 		renderCanvas.height = outputdimensions.numRows;*/
 
-      
+
 		var texture = gl.createTexture();
 
 		gl.activeTexture(this.gl.TEXTURE0 + this.textureIndex);
@@ -320,15 +308,15 @@ module.exports.TextureFactory = function TextureFactory(gl) {
 		return result;
 	}
 
-	this.createTexture = function (name, matrix, component) {
+	createTexture(name, matrix, component) {
 		return this.createTextureByDimension(name, matrix.numRows, matrix.numColumns, matrix.getTexels(component));
 	}
 
-	this.createResultTexture = function (name, outputdimensions) {
+	createResultTexture(name, outputdimensions) {
 		return this.createTextureByDimension(name, outputdimensions.numRows, outputdimensions.numColumns, null);
 	}
 
-	this.createTextureByDimension = function (name, rows, cols, data) {
+	createTextureByDimension(name, rows, cols, data) {
 		var gl = this.gl;
 
 		var texture = gl.createTexture();
@@ -358,11 +346,18 @@ module.exports.TextureFactory = function TextureFactory(gl) {
 		return result;
 	}
 
-	this.free = function () {
+	debugPrint(message) {
+		if (this.debug === true) {
+			console.log(message);
+		}
+	}
+
+	free() {
 		var gl = this.gl;
+		var self = this;
 		this.textures.forEach(function logMapElements(value, key, map) {
 			gl.deleteTexture(value.texture);
-			console.log("Called gl.deleteTexture for texture " + value.name + " with index " + value.textureIndex);
+			self.debugPrint("Called gl.deleteTexture for texture " + value.name + " with index " + value.textureIndex);
 		});
 	}
 }

@@ -1,4 +1,4 @@
-const Program = require(__dirname + "\\program.js");
+const Program = require(__dirname + "\\program2.js");
 const Shader = require(__dirname + "\\shader.js");
 const ResultReader = require(__dirname + "\\resultreader.js");
 const headlessGL = require('gl');
