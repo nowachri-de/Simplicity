@@ -25,7 +25,7 @@ describe('MatrixMerger', function () {
      
     
       let outputDimensions = matrixA.matrixMerger.getOutputDimensions();
-      let result = matrixA.readResult(0,outputDimensions.numColumns,outputDimensions.numRows);
+      let result = matrixA.readResult(1,outputDimensions.numColumns,outputDimensions.numRows);
       console.log(result);
       validateMultiplicationResult(matrixA, matrixB, result);
     });
