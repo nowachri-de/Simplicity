@@ -44,8 +44,8 @@
 			
 			displayMessage('messages',"multiplying " + getSimpleMatrixInfo(matrixA,matrixB) + " on GPU using two textures");
 			//Execute the program, doing the matrix multiplication
-			var textureResult = program.compute(textureA,textureB,textureC,outputDimensions);
-			displayMessage('messages',logTime(matrixA,matrixB,textureResult));
+			var resultTexture = program.compute(textureA,textureB,textureC,outputDimensions);
+			displayMessage('messages',logTime(matrixA,matrixB,resultTexture));
 			
 			//Read the result
 			var resultReader = new ResultReader(program.gl,"canvas");

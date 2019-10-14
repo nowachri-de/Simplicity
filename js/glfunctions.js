@@ -254,15 +254,15 @@ class Matrix {
         var outputDimensions = matrixMerger.getOutputDimensions();
 
         var texture = textureFactory.createTextureByDimension("inputTexture", matrixMerger.maxRows, matrixMerger.maxColumns, matrixMerger.getTexels());
-        var textureResult = textureFactory.createResultTexture('resultTexture', outputDimensions);
-        var textureReadable = textureFactory.createReadableTexture('textureReadable', outputDimensions);
+        var resultTexture = textureFactory.createResultTexture('resultTexture', outputDimensions);
+        var readableTexture = textureFactory.createReadableTexture('readableTexture', outputDimensions);
 
         var shader = new Shader(program.gl);
         var vertexShader = shader.getVertexShader(Shader.ShaderCode.getShaderCode("VERTEX"));
         var fragmentShader = shader.getFragmentShader(Shader.ShaderCode.getShaderCode("SINGLE"))
 
         program.buildProgram(vertexShader, fragmentShader);
-        var computationResult = program.compute2(texture, textureResult, outputDimensions, 0, 1);
+        var computationResult = program.compute2(texture, resultTexture, outputDimensions, 0, 1);
 
         var matrixDimension = this.getOutputDimensions(matrixB);
         var resultDimension = {
@@ -270,7 +270,7 @@ class Matrix {
             height: matrixDimension.numRows
         }
         var resultReader = new ResultReader(program.gl, "canvas");
-        var result = resultReader.readByResultDimension(computationResult.textureResult, textureReadable, resultDimension, 0);
+        var result = resultReader.readByResultDimension(computationResult.resultTexture, readableTexture, resultDimension, 0);
 
 
         textureFactory.free();

@@ -1,6 +1,6 @@
-function gpuPrint(program,textureResult,textureReadable,targetIndex){
+function gpuPrint(program,resultTexture,readableTexture,targetIndex){
 	var resultReader = new ResultReader(program.gl,"canvas");
-	var result = resultReader.read(textureResult,textureReadable,targetIndex);
+	var result = resultReader.read(resultTexture,readableTexture,targetIndex);
 	result.print(5);
 }
 

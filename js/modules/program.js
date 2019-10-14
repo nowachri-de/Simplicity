@@ -217,7 +217,7 @@ module.exports.Program = class Program {
 		return textureC;
 	}
 
-	compute2(texture, textureResult, outputDimensions, componentA, componentB, targetIndex) {
+	compute2(texture, resultTexture, outputDimensions, componentA, componentB, targetIndex) {
 		var t0 = Date.now();
 		var gl = this.gl;
 
@@ -225,7 +225,7 @@ module.exports.Program = class Program {
 		gl.useProgram(this.program);
 		gl.viewport(0, 0, outputDimensions.numColumns, outputDimensions.numRows);
 
-		var frameBuffer = this.createFrameBuffer(textureResult, "compute2");
+		var frameBuffer = this.createFrameBuffer(resultTexture, "compute2");
 
 		gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.frameBuffer);
 		this.doBindings2(texture, this.program, componentA, componentB);
@@ -234,7 +234,7 @@ module.exports.Program = class Program {
 		var t1 = Date.now();
 
 		return {
-			textureResult: textureResult,
+			resultTexture: resultTexture,
 			duration: t1 - t0
 		}
 	}

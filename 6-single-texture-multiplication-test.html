@@ -55,35 +55,35 @@
 			console.log(matrixMerger.getTexels());
 			
 			var texture 				= textureFactory.createTextureByDimension("inputTexture",matrixMerger.maxRows,matrixMerger.maxColumns,matrixMerger.getTexels());
-			var textureResult   		= textureFactory.createResultTexture('resultTexture',outputDimensions);
-			var textureReadable 		= textureFactory.createReadableTexture('textureReadable',outputDimensions);
+			var resultTexture   		= textureFactory.createResultTexture('resultTexture',outputDimensions);
+			var readableTexture 		= textureFactory.createReadableTexture('readableTexture',outputDimensions);
 			
 			var shader =  new Shader(program.gl);
 			var vertexShader   = shader.getVertexShader(ShaderCode.getShaderCode("VERTEX"));
 			var fragmentShader = shader.getFragmentShader(ShaderCode.getShaderCode("SINGLE"))
 			
 			program.buildProgram(vertexShader,fragmentShader);
-			logTime(matrixA,matrixB,program.compute2(texture,textureResult,outputDimensions,0,1,0));
+			logTime(matrixA,matrixB,program.compute2(texture,resultTexture,outputDimensions,0,1,0));
 		
 			//console.log("GPU MatMul ---------------------");
-			//gpuPrint(program,textureResult,textureReadable,0);
+			//gpuPrint(program,resultTexture,readableTexture,0);
 			
 			var resultReader = new ResultReader(program.gl,"canvas");
-			var result = resultReader.read(textureResult,textureReadable,0);
+			var result = resultReader.read(resultTexture,readableTexture,0);
 			
 			validateMultiplicationResult(matrixA,matrixB,result);
 			
 			
-			gpuPrint(program,textureResult,textureReadable,0);
+			gpuPrint(program,resultTexture,readableTexture,0);
 			mathJSPrint(matrixA,matrixB,5);
 			
 			t0 = performance.now();
-			program.compute2(texture,textureResult,outputDimensions,2,3,0);
+			program.compute2(texture,resultTexture,outputDimensions,2,3,0);
 			t1 = performance.now();
 			console.log("GPU time for matmul " + (t1 - t0) + " milliseconds.")
 			
 			resultReader = new ResultReader(program.gl,"canvas");
-			result = resultReader.read(textureResult,textureReadable,0);
+			result = resultReader.read(resultTexture,readableTexture,0);
 			console.log("GPU MatMul ---------------------");
 			result.print(5);
 			

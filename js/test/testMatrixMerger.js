@@ -21,7 +21,7 @@ describe('MatrixMerger', function () {
       matrixA.prepare(matrixC,'B');
       matrixA.prepare(matrixD,'A');
      
-      console.log(matrixA.matrixMerger.getTexels());
+      matrixA.manyMultiply();
     });
   });
 });

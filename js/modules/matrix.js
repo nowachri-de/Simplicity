@@ -262,32 +262,34 @@ class Matrix {
         let fragmentShader = shader.getFragmentShader(Shader.ShaderCode.getShaderCode("SINGLE"));
         program.buildProgram(vertexShader, fragmentShader);
 
-        program.compute2(texture, resultTexture, outputDimensions, 0, 1);
-        program.compute2(texture, resultTexture, outputDimensions, 2, 3);
+        program.compute2(texture, this.resultTexture, outputDimensions, 0, 1);
+        program.compute2(texture, this.resultTexture, outputDimensions, 2, 3);
     }
 
     /**
 	 * The readResult method is used to read a result after the manyMultiply method was executed.
      * 
+     * @param {integer} resultIndex -   Integer between 0 and 4. The result texture contains for matrices. One in each color component (RGBA)
+     *                                  The resultIndex specifies which matrix to read.
+	 * @param {integer} width       -   width of result matrix. Width equals number of columns.
+     * @param {integer} height      -   height of result matrix. Height equals number of rows.
     */
-    readResult(){
-        let matrixMerger = this.matrixMerger;
-        let mergInstruction = matrixMerger.mergeInstructions[0];
-        var mergInstruction = {
-            targetComponent: targetComponent,
-            matrix: matrix
-        }
+    readResult(resultIndex,width,height){
+        let program = new Program.Program(width, height);
+        let textureFactory = new Program.TextureFactory(program.gl);
 
-        var matrixDimension = matrixMerger.mergeInstructions[0].getOutputDimensions(matrixMerger.mergeInstructions[1]);
-        
-        var resultDimension = {
-            width: matrixDimension.numColumns,
-            height: matrixDimension.numRows
-        }
-
+        let readableTexture = textureFactory.createReadableTexture('readableTexture', {width:width,height:height});
         var resultReader = new ResultReader.ResultReader(program.gl, resultDimension.width, resultDimension.height);
-        var result = resultReader.readByResultDimension(this.resultTexture, textureReadable, resultDimension, 0);
+        var result = resultReader.readByResultDimension(this.resultTexture, readableTexture, resultDimension, resultIndex);
+
+        textureFactory.free();
+        program.free();
+
+        var t1 = Date.now();
+        result.duration = t1 - t0;
+        return result;
     }
+
     multiply(matrixB) {
         let t0 = Date.now();
         let matrixMerger = this.matrixMerger;
@@ -301,14 +303,14 @@ class Matrix {
         let outputDimensions = matrixMerger.getOutputDimensions();
 
         let texture = textureFactory.createTextureByDimension("inputTexture", matrixMerger.maxRows, matrixMerger.maxColumns, matrixMerger.getTexels());
-        let textureResult = textureFactory.createResultTexture('resultTexture', outputDimensions);
-        let textureReadable = textureFactory.createReadableTexture('textureReadable', outputDimensions);
+        let resultTexture = textureFactory.createResultTexture('resultTexture', outputDimensions);
+        let readableTexture = textureFactory.createReadableTexture('readableTexture', outputDimensions);
 
         let shader = new Shader.Shader(program.gl);
         let vertexShader = shader.getVertexShader(Shader.ShaderCode.getShaderCode("VERTEX"));
-        let fragmentShader = shader.getFragmentShader(Shader.ShaderCode.getShaderCode("SINGLE"))
+        let fragmentShader = shader.getFragmentShader(Shader.ShaderCode.getShaderCode("SINGLE"));
         program.buildProgram(vertexShader, fragmentShader);
-        var computationResult = program.compute2(texture, textureResult, outputDimensions, 0, 1);
+        var computationResult = program.compute2(texture, resultTexture, outputDimensions, 0, 1);
 
         var matrixDimension = this.getOutputDimensions(matrixB);
         var resultDimension = {
@@ -316,7 +318,7 @@ class Matrix {
             height: matrixDimension.numRows
         }
         var resultReader = new ResultReader.ResultReader(program.gl, resultDimension.width, resultDimension.height);
-        var result = resultReader.readByResultDimension(computationResult.textureResult, textureReadable, resultDimension, 0);
+        var result = resultReader.readByResultDimension(computationResult.resultTexture, readableTexture, resultDimension, 0);
 
 
         textureFactory.free();
