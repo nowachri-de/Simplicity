@@ -95,8 +95,8 @@ module.exports.Program = class Program {
 		this.doVertexBindings(program);
 	}
 
-	doBindings2(texture, program, componentIndexA, componentIndexB) {
-		this.doUnifromBindings2(texture, program, componentIndexA, componentIndexB, 0);
+	doBindings2(texture, program, componentIndexA, componentIndexB,targetIndex,resultTexture) {
+		this.doUnifromBindings2(texture, program, componentIndexA, componentIndexB, targetIndex,resultTexture);
 		this.doVertexBindings(program);
 	}
 
@@ -121,7 +121,7 @@ module.exports.Program = class Program {
 		}
 	}
 
-	doUnifromBindings2(texture, program, componentIndexA, componentIndexB, targetIndex) {
+	doUnifromBindings2(texture, program, componentIndexA, componentIndexB, targetIndex,resultTexture) {
 		var gl = this.gl;
 
 		var uStepCol = gl.getUniformLocation(program, "uStepCol");
@@ -133,6 +133,7 @@ module.exports.Program = class Program {
 
 
 		gl.uniform1i(gl.getUniformLocation(program, "usampler"), texture.textureIndex);
+		gl.uniform1i(gl.getUniformLocation(program, "usamplerTarget"), resultTexture.textureIndex);
 
 		gl.uniform1i(uNumColumns, texture.width);
 		gl.uniform1i(uRGBAIndexA, componentIndexA);
@@ -228,7 +229,7 @@ module.exports.Program = class Program {
 		var frameBuffer = this.createFrameBuffer(resultTexture, "compute2");
 
 		gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.frameBuffer);
-		this.doBindings2(texture, this.program, componentA, componentB);
+		this.doBindings2(texture, this.program, componentA, componentB,targetIndex,resultTexture);
 
 		gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
 		var t1 = Date.now();

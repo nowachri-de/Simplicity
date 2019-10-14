@@ -85,7 +85,7 @@ module.exports.ShaderCode = class ShaderCode {
 				if (targetIndex == 3) return result.a;
 				
 				//This return statement should not be reached
-				return result.x;
+				return -1.0;
 			}
 			void main(void) { 
 				 
@@ -173,6 +173,7 @@ module.exports.ShaderCode = class ShaderCode {
 		 
 			varying highp vec2          vTexture;			// row, column to calculate 
 			uniform highp sampler2D     usampler;			// merged matrix texels
+			uniform highp sampler2D     usamplerTarget;		// merged matrix texels
 			uniform 	  int 			uNumColumns;	    // number of columns
 			uniform highp float	  		uStepCol; 		    // column step texture
 			
@@ -181,26 +182,31 @@ module.exports.ShaderCode = class ShaderCode {
 			uniform       int           uTargetIndex;       // vec4 index where to put result
 			
 			float getMatrixValue(float a, float b,int rgbaIndex){
-				if (rgbaIndex == 0) return texture2D(usampler,vec2(a,b)).r;
-				if (rgbaIndex == 1) return texture2D(usampler,vec2(a,b)).g;
-				if (rgbaIndex == 2) return texture2D(usampler,vec2(a,b)).b;
-				if (rgbaIndex == 3) return texture2D(usampler,vec2(a,b)).a;
+				if (rgbaIndex == 0) return texture2D(usampler,vec2(a,b)).x;
+				if (rgbaIndex == 1) return texture2D(usampler,vec2(a,b)).y;
+				if (rgbaIndex == 2) return texture2D(usampler,vec2(a,b)).z;
+				if (rgbaIndex == 3) return texture2D(usampler,vec2(a,b)).w;
 				
 				return 0.;
 			}
 			
 			vec4 getResultValue(float col, float row,float value,int targetIndex){
-				vec4 result = texture2D(usampler,vec2(col,row));
+				vec4 result = texture2D(usamplerTarget,vec2(col,row));
 				
 				/*if (targetIndex == 0) result.x = value; return result;
 				if (targetIndex == 1) result.y = value; return result;
 				if (targetIndex == 2) result.z = value; return result;
 				if (targetIndex == 3) result.w = value; return result;*/
+
+				if (targetIndex == 0) return vec4(value,result.y,result.z,result.w);
+				if (targetIndex == 1) return vec4(result.x,value,result.z,result.w);
+				if (targetIndex == 2) return vec4(result.x,result.y,value,result.w);
+				if (targetIndex == 3) return vec4(result.x,result.y,result.z,value);
 				
-				if (targetIndex == 0) result.r = value; return result;
+				/*if (targetIndex == 0) result.r = value; return result;
 				if (targetIndex == 1) result.g = value; return result;
 				if (targetIndex == 2) result.b = value; return result;
-				if (targetIndex == 3) result.a = value; return result;
+				if (targetIndex == 3) result.a = value; return result;*/
 
 				return result;
 			}

@@ -249,21 +249,23 @@ class Matrix {
     */
 
     manyMultiply(){
+        let t0 = Date.now();
         let matrixMerger = this.matrixMerger;
-        let program = new Program.Program(matrixMerger.maxRows, matrixMerger.maxColumns);
-        let textureFactory = new Program.TextureFactory(program.gl);
         let outputDimensions = matrixMerger.getOutputDimensions();
 
-        let texture = textureFactory.createTextureByDimension("inputTexture", matrixMerger.maxRows, matrixMerger.maxColumns, matrixMerger.getTexels());
-        this.resultTexture = textureFactory.createResultTexture('resultTexture', outputDimensions);
+        this.program = new Program.Program(outputDimensions.numColumns, outputDimensions.numRows);
+        this.textureFactory = new Program.TextureFactory(this.program.gl);
+       
+        let texture = this.textureFactory.createTextureByDimension("inputTexture", matrixMerger.maxRows, matrixMerger.maxColumns, matrixMerger.getTexels());
+        this.resultTexture = this.textureFactory.createResultTexture('resultTexture', outputDimensions);
+        this.readableTexture = this.textureFactory.createReadableTexture('readableTexture', outputDimensions);
 
-        let shader = new Shader.Shader(program.gl);
+        let shader = new Shader.Shader(this.program.gl);
         let vertexShader = shader.getVertexShader(Shader.ShaderCode.getShaderCode("VERTEX"));
         let fragmentShader = shader.getFragmentShader(Shader.ShaderCode.getShaderCode("SINGLE"));
-        program.buildProgram(vertexShader, fragmentShader);
-
-        program.compute2(texture, this.resultTexture, outputDimensions, 0, 1);
-        program.compute2(texture, this.resultTexture, outputDimensions, 2, 3);
+        this.program.buildProgram(vertexShader, fragmentShader);
+        this.program.compute2(texture, this.resultTexture, outputDimensions, 0, 1, 0);
+        this.program.compute2(texture, this.resultTexture, outputDimensions, 0, 1, 1);
     }
 
     /**
@@ -275,15 +277,15 @@ class Matrix {
      * @param {integer} height      -   height of result matrix. Height equals number of rows.
     */
     readResult(resultIndex,width,height){
-        let program = new Program.Program(width, height);
-        let textureFactory = new Program.TextureFactory(program.gl);
+        let t0 = Date.now();
+        let program = this.program;
+        let textureFactory = this.textureFactory;
 
-        let readableTexture = textureFactory.createReadableTexture('readableTexture', {width:width,height:height});
-        var resultReader = new ResultReader.ResultReader(program.gl, resultDimension.width, resultDimension.height);
-        var result = resultReader.readByResultDimension(this.resultTexture, readableTexture, resultDimension, resultIndex);
+        var resultReader = new ResultReader.ResultReader(program.gl, width, height);
+        var result = resultReader.readByResultDimension(this.resultTexture, this.readableTexture,{width:width,height:height}, resultIndex);
 
-        textureFactory.free();
-        program.free();
+       // textureFactory.free();
+       // program.free();
 
         var t1 = Date.now();
         result.duration = t1 - t0;
@@ -319,7 +321,6 @@ class Matrix {
         }
         var resultReader = new ResultReader.ResultReader(program.gl, resultDimension.width, resultDimension.height);
         var result = resultReader.readByResultDimension(computationResult.resultTexture, readableTexture, resultDimension, 0);
-
 
         textureFactory.free();
         program.free();
