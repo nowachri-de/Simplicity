@@ -7,9 +7,9 @@ function gpuPrint(program,resultTexture,readableTexture,targetIndex){
 function mathJSPrint(matrixA,matrixB,numDigits){
 	var result = jsMatMul(matrixA,matrixB);
 	var resultDimensions = matrixA.getOutputDimensions(matrixB);
-	for (var row = 0; row < resultDimensions.numRows; row++) {
+	for (var row = 0; row < resultDimensions.height; row++) {
 		var tmp = "";
-		for (var col = 0; col < resultDimensions.numColumns; col++) {
+		for (var col = 0; col < resultDimensions.width; col++) {
 			 tmp += (result.subset(math.index(row, col))).toFixed(numDigits) + " ; ";
 		}
 		console.log(tmp);
@@ -17,11 +17,11 @@ function mathJSPrint(matrixA,matrixB,numDigits){
 }
 
 function getSimpleMatrixInfo(matrixA,matrixB){
-	return "A(" + matrixA.numColumns + "x" + matrixA.numRows+") x B(" + matrixB.numColumns + "x" + matrixB.numRows+")";
+	return "A(" + matrixA.width + "x" + matrixA.height+") x B(" + matrixB.width + "x" + matrixB.height+")";
 }
 
 function logTime(matrixA,matrixB,matrixResult){
-	var message = "GPU: Time for matrix multiplication on GPU for A(" + matrixA.numColumns + "x" + matrixA.numRows+") x B(" + matrixB.numColumns + "x" + matrixB.numRows+") took " +matrixResult.duration.toFixed(5) + " milliseconds (" + (matrixResult.duration / 1000.0).toFixed(5) + " seconds)."
+	var message = "GPU: Time for matrix multiplication on GPU for A(" + matrixA.width + "x" + matrixA.height+") x B(" + matrixB.width + "x" + matrixB.height+") took " +matrixResult.duration.toFixed(5) + " milliseconds (" + (matrixResult.duration / 1000.0).toFixed(5) + " seconds)."
 	console.log(message);
 	return message;
 }
@@ -38,12 +38,12 @@ function jsMatMul(matrixA,matrixB){
 function validateMultiplicationResult(matrixA,matrixB,result){
 	var outputDimensions = matrixA.getOutputDimensions(matrixB);
 	var TOLERANCE = 0.0003;
-	if (outputDimensions.numRows != result.numRows){
+	if (outputDimensions.height != result.height){
 		throw "result row dimension " + "does not match expected dimension";
 	}
 	var jsResult = jsMatMul(matrixA,matrixB);
-	for (var row = 0; row < result.numRows; ++row) {
-		for (var column = 0; column < result.numColumns; ++column) {
+	for (var row = 0; row < result.height; ++row) {
+		for (var column = 0; column < result.width; ++column) {
 			var jsValue = jsResult.subset(math.index(row, column));
 			var value   = result.getValue(row,column);
 			
@@ -62,10 +62,10 @@ function displayMessage(elementID,text){
 }
 
 function displayMatrix(elementID,matrix,numberDigits){
-	for (var row = 0; row < matrix.numRows; ++row) {
+	for (var row = 0; row < matrix.height; ++row) {
 		var p = document.createElement("p");
 		var textContent = "";
-		for (var column = 0; column < matrix.numColumns; ++column) {
+		for (var column = 0; column < matrix.width; ++column) {
 			textContent += matrix.getValue(row,column).toFixed(numberDigits);
 			textContent += " ; ";
 		}

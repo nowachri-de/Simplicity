@@ -9,7 +9,3 @@ m2.randomInitialize();
 
 let mGL = new Matrix.MatrixGL('',m1,m2);
 console.log(mGL.compute());
-
-
-
-

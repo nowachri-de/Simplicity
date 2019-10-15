@@ -11,7 +11,7 @@ module.exports.Program = class Program {
 		this.fShader = null;
 		this.width = width;
 		this.height = height;
-		this.textureIndex = 0;
+		this.index = 0;
 		this.debug = false;
 
 		if (typeof gl === 'undefined') {
@@ -28,7 +28,6 @@ module.exports.Program = class Program {
 			preserveDrawingBuffer: false
 		});
 
-
 		if (gl === undefined)
 			throw "webgl is not supported.";
 		// must support float texture
@@ -42,18 +41,6 @@ module.exports.Program = class Program {
 		}
 
 		return gl;
-	}
-
-	getOutputDimensions(matrixA, matrixB) {
-		var outRows = matrixA.numRows;
-		var outColumns = matrixB.numColumns;
-
-		var result = {
-			numRows: outRows,
-			numColumns: outColumns
-		};
-
-		return result;
 	}
 
 	createFrameBuffer(texture, name) {
@@ -91,16 +78,16 @@ module.exports.Program = class Program {
 	}
 
 	doBindings(textureA, textureB, program, targetIndex) {
-		this.doUnifromBindings(textureA, textureB, program, targetIndex);
+		this.doUniformBindings(textureA, textureB, program, targetIndex);
 		this.doVertexBindings(program);
 	}
 
 	doBindings2(texture, program, componentIndexA, componentIndexB,targetIndex,resultTexture) {
-		this.doUnifromBindings2(texture, program, componentIndexA, componentIndexB, targetIndex,resultTexture);
+		this.doUniformBindingsSingleTexture(texture, program, componentIndexA, componentIndexB, targetIndex,resultTexture);
 		this.doVertexBindings(program);
 	}
 
-	doUnifromBindings(textureA, textureB, program, targetIndex) {
+	doUniformBindings(textureA, textureB, program, targetIndex) {
 		var gl = this.gl;
 
 		var uStepInCol = gl.getUniformLocation(program, "uStepInCol");
@@ -110,8 +97,8 @@ module.exports.Program = class Program {
 		if (targetIndex !== undefined) {
 			uTargetIndex = gl.getUniformLocation(program, "uTargetIndex");
 		}
-		gl.uniform1i(gl.getUniformLocation(program, "usamplerA"), textureA.textureIndex);
-		gl.uniform1i(gl.getUniformLocation(program, "usamplerB"), textureB.textureIndex);
+		gl.uniform1i(gl.getUniformLocation(program, "usamplerA"), textureA.index);
+		gl.uniform1i(gl.getUniformLocation(program, "usamplerB"), textureB.index);
 
 		gl.uniform1i(uNumInputColumns, textureA.width);
 		gl.uniform1f(uStepInCol, 1. / textureA.width);
@@ -121,26 +108,18 @@ module.exports.Program = class Program {
 		}
 	}
 
-	doUnifromBindings2(texture, program, componentIndexA, componentIndexB, targetIndex,resultTexture) {
+	doUniformBindingsSingleTexture(texture, program, componentIndexA, componentIndexB, targetIndex) {
 		var gl = this.gl;
 
-		var uStepCol = gl.getUniformLocation(program, "uStepCol");
-
-		var uNumColumns = gl.getUniformLocation(program, "uNumColumns");
-		var uRGBAIndexA = gl.getUniformLocation(program, "uRGBAIndexA");
-		var uRGBAIndexB = gl.getUniformLocation(program, "uRGBAIndexB");
-		var uTargetIndex = gl.getUniformLocation(program, "uTargetIndex");
-
-
-		gl.uniform1i(gl.getUniformLocation(program, "usampler"), texture.textureIndex);
-		gl.uniform1i(gl.getUniformLocation(program, "usamplerTarget"), resultTexture.textureIndex);
-
-		gl.uniform1i(uNumColumns, texture.width);
-		gl.uniform1i(uRGBAIndexA, componentIndexA);
-		gl.uniform1i(uRGBAIndexB, componentIndexB);
-		gl.uniform1i(uTargetIndex, targetIndex);
-		gl.uniform1f(uStepCol, 1. / texture.width);
-
+		gl.uniform1i(gl.getUniformLocation(program, "usampler"), texture.index);
+		gl.uniform1i(gl.getUniformLocation(program, "uRGBAIndexA"), componentIndexA);
+		gl.uniform1i(gl.getUniformLocation(program, "uRGBAIndexB"), componentIndexB);
+		gl.uniform1i(gl.getUniformLocation(program, "uTargetIndex"), targetIndex);
+		
+		gl.uniform1f(gl.getUniformLocation(program, "uNumColumns"), texture.width);
+		gl.uniform1f(gl.getUniformLocation(program, "uNumRows"), texture.height);
+		gl.uniform1f(gl.getUniformLocation(program, "uStepCol"), 1. / texture.width);
+		gl.uniform1f(gl.getUniformLocation(program, "uStepRow"), 1. / texture.height);
 	}
 
 	doVertexBindings(program) {
@@ -201,8 +180,8 @@ module.exports.Program = class Program {
 		var gl = this.gl;
 		var canvas = this.getRenderCanvas(this.width, this.height);
 
-		canvas.width = outputDimensions.numColumns;
-		canvas.height = outputDimensions.numRows;
+		canvas.width = outputDimensions.width;
+		canvas.height = outputDimensions.height;
 
 		gl.useProgram(this.program);
 		gl.viewport(0, 0, canvas.width, canvas.height);
@@ -222,9 +201,8 @@ module.exports.Program = class Program {
 		var t0 = Date.now();
 		var gl = this.gl;
 
-
 		gl.useProgram(this.program);
-		gl.viewport(0, 0, outputDimensions.numColumns, outputDimensions.numRows);
+		gl.viewport(0, 0, outputDimensions.width, outputDimensions.height);
 
 		var frameBuffer = this.createFrameBuffer(resultTexture, "compute2");
 
@@ -252,7 +230,7 @@ module.exports.Program = class Program {
 			gl.deleteFramebuffer(value.frameBuffer);
 			gl.deleteRenderbuffer(value.renderBuffer);
 			gl.deleteTexture(value.texture.texture);
-			self.debugPrint("Called gl.deleteFramebuffer for framebuffer " + value.name + " holding texture with texture index " + value.texture.textureIndex);
+			self.debugPrint("Called gl.deleteFramebuffer for framebuffer " + value.name + " holding texture with texture index " + value.texture.index);
 		});
 		gl.deleteShader(this.vShader);
 		this.debugPrint("Deleted vertex shader");
@@ -260,103 +238,5 @@ module.exports.Program = class Program {
 		this.debugPrint("Deleted fragment shader");
 		gl.deleteProgram(this.program);
 		this.debugPrint("Deleted program");
-	}
-}
-
-module.exports.TextureFactory = class TextureFactory {
-
-	constructor(gl) {
-		this.gl = gl;
-		this.textureIndex = 0;
-		this.textures = new Map();
-	}
-
-
-	createReadableTexture(name, outputdimensions) {
-		var gl = this.gl;
-
-		/*var renderCanvas = this.getRenderCanvas(this.canvasID);
-		renderCanvas.width = outputdimensions.numColumns;
-		renderCanvas.height = outputdimensions.numRows;*/
-
-
-		var texture = gl.createTexture();
-
-		gl.activeTexture(this.gl.TEXTURE0 + this.textureIndex);
-		gl.bindTexture(gl.TEXTURE_2D, texture);
-		//gl.texImage2D(gl.TEXTURE_2D, /*level*/ 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, data/*renderCanvas*/);
-		// clamp to edge to support non-power of two textures
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-		// don't interpolate when getting data from texture
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-		//gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, outputdimensions.numColumns, outputdimensions.numRows, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(new ArrayBuffer(12 * 12 * 4)));
-		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, outputdimensions.numColumns, outputdimensions.numRows, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
-
-		var result = {
-			texture: texture,
-			textureIndex: this.textureIndex,
-			name: name,
-			width: outputdimensions.numColumns,
-			height: outputdimensions.numRows
-		}
-		this.textureIndex++;
-		this.textures.set(name, result);
-		return result;
-	}
-
-	createTexture(name, matrix, component) {
-		return this.createTextureByDimension(name, matrix.numRows, matrix.numColumns, matrix.getTexels(component));
-	}
-
-	createResultTexture(name, outputdimensions) {
-		return this.createTextureByDimension(name, outputdimensions.numRows, outputdimensions.numColumns, null);
-	}
-
-	createTextureByDimension(name, rows, cols, data) {
-		var gl = this.gl;
-
-		var texture = gl.createTexture();
-		gl.activeTexture(this.gl.TEXTURE0 + this.textureIndex);
-		gl.bindTexture(gl.TEXTURE_2D, texture);
-
-		// clamp to edge to support non-power of two textures
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-		// don't interpolate when getting data from texture
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-
-		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, cols, rows, 0, gl.RGBA, gl.FLOAT, data);
-
-		var result = {
-			texture: texture,
-			textureIndex: this.textureIndex,
-			name: name,
-			width: cols,
-			height: rows
-		}
-
-		this.textureIndex++;
-		this.textures.set(name, result);
-		return result;
-	}
-
-	debugPrint(message) {
-		if (this.debug === true) {
-			console.log(message);
-		}
-	}
-
-	free() {
-		var gl = this.gl;
-		var self = this;
-		this.textures.forEach(function logMapElements(value, key, map) {
-			gl.deleteTexture(value.texture);
-			self.debugPrint("Called gl.deleteTexture for texture " + value.name + " with index " + value.textureIndex);
-		});
 	}
 }

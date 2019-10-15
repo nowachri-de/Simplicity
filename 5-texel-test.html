@@ -31,10 +31,10 @@
 				matrixB.print(5);
 			    console.log('++++++++++');
 				
-				var matrixMerger = new MatrixMerger();
-				matrixMerger.addMatrix(matrixA,'R','R');
-				matrixMerger.addMatrix(matrixB,'R','G');
-				console.log(matrixMerger.getTexels());
+				var MatrixStorage = new MatrixStorage();
+				MatrixStorage.addMatrix(matrixA,'R','R');
+				MatrixStorage.addMatrix(matrixB,'R','G');
+				console.log(MatrixStorage.getTexels());
 			}
 			
 			function testB(){
@@ -51,10 +51,10 @@
 				matrixB.print(5);
 			    console.log('++++++++++');
 				
-				var matrixMerger = new MatrixMerger();
-				matrixMerger.addMatrix(matrixA,'R','R');
-				matrixMerger.addMatrix(matrixB,'R','G');
-				console.log(matrixMerger.getTexels());
+				var MatrixStorage = new MatrixStorage();
+				MatrixStorage.addMatrix(matrixA,'R','R');
+				MatrixStorage.addMatrix(matrixB,'R','G');
+				console.log(MatrixStorage.getTexels());
 			}
 			
 			function testC(){
@@ -71,10 +71,10 @@
 				matrixB.print(5);
 			    console.log('++++++++++');
 				
-				var matrixMerger = new MatrixMerger();
-				matrixMerger.addMatrix(matrixA,'R','R');
-				matrixMerger.addMatrix(matrixB,'R','G');
-				console.log(matrixMerger.getTexels());
+				var MatrixStorage = new MatrixStorage();
+				MatrixStorage.addMatrix(matrixA,'R','R');
+				MatrixStorage.addMatrix(matrixB,'R','G');
+				console.log(MatrixStorage.getTexels());
 			}
 			
 			function testD(){
@@ -95,11 +95,11 @@
 				matrixC.print(5);
 			    console.log('++++++++++');
 				
-				var matrixMerger = new MatrixMerger();
-				matrixMerger.addMatrix(matrixA,'R','R');
-				matrixMerger.addMatrix(matrixB,'R','G');
-				matrixMerger.addMatrix(matrixC,'R','B');
-				console.log(matrixMerger.getTexels());
+				var MatrixStorage = new MatrixStorage();
+				MatrixStorage.addMatrix(matrixA,'R','R');
+				MatrixStorage.addMatrix(matrixB,'R','G');
+				MatrixStorage.addMatrix(matrixC,'R','B');
+				console.log(MatrixStorage.getTexels());
 			}
 			
 			function testE(){
@@ -124,12 +124,12 @@
 				matrixD.print(5);
 			    console.log('++++++++++');
 				
-				var matrixMerger = new MatrixMerger();
-				matrixMerger.addMatrix(matrixA,'R','R');
-				matrixMerger.addMatrix(matrixB,'R','G');
-				matrixMerger.addMatrix(matrixC,'R','B');
-				matrixMerger.addMatrix(matrixD,'R','A');
-				console.log(matrixMerger.getTexels());
+				var MatrixStorage = new MatrixStorage();
+				MatrixStorage.addMatrix(matrixA,'R','R');
+				MatrixStorage.addMatrix(matrixB,'R','G');
+				MatrixStorage.addMatrix(matrixC,'R','B');
+				MatrixStorage.addMatrix(matrixD,'R','A');
+				console.log(MatrixStorage.getTexels());
 			}
 			
 			function testF(){
@@ -154,13 +154,13 @@
 				matrixD.print(5);
 			    console.log('++++++++++');
 				
-				var matrixMerger = new MatrixMerger();
-				matrixMerger.addMatrix(matrixA,'R','R');
-				matrixMerger.addMatrix(matrixB,'R','G');
-				matrixMerger.addMatrix(matrixC,'R','B');
-				matrixMerger.addMatrix(matrixD,'R','A');
-				console.log("maxRows: " + matrixMerger.maxRows + "maxColumns: " + matrixMerger.maxColumns);
-				console.log(matrixMerger.getTexels());
+				var MatrixStorage = new MatrixStorage();
+				MatrixStorage.addMatrix(matrixA,'R','R');
+				MatrixStorage.addMatrix(matrixB,'R','G');
+				MatrixStorage.addMatrix(matrixC,'R','B');
+				MatrixStorage.addMatrix(matrixD,'R','A');
+				console.log("maxRows: " + MatrixStorage.maxRows + "maxColumns: " + MatrixStorage.maxColumns);
+				console.log(MatrixStorage.getTexels());
 			}
 			
 			testA();

@@ -20,9 +20,9 @@ function addBias(a, b) {
     return a + b[this.thread.y][this.thread.x];
 }
 
-function matMul(input, weights, numRows) {
+function matMul(input, weights, height) {
     let sum = 0;
-    for (let i = 0; i < numRows; i++) {
+    for (let i = 0; i < height; i++) {
         sum += input[this.thread.y][i] * weights[i][this.thread.x];
     }
     return sum;
@@ -48,9 +48,9 @@ const softmax = gpu.createKernel(function (a) {
 
 
 const feedForward = gpu.createKernelMap({
-    net: function mul(dataIn,weights,numRows,bias) {
+    net: function mul(dataIn,weights,height,bias) {
         let sum = 0;
-        for (let i = 0; i < numRows; i++) {
+        for (let i = 0; i < height; i++) {
             sum += dataIn[this.thread.y][i] * weights[i][this.thread.x];
         }
         return sum + bias[this.thread.y][this.thread.x];
@@ -61,14 +61,14 @@ const feedForward = gpu.createKernelMap({
 
 },function (dataIn,weights,bias) {
     
-    let net = mul(dataIn,weights,this.constants.numRows,bias);
+    let net = mul(dataIn,weights,this.constants.height,bias);
     let out = sigmoidActivation(net);
     let derivative = derivative(out);
     return out;
     
 }, {
         constants: {
-            numRows: 2,
+            height: 2,
         }
     }
 ).setOutput([2,1]);

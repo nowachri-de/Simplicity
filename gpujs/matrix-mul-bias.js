@@ -20,9 +20,9 @@ function addBias(a, b) {
     return a + b[this.thread.y][this.thread.x];
 }
 
-function matMul(input, weights, numRows) {
+function matMul(input, weights, height) {
     let sum = 0;
-    for (let i = 0; i < numRows; i++) {
+    for (let i = 0; i < height; i++) {
         sum += input[this.thread.y][i] * weights[i][this.thread.x];
     }
     return sum;
@@ -112,10 +112,10 @@ const backPropHidden = gpu.createKernel(function (weights, dEtot2dOut, dOut2dNet
 }).setOutput([2, 3]);
 
 
-const sumUp = gpu.createKernel(function (matrix, dOut2dNet, input, weights, learningRate, numRows) {
+const sumUp = gpu.createKernel(function (matrix, dOut2dNet, input, weights, learningRate, height) {
     let sum = matrix[this.thread.y][this.thread.x];
-    for (let i = 1; i < numRows; ++i) {
-        sum += matrix[(this.thread.y + i) % numRows][this.thread.x];
+    for (let i = 1; i < height; ++i) {
+        sum += matrix[(this.thread.y + i) % height][this.thread.x];
     }
 
     let result = sum * dOut2dNet[this.thread.y] * input[this.thread.y];

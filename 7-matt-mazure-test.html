@@ -79,7 +79,7 @@
 				displayMessage('messages','bias layer 1 ' + mattMazureValues.layer1Bias);
 				displayMessage('messages','bias layer 2 ' + mattMazureValues.layer2Bias);
 				displayMessage('messages','learning rate ' + mattMazureValues.learningRate);
-				displayMessage('messages','layer 1 has ' + mattMazureValues.layer1Weights.getOutputDimensions(mattMazureValues.inputValues).numRows + ' rows ' + 'and ' + mattMazureValues.layer1Weights.getOutputDimensions(mattMazureValues.inputValues).numColumns + ' columns');			
+				displayMessage('messages','layer 1 has ' + mattMazureValues.layer1Weights.getOutputDimensions(mattMazureValues.inputValues).height + ' rows ' + 'and ' + mattMazureValues.layer1Weights.getOutputDimensions(mattMazureValues.inputValues).width + ' columns');			
 			}
 			
 			function computeLayerValues(prevOutValues,netValueMatrix,outValueMatrix,bias,target){

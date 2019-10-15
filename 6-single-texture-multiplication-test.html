@@ -41,26 +41,26 @@
 			console.log("Matrix D");
 			matrixD.print(5);
 			
-			var matrixMerger = new MatrixMerger();
-			matrixMerger.addMatrix(matrixA,'R');
-			matrixMerger.addMatrix(matrixB,'G');
-			matrixMerger.addMatrix(matrixC,'B');
-			matrixMerger.addMatrix(matrixD,'A');
+			var MatrixStorage = new MatrixStorage();
+			MatrixStorage.addMatrix(matrixA,'R');
+			MatrixStorage.addMatrix(matrixB,'G');
+			MatrixStorage.addMatrix(matrixC,'B');
+			MatrixStorage.addMatrix(matrixD,'A');
 				
 			var program			 = new Program("canvas");
 			var textureFactory 	 = new TextureFactory("canvas");
-			var outputDimensions = matrixMerger.getOutputDimensions();
+			var outputDimensions = MatrixStorage.getOutputDimensions();
 			
 			console.log(outputDimensions);
-			console.log(matrixMerger.getTexels());
+			console.log(MatrixStorage.getTexels());
 			
-			var texture 				= textureFactory.createTextureByDimension("inputTexture",matrixMerger.maxRows,matrixMerger.maxColumns,matrixMerger.getTexels());
+			var texture 				= textureFactory.createTextureByDimension("inputTexture",MatrixStorage.maxRows,MatrixStorage.maxColumns,MatrixStorage.getTexels());
 			var resultTexture   		= textureFactory.createResultTexture('resultTexture',outputDimensions);
 			var readableTexture 		= textureFactory.createReadableTexture('readableTexture',outputDimensions);
 			
 			var shader =  new Shader(program.gl);
-			var vertexShader   = shader.getVertexShader(ShaderCode.getShaderCode("VERTEX"));
-			var fragmentShader = shader.getFragmentShader(ShaderCode.getShaderCode("SINGLE"))
+			var vertexShader   = shader.getVertexShader(ShaderCode.getCode("VERTEX"));
+			var fragmentShader = shader.getFragmentShader(ShaderCode.getCode("SINGLE"))
 			
 			program.buildProgram(vertexShader,fragmentShader);
 			logTime(matrixA,matrixB,program.compute2(texture,resultTexture,outputDimensions,0,1,0));
@@ -97,9 +97,9 @@
 			
 			result2 = math.multiply(mat1,mat2);
 			console.log("JS MatMul ---------------------");
-			for (var row = 0; row < resultDimensions.numRows; row++) {
+			for (var row = 0; row < resultDimensions.height; row++) {
 				var tmp = "";
-				for (var col = 0; col < resultDimensions.numColumns; col++) {
+				for (var col = 0; col < resultDimensions.width; col++) {
 					 tmp += (result2.subset(math.index(row, col))).toFixed(5) + " ; ";
 				}
 				console.log(tmp);

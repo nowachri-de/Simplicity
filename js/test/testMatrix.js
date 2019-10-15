@@ -6,13 +6,13 @@ var assert = require('assert');
 describe('Matrix', function () {
   describe('#multiply(Matrix)', function () {
     it('should return a x b. Matrix a and Matrix b are same size', function () {
-      var matrixA = new Matrix.Matrix(200, 200);
-      var matrixB = new Matrix.Matrix(200, 200);
+      var matrixA = new Matrix.Matrix(4,4);
+      var matrixB = new Matrix.Matrix(4,4);
 
       //Do random initialization
       matrixA.randomInitialize();
       matrixB.randomInitialize();
-
+      console.log(matrixA.multiply(matrixB));
       validateMultiplicationResult(matrixA, matrixB, matrixA.multiply(matrixB));
     });
   });
@@ -62,7 +62,7 @@ describe('Matrix', function () {
       this.timeout(0);//disable timeout
       var matrixA = new Matrix.Matrix(3, 200);//rows, columns
       var matrixB = new Matrix.Matrix(200, 10);//rows, columns
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < 1; i++) {
         //Do random initialization
         matrixA.randomInitialize();
         matrixB.randomInitialize();
@@ -76,7 +76,7 @@ describe('Matrix', function () {
       this.timeout(0);//disable timeout
       var matrixA = new Matrix.Matrix(200, 200);//rows, columns
       var matrixB = new Matrix.Matrix(200, 200);//rows, columns
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < 1; i++) {
         //Do random initialization
         matrixA.randomInitialize();
         matrixB.randomInitialize();
@@ -99,12 +99,12 @@ function jsMatMul(matrixA, matrixB) {
 function validateMultiplicationResult(matrixA, matrixB, result) {
   var outputDimensions = matrixA.getOutputDimensions(matrixB);
   var TOLERANCE = 0.0003;
-  if (outputDimensions.numRows != result.numRows) {
+  if (outputDimensions.height != result.height) {
     throw "result row dimension " + "does not match expected dimension";
   }
   var jsResult = jsMatMul(matrixA, matrixB);
-  for (var row = 0; row < result.numRows; ++row) {
-    for (var column = 0; column < result.numColumns; ++column) {
+  for (var row = 0; row < result.height; ++row) {
+    for (var column = 0; column < result.width; ++column) {
       var jsValue = jsResult.subset(math.index(row, column));
       var value = result.getValue(row, column);
 
