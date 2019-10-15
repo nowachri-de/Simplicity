@@ -82,8 +82,8 @@ module.exports.Program = class Program {
 		this.doVertexBindings(program);
 	}
 
-	doBindings2(texture, program, componentIndexA, componentIndexB,targetIndex,resultTexture) {
-		this.doUniformBindingsSingleTexture(texture, program, componentIndexA, componentIndexB, targetIndex,resultTexture);
+	doBindings2(texture,resultTexture, program, componentIndexA, componentIndexB,targetIndex) {
+		this.doUniformBindingsSingleTexture(texture, resultTexture,program, componentIndexA, componentIndexB, targetIndex);
 		this.doVertexBindings(program);
 	}
 
@@ -108,18 +108,22 @@ module.exports.Program = class Program {
 		}
 	}
 
-	doUniformBindingsSingleTexture(texture, program, componentIndexA, componentIndexB, targetIndex) {
+	doUniformBindingsSingleTexture(inputTexture,resultTexture, program, componentIndexA, componentIndexB, targetIndex) {
 		var gl = this.gl;
 
-		gl.uniform1i(gl.getUniformLocation(program, "usampler"), texture.index);
+		
 		gl.uniform1i(gl.getUniformLocation(program, "uRGBAIndexA"), componentIndexA);
 		gl.uniform1i(gl.getUniformLocation(program, "uRGBAIndexB"), componentIndexB);
 		gl.uniform1i(gl.getUniformLocation(program, "uTargetIndex"), targetIndex);
 		
-		gl.uniform1f(gl.getUniformLocation(program, "uNumColumns"), texture.width);
-		gl.uniform1f(gl.getUniformLocation(program, "uNumRows"), texture.height);
-		gl.uniform1f(gl.getUniformLocation(program, "uStepCol"), 1. / texture.width);
-		gl.uniform1f(gl.getUniformLocation(program, "uStepRow"), 1. / texture.height);
+		gl.uniform1i(gl.getUniformLocation(program, "usampler"), inputTexture.index);
+		gl.uniform1f(gl.getUniformLocation(program, "uWidth"), inputTexture.width);
+		gl.uniform1f(gl.getUniformLocation(program, "uHeight"), inputTexture.height);
+		gl.uniform1f(gl.getUniformLocation(program, "uStepX"), 1. / inputTexture.width);
+		gl.uniform1f(gl.getUniformLocation(program, "uStepY"), 1. / inputTexture.height);
+
+		gl.uniform1f(gl.getUniformLocation(program, "uResultWidth"), resultTexture.width);
+		gl.uniform1f(gl.getUniformLocation(program, "uResultHeight"), resultTexture.height);
 	}
 
 	doVertexBindings(program) {
@@ -207,7 +211,7 @@ module.exports.Program = class Program {
 		var frameBuffer = this.createFrameBuffer(resultTexture, "compute2");
 
 		gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.frameBuffer);
-		this.doBindings2(texture, this.program, componentA, componentB,targetIndex,resultTexture);
+		this.doBindings2(texture,resultTexture, this.program, componentA, componentB,targetIndex);
 
 		gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
 		var t1 = Date.now();

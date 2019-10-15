@@ -147,12 +147,10 @@ module.exports.ShaderCode = class ShaderCode {
 		 
 			varying highp vec2          vTexture;			// row, column to calculate 
 			uniform highp sampler2D     usampler;			// merged matrix texels
-			uniform highp float			uNumColumns;	    // number of columns
-			uniform highp float			uNumRows;	        // number of rows
-			uniform highp float	  		uStepCol; 		    // column step texture
-			uniform highp float	  		uStepRow; 		    // row step texture
-			uniform highp float	  		uRowConst; 		    // for texture2pixel index - row
-			uniform highp float	  		uColConst; 		    // for texture2pixel index - col
+			uniform highp float			uWidth;	    		// input texture width
+			uniform highp float			uHeight;	    	// input texture height
+			uniform highp float			uResultWidth;	    // result texture width
+			uniform highp float			uResultHeight;	    // result texture height
 
 		    uniform 	  int 			uRGBAIndexA;        // R,G,B,A index matrixA
 			uniform       int           uRGBAIndexB;        // R,G,B,A index matrixB
@@ -190,15 +188,19 @@ module.exports.ShaderCode = class ShaderCode {
 			
 		    float matrixmul(float col, float row){
 				highp float sum = 0.;
-				highp float x = 0.;
-				
-				for (int index=0; index < 2048; index ++){
-					if (index>=int(uNumColumns)) break;
+				highp float x = (col/uWidth)+(1.0/(2.0*uWidth));
+				highp float y = (row/uHeight)+(1.0/(2.0*uHeight));
 
-					float m1 = getMatrixValue(x,row,uRGBAIndexA);
-					float m2 = getMatrixValue(col,x,uRGBAIndexB);
+				highp float stepX = 1.0/uWidth;
+				highp float stepY = 1.0/uHeight;
+
+				for (int index=0; index < 2048; index ++){
+					if (index>=int(uWidth)) break;
+
+					float m1 = getMatrixValue(x,y,uRGBAIndexA);
+					float m2 = getMatrixValue(y,x,uRGBAIndexB);
 					
-					x  += uStepCol;
+					x  += stepX;
 					sum += (m1*m2);
 				}
 				return sum;
@@ -211,11 +213,11 @@ module.exports.ShaderCode = class ShaderCode {
 				highp float  col = vTexture.s;
 				highp float  row = vTexture.t;
 				
-				highp float  x = (col-(1.0/(2.0*uNumColumns)))*uNumColumns;
-				highp float  y = (row-(1.0/(2.0*uNumRows)))*uNumRows;
+				highp float  x = (col-(1.0/(2.0*uResultWidth)))*uResultWidth;
+				highp float  y = (row-(1.0/(2.0*uResultHeight)))*uResultHeight;
 				
-				x = (x/uNumColumns)+(1.0/(2.0*uNumColumns));
-				y = (y/uNumRows)+(1.0/(2.0*uNumRows));
+				//x = (x/uResultWidth)+(1.0/(2.0*uResultWidth));
+				//y = (y/uResultHeight)+(1.0/(2.0*uResultHeight));
 
 				float v = matrixmul(x,y);
 				gl_FragColor = getResultValue(x,y,v,uTargetIndex);
