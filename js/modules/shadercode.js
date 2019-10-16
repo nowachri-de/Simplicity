@@ -134,12 +134,8 @@ module.exports.ShaderCode = class ShaderCode {
   
   static getSingleTextureCode(){
 	  		var code = ` 
-			// Do matrix multiplication using a single texture 
-			// Upto four matrices can be stored in a single texture
-			// using the RGBA components. 
-			// product is then rendered to 32-bit IEEE754 floating point in the 
-			// output RGBA canvas. 
-			// readPixel is used to read the bytes. 
+			/* Do matrix multiplication using a single texture 
+			*  Upto four matrices can be stored in a single texture using the RGBA components. */
 			
 			#ifdef GL_ES 
 				precision highp float; 
@@ -173,16 +169,6 @@ module.exports.ShaderCode = class ShaderCode {
 				if (targetIndex == 2) result.z = value; return result;
 				if (targetIndex == 3) result.w = value; return result;
 
-				/*if (targetIndex == 0) return vec4(value,result.y,result.z,result.w);
-				if (targetIndex == 1) return vec4(result.x,value,result.z,result.w);
-				if (targetIndex == 2) return vec4(result.x,result.y,value,result.w);
-				if (targetIndex == 3) return vec4(result.x,result.y,result.z,value);*/
-				
-				/*if (targetIndex == 0) result.r = value; return result;
-				if (targetIndex == 1) result.g = value; return result;
-				if (targetIndex == 2) result.b = value; return result;
-				if (targetIndex == 3) result.a = value; return result;*/
-
 				return result;
 			}
 			
@@ -197,7 +183,7 @@ module.exports.ShaderCode = class ShaderCode {
 				highp float columnA = y;
 				highp float rowB    = x;
 
-				//initialize x and y
+				//initialize x and y to zero texture coordinate
 				x = (0.0/uWidth)+(1.0/(2.0*uWidth));
 				y = (0.0/uHeight)+(1.0/(2.0*uHeight));
 
@@ -216,8 +202,6 @@ module.exports.ShaderCode = class ShaderCode {
 					sum += (m1*m2);
 				}
 				return sum;
-				//return getMatrixValue(x,columnA,uRGBAIndexA);
-				//return getMatrixValue(columnA,columnA,uRGBAIndexA);
 			}
 			
 			void main(void) { 

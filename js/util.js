@@ -6,7 +6,7 @@ function gpuPrint(program,resultTexture,readableTexture,targetIndex){
 
 function mathJSPrint(matrixA,matrixB,numDigits){
 	var result = jsMatMul(matrixA,matrixB);
-	var resultDimensions = matrixA.getOutputDimensions(matrixB);
+	var resultDimensions = matrixA.getResultMatrixDimensions(matrixB);
 	for (var row = 0; row < resultDimensions.height; row++) {
 		var tmp = "";
 		for (var col = 0; col < resultDimensions.width; col++) {
@@ -29,14 +29,14 @@ function logTime(matrixA,matrixB,matrixResult){
 function jsMatMul(matrixA,matrixB){
 	var mat1 = math.matrix(matrixA.as2DArray());
 	var mat2 = math.matrix(matrixB.as2DArray());
-	var resultDimensions = matrixA.getOutputDimensions(matrixB);
+	var resultDimensions = matrixA.getResultMatrixDimensions(matrixB);
 
 	var result = math.multiply(mat1,mat2);
 	return result;
 }
 
 function validateMultiplicationResult(matrixA,matrixB,result){
-	var outputDimensions = matrixA.getOutputDimensions(matrixB);
+	var outputDimensions = matrixA.getResultMatrixDimensions(matrixB);
 	var TOLERANCE = 0.0003;
 	if (outputDimensions.height != result.height){
 		throw "result row dimension " + "does not match expected dimension";

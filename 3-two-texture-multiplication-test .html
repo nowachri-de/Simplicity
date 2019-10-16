@@ -28,7 +28,7 @@
 			var program  			= new Program("canvas");  //executes GL stuff
 			var shader 				= new Shader(program.gl); //Compiles vertex and fragment shader
 			var textureFactory 		= new TextureFactory("canvas"); //Creates textures
-			var outputDimensions 	= program.getOutputDimensions(matrixA,matrixB); //Output dimension of result matrix
+			var outputDimensions 	= program.getResultMatrixDimensions(matrixA,matrixB); //Output dimension of result matrix
 			
 			//Create textures
 			var textureA = textureFactory.createTexture('textureA',matrixA,'R'); //Texture holding matrix A values

@@ -24,7 +24,7 @@ describe('MatrixStorage', function () {
       storage.store(matrixC,'B');
       storage.store(matrixD,'A');
 
-      let outputDimensions = matrixA.getOutputDimensions(matrixB);
+      let outputDimensions = matrixA.getResultMatrixDimensions(matrixB);
       Matrix.multiply2Texture(storage,matrixA.componentToIndex('R'),matrixA.componentToIndex('G'),outputDimensions);
       
     });
@@ -40,7 +40,7 @@ function jsMatMul(matrixA, matrixB) {
 }
 
 function validateMultiplicationResult(matrixA, matrixB, result) {
-  var outputDimensions = matrixA.getOutputDimensions(matrixB);
+  var outputDimensions = matrixA.getResultMatrixDimensions(matrixB);
   var TOLERANCE = 0.0003;
   if (outputDimensions.height != result.height) {
     throw "result row dimension " + "does not match expected dimension";

@@ -49,7 +49,7 @@
 				
 			var program			 = new Program("canvas");
 			var textureFactory 	 = new TextureFactory("canvas");
-			var outputDimensions = MatrixStorage.getOutputDimensions();
+			var outputDimensions = MatrixStorage.getResultMatrixDimensions();
 			
 			console.log(outputDimensions);
 			console.log(MatrixStorage.getTexels());
@@ -93,7 +93,7 @@
 			*/
 			mat1 = math.matrix(matrixC.as2DArray());
 			mat2 = math.matrix(matrixD.as2DArray());
-			resultDimensions = matrixC.getOutputDimensions(matrixD);
+			resultDimensions = matrixC.getResultMatrixDimensions(matrixD);
 			
 			result2 = math.multiply(mat1,mat2);
 			console.log("JS MatMul ---------------------");

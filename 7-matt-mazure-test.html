@@ -79,7 +79,7 @@
 				displayMessage('messages','bias layer 1 ' + mattMazureValues.layer1Bias);
 				displayMessage('messages','bias layer 2 ' + mattMazureValues.layer2Bias);
 				displayMessage('messages','learning rate ' + mattMazureValues.learningRate);
-				displayMessage('messages','layer 1 has ' + mattMazureValues.layer1Weights.getOutputDimensions(mattMazureValues.inputValues).height + ' rows ' + 'and ' + mattMazureValues.layer1Weights.getOutputDimensions(mattMazureValues.inputValues).width + ' columns');			
+				displayMessage('messages','layer 1 has ' + mattMazureValues.layer1Weights.getResultMatrixDimensions(mattMazureValues.inputValues).height + ' rows ' + 'and ' + mattMazureValues.layer1Weights.getResultMatrixDimensions(mattMazureValues.inputValues).width + ' columns');			
 			}
 			
 			function computeLayerValues(prevOutValues,netValueMatrix,outValueMatrix,bias,target){
@@ -112,7 +112,7 @@
 				var layer2Bias    		= mattMazureValues.layer2Bias;
 				
 				var inputValues 		= mattMazureValues.inputValues;
-				var layer1Dimensions 	= layer1Weights.getOutputDimensions(inputValues);
+				var layer1Dimensions 	= layer1Weights.getResultMatrixDimensions(inputValues);
 				
 				var layer1_out_values = new Matrix(2,1);
 				var layer2_out_values = new Matrix(2,1);

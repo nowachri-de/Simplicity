@@ -4,6 +4,74 @@ const math = require('mathjs');
 var assert = require('assert');
 
 describe('Matrix', function () {
+  describe('#getResultMatrixDimensions(Matrix)', function () {
+    it('should return 4 x 4.', function () {
+      var matrixA = new Matrix.Matrix(4, 4);
+      var matrixB = new Matrix.Matrix(4, 4);
+      
+      assert.equal(matrixA.getResultMatrixDimensions(matrixB).width,4);
+      assert.equal(matrixA.getResultMatrixDimensions(matrixB).height,4);
+    });
+  });
+
+  describe('#getResultMatrixDimensions(Matrix)', function () {
+    it('should return 3 x 1.', function () {
+      var matrixA = new Matrix.Matrix(3, 1);
+      var matrixB = new Matrix.Matrix(3, 3);
+      
+      assert.equal(matrixA.getResultMatrixDimensions(matrixB).width,3);
+      assert.equal(matrixA.getResultMatrixDimensions(matrixB).height,1);
+    });
+  });
+
+  describe('#as2DArray()', function () {
+    it('should cause matrixB to be the same as matrix A', function () {
+      var matrixA = new Matrix.Matrix(3, 3);
+      matrixA.randomInitialize();
+
+      var matrixB = new Matrix.Matrix(3, 3);
+      matrixB.setData(matrixA.as2DArray());
+      
+      isEqual(matrixA,matrixB);
+    });
+  });
+
+  describe('#as2DArray()', function () {
+    it('should cause matrixB to be the same as matrix A', function () {
+      var matrixA = new Matrix.Matrix(1, 10);
+      matrixA.randomInitialize();
+
+      var matrixB = new Matrix.Matrix(1, 10);
+      matrixB.setData(matrixA.as2DArray());
+      
+      isEqual(matrixA,matrixB);
+    });
+  });
+
+  describe('#as2DArray()', function () {
+    it('should cause matrixB to be the same as matrix A', function () {
+      var matrixA = new Matrix.Matrix(10, 10);
+      matrixA.randomInitialize();
+
+      var matrixB = new Matrix.Matrix(10, 10);
+      matrixB.setData(matrixA.as2DArray());
+      
+      isEqual(matrixA,matrixB);
+    });
+  });
+
+  describe('#as2DArray()', function () {
+    it('should cause matrixB to be the same as matrix A', function () {
+      var matrixA = new Matrix.Matrix(10, 1);
+      matrixA.randomInitialize();
+
+      var matrixB = new Matrix.Matrix(10, 1);
+      matrixB.setData(matrixA.as2DArray());
+      
+      isEqual(matrixA,matrixB);
+    });
+  });
+
   describe('#multiply(Matrix)', function () {
     it('should return a x b. Matrix a and Matrix b are same size (4x4)', function () {
       var matrixA = new Matrix.Matrix(4, 4);
@@ -54,7 +122,7 @@ describe('Matrix', function () {
   });
 
   describe('#multiply(Matrix)', function () {
-    it('should multiply matrix a (200x3) with matrix b (10x200) 10 times. Different matrix dimensions', function () {
+    it('should multiply matrix a (200x3) with matrix b (10x200) 10 times.', function () {
       this.timeout(0);//disable timeout
       var matrixA = new Matrix.Matrix(200, 3);//rows, columns
       var matrixB = new Matrix.Matrix(10, 200);//rows, columns
@@ -68,7 +136,7 @@ describe('Matrix', function () {
   });
 
   describe('#multiply(Matrix)', function () {
-    it('should multiply matrix a (200x200) with matrix b (200x200) 10 times. Same matrix dimensions', function () {
+    it('should multiply matrix a (200x200) with matrix b (200x200) 10 times.', function () {
       this.timeout(0);//disable timeout
       var matrixA = new Matrix.Matrix(200, 200);//rows, columns
       var matrixB = new Matrix.Matrix(200, 200);//rows, columns
@@ -105,8 +173,8 @@ function jsMatMul(matrixA, matrixB) {
 }
 
 function validateMultiplicationResult(matrixA, matrixB, result) {
-  var outputDimensions = matrixA.getOutputDimensions(matrixB);
-  var TOLERANCE = 0.0003;
+  var outputDimensions = matrixA.getResultMatrixDimensions(matrixB);
+  var TOLERANCE = 0.001;
   if (outputDimensions.height != result.height) {
     throw "result row dimension " + "does not match expected dimension";
   }
@@ -118,6 +186,21 @@ function validateMultiplicationResult(matrixA, matrixB, result) {
 
       if (Math.abs(jsValue - value) > TOLERANCE) {
         throw "matrix multiplication result is wrong " + value + " does not match math.js matric multiplication value of " + jsValue;
+      }
+    }
+  }
+}
+
+function isEqual(matrixA, matrixB) {
+  var TOLERANCE = 0.001;
+  var jsResult = math.matrix(matrixB.as2DArray());
+  for (var row = 0; row < matrixA.height; ++row) {
+    for (var column = 0; column < matrixA.width; ++column) {
+      var jsValue = jsResult.subset(math.index(row, column));
+      var value = matrixA.getValue(row, column);
+
+      if (Math.abs(jsValue - value) > TOLERANCE) {
+        throw "not equal. " + value + " does not match value " + jsValue;
       }
     }
   }

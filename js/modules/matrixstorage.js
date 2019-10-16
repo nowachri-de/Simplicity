@@ -68,7 +68,7 @@ class MatrixStorage {
         return result;
     }
 
-    getOutputDimensions() {
+    getResultMatrixDimensions() {
 
         var outRows = this.maxRows;
         var outColumns = this.maxColumns;
