@@ -18,8 +18,8 @@ module.exports.Matrix = class Matrix {
     }
 
     /**
-     * Initializes the matrix to zeros
-     * @returns Matrix data as 2D array
+     * Initializes the matrix to zeros.
+     * @returns Matrix data as 2D array.
      */
     zeroInitialize() {
         for (var row = 0; row < this.height; row++) {
@@ -33,8 +33,8 @@ module.exports.Matrix = class Matrix {
     /**
      * Randomly initialzes the matrix.
      * Note that the math random number is divided by 10 in order to
-     * generate very small numbers
-     * @returns Matrix data as 2D array
+     * generate small numbers.
+     * @returns This matrix
      */
     randomInitialize() {
         for (var row = 0; row < this.height; row++) {
@@ -42,7 +42,7 @@ module.exports.Matrix = class Matrix {
                 this.data[row][col] = Math.random()/10.0;
             }
         }
-        return this.data;
+        return this;
     }
 
     /**
@@ -75,7 +75,7 @@ module.exports.Matrix = class Matrix {
      * Return that matrix value at the given row and column.
      * @param {Integer} row row of matrix
      * @param {Integer} col column of matrix
-     * @returns Requested value, null row and/or col arguments are not in the range of the matrix dimension.
+     * @returns Requested value, null if row and/or col arguments are not in the range of the matrix dimension.
      */
     getValue(row, col) {
         if (row < this.height && col < this.width) {
@@ -85,8 +85,7 @@ module.exports.Matrix = class Matrix {
     }
 
     /**
-     * Returns the matrix values of the given column
-     * 
+     * Returns the matrix values of the given column.
      * @param {Integer} col 
      */
     getColumn(col) {
@@ -100,41 +99,61 @@ module.exports.Matrix = class Matrix {
 
         return column;
     }
-
+    /**
+     * Returns the matrix values of the given row.
+     * @param {Integer} row
+     * @returns row as array, empty array if the given row argument is out of matrix scope. 
+     */
     getRow(row) {
         if (row < this.height) {
-            return this.row[row];
+            return this.data[row];
         }
         return [];
     }
 
+    /**
+     * Set matrix value at the given row and column
+     * @param {Integer} row 
+     * @param {Integer} col
+     * @param {Number} value
+     * @returns the matrix data
+     */
     setValue(row, col, value) {
         if (row < this.height && col < this.width) {
             this.data[row][col] = value;
         }
-        return value;
+        return data;
     }
 
-    setData(f32Array) {
+    /**
+     * Set matrix data
+     * @param {array} data 2 dimensional array containing the matrix data 
+     * @returns this matrix
+     */
+    setData(data) {
         let cnt = 0;
         for (let row = 0; row < this.height; row++) {
             for (let col = 0; col < this.width; col++) {
-                this.data[row][col] = f32Array[cnt++];
+                this.data[row][col] = data[cnt++];
             }
         }
+        return this;
     }
 
+    /**
+     * Returns the matrix as a string in order to log it to the console
+     * @param {Integer} decimals number of decimals to be printed 
+     * @returns the matrix data
+     */
     print(decimals) {
-        if (decimals === undefined)
-            decimals = 15;
-
+        
         let result = "";
         let rowContent = "";
         for (let row = 0; row < this.height; row++) {
             for (let col = 0; col < this.width; col++) {
                 rowContent += (this.data[row][col]).toFixed(decimals) + " ; "
             }
-            console.log(rowContent);
+            result+=rowContent+"\r\n";
             rowContent = "";
         }
         return result;
