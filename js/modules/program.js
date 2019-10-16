@@ -15,14 +15,13 @@ module.exports.Program = class Program {
 		this.debug = false;
 
 		if (typeof gl === 'undefined') {
-			this.gl = this.createGl(width, height);
+			this.gl = Program.createGl(width, height);
 		} else {
 			this.gl = gl;
 		}
 	}
 
-
-	createGl(width, height) {
+	static createGl(width, height) {
 		var gl = headlessGL(width, height, {
 			premultipliedAlpha: false,
 			preserveDrawingBuffer: false
@@ -110,7 +109,6 @@ module.exports.Program = class Program {
 
 	doUniformBindingsSingleTexture(inputTexture,resultTexture, program, componentIndexA, componentIndexB, targetIndex) {
 		var gl = this.gl;
-
 		
 		gl.uniform1i(gl.getUniformLocation(program, "uRGBAIndexA"), componentIndexA);
 		gl.uniform1i(gl.getUniformLocation(program, "uRGBAIndexB"), componentIndexB);
@@ -201,24 +199,24 @@ module.exports.Program = class Program {
 		return textureC;
 	}
 
-	compute2(texture, resultTexture, outputDimensions, componentA, componentB, targetIndex) {
+	multiplySingleTexture(texture, resultTexture, outputDimensions, componentA, componentB, targetIndex) {
 		var t0 = Date.now();
 		var gl = this.gl;
 
 		gl.useProgram(this.program);
 		gl.viewport(0, 0, outputDimensions.width, outputDimensions.height);
 
-		var frameBuffer = this.createFrameBuffer(resultTexture, "compute2");
+		var frameBuffer = this.createFrameBuffer(resultTexture, "multiplySingleTexture");
 
 		gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.frameBuffer);
 		this.doBindings2(texture,resultTexture, this.program, componentA, componentB,targetIndex);
 
 		gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
-		var t1 = Date.now();
+		
 
 		return {
 			resultTexture: resultTexture,
-			duration: t1 - t0
+			duration: Date.now() - t0
 		}
 	}
 

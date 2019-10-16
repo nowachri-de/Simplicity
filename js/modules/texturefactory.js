@@ -1,31 +1,55 @@
+let usedIndices = new Array();
+
+function removeFromArray(array,value){
+	var index = array.indexOf(value);
+	if (index > -1) {
+		array.splice(index, 1);
+	 }
+}
+
+	
 class Texture{
     constructor(gl,texture,index,name,width,height){
         this.gl = gl;
         this.texture= texture;
-        this.index=  index;
+        this.index =  index;
         this.name= name;
         this.width = width;
         this.height= height;
     }
 
     free(){
-        this.gl.deleteTexture(this.texture);
+		this.gl.deleteTexture(this.texture);
+		removeFromArray(usedIndices,this.index);
     }
 };
 
 module.exports.TextureFactory = class TextureFactory {
+	
+	static fetchFreeIndex(){
+		if ( usedIndices.length === 0){
+			return 0;
+		}
+		usedIndices.sort(function(a, b){return a - b});
 
-	constructor(gl) {
-		this.gl = gl;
-		this.index = 0;
+		let i = 0;
+		while(usedIndices.includes(i)){
+			++i;
+		}
+		return i;
 	}
 
-	createReadableTexture(name, outputdimensions) {
-		var gl = this.gl;
+	static useIndex(index){
+		usedIndices.push(index);
+	}
 
+	static createReadableTexture(gl,name, outputdimensions) {
 		var texture = gl.createTexture();
+		
+		let index = TextureFactory.fetchFreeIndex();
+		TextureFactory.useIndex(index);
 
-		gl.activeTexture(this.gl.TEXTURE0 + this.index);
+		gl.activeTexture(gl.TEXTURE0 + index );
 		gl.bindTexture(gl.TEXTURE_2D, texture);
 		//gl.texImage2D(gl.TEXTURE_2D, /*level*/ 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, data/*renderCanvas*/);
 		// clamp to edge to support non-power of two textures
@@ -38,22 +62,24 @@ module.exports.TextureFactory = class TextureFactory {
 		//gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, outputdimensions.width, outputdimensions.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(new ArrayBuffer(12 * 12 * 4)));
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, outputdimensions.width, outputdimensions.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
 
-        return new Texture(gl,texture,this.index ++,name,outputdimensions.width, outputdimensions.height);
+        return new Texture(gl,texture,index,name,outputdimensions.width, outputdimensions.height);
 	}
 
-	createTexture(name, matrix, component) {
-		return this.createTextureByDimension(name, matrix.width, matrix.height, matrix.getTexels(component));
+	static createTexture(gl, name, matrix, component) {
+		return this.createTextureByDimension(gl,name, matrix.width, matrix.height, matrix.getTexels(component));
 	}
 
-	createResultTexture(name, outputdimensions) {
-		return this.createTextureByDimension(name, outputdimensions.width, outputdimensions.height, null);
+	static createResultTexture(gl, name, outputdimensions) {
+		return this.createTextureByDimension(gl,name, outputdimensions.width, outputdimensions.height, null);
 	}
 
-	createTextureByDimension(name, width, height, data) {
-		var gl = this.gl;
-
+	static createTextureByDimension(gl, name, width, height, data) {
 		var texture = gl.createTexture();
-		gl.activeTexture(this.gl.TEXTURE0 + this.index);
+		
+		let index = TextureFactory.fetchFreeIndex();
+		TextureFactory.useIndex(index);
+
+		gl.activeTexture(gl.TEXTURE0 + index );
 		gl.bindTexture(gl.TEXTURE_2D, texture);
 
 		// clamp to edge to support non-power of two textures
@@ -66,10 +92,10 @@ module.exports.TextureFactory = class TextureFactory {
 
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.FLOAT, data);
 
-		return (new Texture(gl,texture,this.index ++,name,width, height));
+		return (new Texture(gl,texture,index,name,width, height));
 	}
 
-	debugPrint(message) {
+	static debugPrint(message) {
 		if (this.debug === true) {
 			console.log(message);
 		}

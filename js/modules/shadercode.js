@@ -156,11 +156,11 @@ module.exports.ShaderCode = class ShaderCode {
 			uniform       int           uRGBAIndexB;        // R,G,B,A index matrixB
 			uniform       int           uTargetIndex;       // vec4 index where to put result
 			
-			float getMatrixValue(float a, float b,int rgbaIndex){
-				if (rgbaIndex == 0) return texture2D(usampler,vec2(a,b)).x;
-				if (rgbaIndex == 1) return texture2D(usampler,vec2(a,b)).y;
-				if (rgbaIndex == 2) return texture2D(usampler,vec2(a,b)).z;
-				if (rgbaIndex == 3) return texture2D(usampler,vec2(a,b)).w;
+			float getMatrixValue(float x, float y,int rgbaIndex){
+				if (rgbaIndex == 0) return texture2D(usampler,vec2(x,y)).x;
+				if (rgbaIndex == 1) return texture2D(usampler,vec2(x,y)).y;
+				if (rgbaIndex == 2) return texture2D(usampler,vec2(x,y)).z;
+				if (rgbaIndex == 3) return texture2D(usampler,vec2(x,y)).w;
 				
 				return 0.;
 			}
@@ -188,8 +188,18 @@ module.exports.ShaderCode = class ShaderCode {
 			
 		    float matrixmul(float col, float row){
 				highp float sum = 0.;
+				
+				//convert pixel coordinate to texture coordinate
 				highp float x = (col/uWidth)+(1.0/(2.0*uWidth));
 				highp float y = (row/uHeight)+(1.0/(2.0*uHeight));
+				
+				//colum a and row b to multiply
+				highp float columnA = y;
+				highp float rowB    = x;
+
+				//initialize x and y
+				x = (0.0/uWidth)+(1.0/(2.0*uWidth));
+				y = (0.0/uHeight)+(1.0/(2.0*uHeight));
 
 				highp float stepX = 1.0/uWidth;
 				highp float stepY = 1.0/uHeight;
@@ -197,13 +207,17 @@ module.exports.ShaderCode = class ShaderCode {
 				for (int index=0; index < 2048; index ++){
 					if (index>=int(uWidth)) break;
 
-					float m1 = getMatrixValue(x,y,uRGBAIndexA);
-					float m2 = getMatrixValue(y,x,uRGBAIndexB);
+					float m1 = getMatrixValue(x,columnA,uRGBAIndexA);
+					float m2 = getMatrixValue(rowB,y,uRGBAIndexB);
 					
 					x  += stepX;
+					y  += stepY;
+
 					sum += (m1*m2);
 				}
 				return sum;
+				//return getMatrixValue(x,columnA,uRGBAIndexA);
+				//return getMatrixValue(columnA,columnA,uRGBAIndexA);
 			}
 			
 			void main(void) { 
@@ -213,6 +227,7 @@ module.exports.ShaderCode = class ShaderCode {
 				highp float  col = vTexture.s;
 				highp float  row = vTexture.t;
 				
+				//convert result texture coordinates to result texture pixel coordinates
 				highp float  x = (col-(1.0/(2.0*uResultWidth)))*uResultWidth;
 				highp float  y = (row-(1.0/(2.0*uResultHeight)))*uResultHeight;
 				

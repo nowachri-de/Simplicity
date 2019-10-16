@@ -58,7 +58,7 @@ module.exports.ResultReader = class ResultReader{
         var rawBuffer = new ArrayBuffer(dimension.height * dimension.width * 4);
         var glresult = new Uint8Array(rawBuffer);
         gl.readPixels(0, 0,  dimension.width,dimension.height, gl.RGBA, gl.UNSIGNED_BYTE, glresult);
-        var result = new Matrix.Matrix(dimension.height,dimension.width);
+        var result = new Matrix.Matrix(dimension.width,dimension.height);
         result.setData(new Float32Array(rawBuffer));
 	
 		return result;

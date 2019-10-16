@@ -63,7 +63,7 @@
 			var fragmentShader = shader.getFragmentShader(ShaderCode.getCode("SINGLE"))
 			
 			program.buildProgram(vertexShader,fragmentShader);
-			logTime(matrixA,matrixB,program.compute2(texture,resultTexture,outputDimensions,0,1,0));
+			logTime(matrixA,matrixB,program.multiplySingleTexture(texture,resultTexture,outputDimensions,0,1,0));
 		
 			//console.log("GPU MatMul ---------------------");
 			//gpuPrint(program,resultTexture,readableTexture,0);
@@ -78,7 +78,7 @@
 			mathJSPrint(matrixA,matrixB,5);
 			
 			t0 = performance.now();
-			program.compute2(texture,resultTexture,outputDimensions,2,3,0);
+			program.multiplySingleTexture(texture,resultTexture,outputDimensions,2,3,0);
 			t1 = performance.now();
 			console.log("GPU time for matmul " + (t1 - t0) + " milliseconds.")
 			

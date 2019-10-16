@@ -1,43 +1,62 @@
 const { Program } = require(__dirname + "\\program.js");
 const { Shader } = require(__dirname + "\\shader.js");
 const { ShaderCode } = require(__dirname + "\\shadercode.js");
-const { ResultReader }= require(__dirname + "\\resultreader.js");
-const { MatrixStorage }= require(__dirname + "\\matrixstorage.js");
+const { ResultReader } = require(__dirname + "\\resultreader.js");
+const { MatrixStorage } = require(__dirname + "\\matrixstorage.js");
 const { TextureFactory } = require(__dirname + "\\texturefactory.js");
 
 module.exports.Matrix = class Matrix {
 
-    constructor(rows, columns) {
-        this.height = rows;
-        this.width = columns;
+    constructor(width, height) {
+        this.width = width;
+        this.height = height;
         this.resultTexture = null;
+        this.data = new Array();
 
-        this.rows = new Array();
         for (var row = 0; row < this.height; row++) {
-            this.rows.push(new Float32Array(columns));
+            this.data.push(new Float32Array(width));
         }
     }
 
     zeroInitialize() {
-        for (var col = 0; col < this.width; col++) {
-            for (var row = 0; row < this.height; row++) {
-                this.rows[row][col] = 0;
+        for (var row = 0; row < this.height; row++) {
+            for (var col = 0; col < this.width; col++) {
+                this.data[row][col] = 0;
             }
         }
+        return this.data;
     }
 
     randomInitialize() {
-        for (var col = 0; col < this.width; col++) {
-            for (var row = 0; row < this.height; row++) {
-                this.rows[row][col] = Math.random();
+        for (var row = 0; row < this.height; row++) {
+            for (var col = 0; col < this.width; col++) {
+                this.data[row][col] = Math.random();
             }
         }
-        return this.rows;
+        return this.data;
+    }
+
+    oneInitialize() {
+        for (var row = 0; row < this.height; row++) {
+            for (var col = 0; col < this.width; col++) {
+                this.data[row][col] = 1;
+            }
+        }
+        return this.data;
+    }
+
+    sequenzeInitialize() {
+        for (var row = 0; row < this.height; row++) {
+            for (var col = 0; col < this.width; col++) {
+                this.data[row][col] = (row * this.width) + col;
+            }
+        }
+        return this.data;
     }
 
     getValue(row, col) {
         if (row < this.height && col < this.width) {
-            return this.rows[row][col];
+            return this.data[row][col];
         }
         return null;
     }
@@ -47,7 +66,7 @@ module.exports.Matrix = class Matrix {
 
         if (col < this.width) {
             for (var row = 0; row < this.height; row++) {
-                column.push(this.rows[row][col]);
+                column.push(this.data[row][col]);
             }
         }
 
@@ -63,16 +82,16 @@ module.exports.Matrix = class Matrix {
 
     setValue(row, col, value) {
         if (row < this.height && col < this.width) {
-            this.rows[row][col] = value;
+            this.data[row][col] = value;
         }
         return value;
     }
 
     setData(f32Array) {
-        var cnt = 0;
-        for (var row = 0; row < this.height; row++) {
-            for (var col = 0; col < this.width; col++) {
-                this.rows[row][col] = f32Array[cnt++];
+        let cnt = 0;
+        for (let row = 0; row < this.height; row++) {
+            for (let col = 0; col < this.width; col++) {
+                this.data[row][col] = f32Array[cnt++];
             }
         }
     }
@@ -81,11 +100,11 @@ module.exports.Matrix = class Matrix {
         if (decimals === undefined)
             decimals = 15;
 
-        var result = "";
-        var rowContent = "";
-        for (var row = 0; row < this.height; row++) {
-            for (var col = 0; col < this.width; col++) {
-                rowContent += (this.rows[row][col]).toFixed(decimals) + " ; "
+        let result = "";
+        let rowContent = "";
+        for (let row = 0; row < this.height; row++) {
+            for (let col = 0; col < this.width; col++) {
+                rowContent += (this.data[row][col]).toFixed(decimals) + " ; "
             }
             console.log(rowContent);
             rowContent = "";
@@ -94,12 +113,12 @@ module.exports.Matrix = class Matrix {
     }
 
     as2DArray() {
-        var result = [];
+        let result = [];
 
-        for (var row = 0; row < this.height; row++) {
+        for (let row = 0; row < this.height; row++) {
             result[row] = [];
-            for (var col = 0; col < this.width; col++) {
-                result[row].push(this.rows[row][col]);
+            for (let col = 0; col < this.width; col++) {
+                result[row].push(this.data[row][col]);
             }
         }
 
@@ -107,12 +126,12 @@ module.exports.Matrix = class Matrix {
     }
 
     getRow(rowIndex) {
-        return this.rows[rowIndex];
+        return this.data[rowIndex];
     }
 
     mergeRow(texelRowOrig, texelRowCopy, copyComponent, targetComponent) {
-        var length = Math.min(texelRowOrig.length, texelRowCopy.length);
-        var copyOffset = 0;
+        let length = Math.min(texelRowOrig.length, texelRowCopy.length);
+        let copyOffset = 0;
 
         switch (copyComponent) {
             //R component of RGBA color
@@ -135,7 +154,7 @@ module.exports.Matrix = class Matrix {
                 throw "mergeRow: copyComponent " + copyComponent + " unknown";
         }
 
-        for (var cnt = 4; cnt < length; cnt += 4) {
+        for (let cnt = 4; cnt < length; cnt += 4) {
 
             switch (targetComponent) {
                 //R component of RGBA color
@@ -160,7 +179,7 @@ module.exports.Matrix = class Matrix {
         }
     }
 
-     componentToIndex(component) {
+    componentToIndex(component) {
         switch (component) {
             //R component of RGBA color
             case 'R':
@@ -177,20 +196,20 @@ module.exports.Matrix = class Matrix {
             default:
                 throw "componentToIndex: component " + component + " unknown";
         }
-  
+
     }
 
     getTexels(component) {
 
-        var result = new Float32Array(4 * this.height * this.width);
-        var cnt = 0;
+        let result = new Float32Array(4 * this.height * this.width);
+        let cnt = 0;
 
         if (component === undefined) {
             component = "R";
         }
 
-        for (var row = 0; row < this.height; row++) {
-            for (var col = 0; col < this.width; col++) {
+        for (let row = 0; row < this.height; row++) {
+            for (let col = 0; col < this.width; col++) {
                 result[cnt++] = 0.;
                 result[cnt++] = 0.;
                 result[cnt++] = 0.;
@@ -199,19 +218,19 @@ module.exports.Matrix = class Matrix {
                 switch (component) {
                     //R component of RGBA color
                     case 'R':
-                        result[cnt - 4] = this.rows[row][col];
+                        result[cnt - 4] = this.data[row][col];
                         break;
                     //G component of RGBA color
                     case 'G':
-                        result[cnt - 3] = this.rows[row][col];
+                        result[cnt - 3] = this.data[row][col];
                         break;
                     //B component of RGBA color
                     case 'B':
-                        result[cnt - 2] = this.rows[row][col];
+                        result[cnt - 2] = this.data[row][col];
                         break;
                     //A component of RGBA color
                     case 'A':
-                        result[cnt - 1] = this.rows[row][col];
+                        result[cnt - 1] = this.data[row][col];
                         break;
                     default:
                         throw "getTexels: component " + component + " unknown";
@@ -223,76 +242,78 @@ module.exports.Matrix = class Matrix {
     }
 
     getOutputDimensions(matrixB) {
-        var thisHeight = this.height;
-        var otherWidth = matrixB.width;
+        let thisHeight = this.height;
+        let otherWidth = matrixB.width;
 
-        var result = {
+        return {
             height: thisHeight,
             width: otherWidth
         };
+    }
 
+    /**
+	 * multiply2Texture multiplies two matrices and stores the multiplication result in a texture.
+     * 
+     * @param {MatrixStorage} matrixStorage -   MatrixStorage containing the matrices
+     * @param {integer} componentAIndex -   value between 0 and 3. The componentA value specifies the first matrix to take from the matrix storage for multiplication
+     * @param {integer} componentBIndex -   value between 0 and 3. The componentB value specifies the second matrix to take from the matrix storage for multiplication
+     * @param {ResultDimension} resultDimensions -  Dimension of result matrix. MatrixA x MatrixB = ResultMatrix
+     * @return {Texture} - The result of the matrix multiplication stored in a texture
+    */
+
+    static multiply2Texture(matrixA,matrixB) {
+
+    }
+
+    /**
+	 * converts the given texture containing matrix values to a matrix object
+     * 
+     * @param {Texture} texture -   Texture to read matrix values from
+     * @return {Integer} sourceIndex - The component index (R,G,B,A) to read the values from
+    */
+    static texture2matrix(texture,sourceIndex){
+        let dimension = {width:texture.width,height:texture.height};
+        let gl = texture.gl;
+
+        let readableTexture = TextureFactory.createReadableTexture(gl,'readableTexture', dimension);
+        let resultReader = new ResultReader(gl, texture.width, texture.height);
+        let result = resultReader.readByResultDimension(texture, readableTexture,dimension, sourceIndex);
+
+        readableTexture.free();
         return result;
     }
 
     /**
-	 * multiply2Texture multiplies two matrices from a matrix storage to a texture. The resulting texture will be returned.
+	 * multiply this matrix by the given matrix and return the matrix multiplication result as new matrix
      * 
-     * @param {MatrixStorage} matrixStorage -   MatrixStorage containing the matrices
-     * @param {integer} componentA -   value between 0 and 3. The componentA value specifies the first matrix to take from the matrix storage for multiplication
-     * @param {integer} componentB -   value between 0 and 3. The componentB value specifies the second matrix to take from the matrix storage for multiplication
-     * @param {ResultDimension} resultDimension -  Dimension of result matrix. MatrixA x MatrixB = ResultMatrix
+     * @param {Matrix} matrixB -   The matrix to be multiplied with this matrix
+     * @return {Texture} - The result of the matrix multiplication stored in a texture
     */
-
-    static multiply2Texture(matrixStorage, componentAIndex, componentBIndex, resultDimensions) {
-
-        let program = new Program(resultDimensions.width, resultDimensions.height);
-        let textureFactory = new TextureFactory(program.gl);
-
-        let inputTexture = textureFactory.createTextureByDimension("inputTexture", resultDimensions.width, resultDimensions.height, matrixStorage.getTexels());
-        let resultTexture = textureFactory.createResultTexture('resultTexture', resultDimensions);
-
-        let gl = program.gl;
-        let vertexShader = Shader.getVertexShader(gl, ShaderCode.getCode("VERTEX"));
-        let fragmentShader = Shader.getFragmentShader(gl, ShaderCode.getCode("SINGLE"));
-
-
-        program.buildProgram(vertexShader, fragmentShader);
-        program.compute2(inputTexture, resultTexture, resultDimensions, componentAIndex, componentBIndex, 0);
-
-        inputTexture.free();
-        Shader.free(gl, vertexShader);
-        Shader.free(gl, fragmentShader);
-        program.free();
-
-        return resultTexture;
-    }
-
-
     multiply(matrixB) {
         let t0 = Date.now();
-        let matrixStorage = new MatrixStorage();
 
+        let matrixStorage = new MatrixStorage();
+        let program = new Program(this.width, this.height);
+        let gl = program.gl;
+        
+
+        //prepare the storage of the two matrices in a single texture
         matrixStorage.reset();
         matrixStorage.store(this, 'R');
         matrixStorage.store(matrixB, 'G');
 
-        let program = new Program(this.width, this.height);
-        let gl = program.gl;
-
-        let textureFactory = new TextureFactory(gl);
-        let outputDimensions = matrixStorage.getOutputDimensions();
-
-        let inputTexture = textureFactory.createTextureByDimension("inputTexture", matrixStorage.maxRows, matrixStorage.maxColumns, matrixStorage.getTexels());
-        let resultTexture = textureFactory.createResultTexture('resultTexture', outputDimensions);
-        let readableTexture = textureFactory.createReadableTexture('readableTexture', outputDimensions);
-
-
+        //width input texture = maxwidth(matrixA,matrixB,...), height of input texture = maxheight(matrixA,matrixB,...)
+        let inputTexture = TextureFactory.createTextureByDimension(gl,"inputTexture", matrixStorage.maxRows, matrixStorage.maxColumns, matrixStorage.getTexels());
+        
+        let outputDimensions = this.getOutputDimensions(matrixB);
+        let resultTexture = TextureFactory.createResultTexture(gl,'resultTexture', outputDimensions);
+        
         let vertexShader = Shader.getVertexShader(gl, ShaderCode.getCode("VERTEX"));
         let fragmentShader = Shader.getFragmentShader(gl, ShaderCode.getCode("SINGLE"));
         program.buildProgram(vertexShader, fragmentShader);
-        var computationResult = program.compute2(inputTexture, resultTexture, outputDimensions, 0, 1);
+        let computationResult = program.multiplySingleTexture(inputTexture, resultTexture, outputDimensions, 0, 1);
 
-        var matrixDimension = this.getOutputDimensions(matrixB);
+        /*var matrixDimension = this.getOutputDimensions(matrixB);
         var resultDimension = {
             width: matrixDimension.width,
             height: matrixDimension.height
@@ -306,55 +327,10 @@ module.exports.Matrix = class Matrix {
 
         var t1 = Date.now();
         result.duration = t1 - t0;
+        return result;*/
+        let result = Matrix.texture2matrix(computationResult.resultTexture,0); //0 stands for index of component 'R'
+        computationResult.resultTexture.free();
         return result;
-    }
-
-    set height(rows) {
-        this._height = rows;
-    }
-
-    get height() {
-        return this._height;
-    }
-
-    get width() {
-        return this._width;
-    }
-
-    set width(cols) {
-        this._width = cols;
-    }
-
-    get columns() {
-        return this._columns;
-    }
-
-    set columns(columns) {
-        this._columns = columns;
-    }
-
-    get rows() {
-        return this._rows;
-    }
-
-    set rows(rows) {
-        this._rows = rows;
-    }
-
-    set frameBuffer(buffer) {
-        this._frameBuffer = buffer;
-    }
-
-    get frameBuffer() {
-        return this._frameBuffer;
-    }
-
-    set renderBuffer(buffer) {
-        this._renderBuffer = buffer;
-    }
-
-    get renderBuffer() {
-        return this._renderBuffer;
     }
 }
 

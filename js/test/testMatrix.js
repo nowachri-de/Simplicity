@@ -5,33 +5,20 @@ var assert = require('assert');
 
 describe('Matrix', function () {
   describe('#multiply(Matrix)', function () {
-    it('should return a x b. Matrix a and Matrix b are same size', function () {
-      var matrixA = new Matrix.Matrix(4,4);
-      var matrixB = new Matrix.Matrix(4,4);
-
+    it('should return a x b. Matrix a and Matrix b are same size (4x4)', function () {
+      var matrixA = new Matrix.Matrix(4, 4);
+      var matrixB = new Matrix.Matrix(4, 4);
       //Do random initialization
-      matrixA.randomInitialize();
-      matrixB.randomInitialize();
-      console.log(matrixA.multiply(matrixB));
+      matrixA.sequenzeInitialize();
+      matrixB.oneInitialize();
       validateMultiplicationResult(matrixA, matrixB, matrixA.multiply(matrixB));
     });
   });
-  describe('#multiply(Matrix)', function () {
-    it('should return a x b. Matrix a and Matrix b are not same size', function () {
-      var matrixA = new Matrix.Matrix(10, 10);//rows, columns
-      var matrixB = new Matrix.Matrix(10, 1);//rows, columns
 
-      //Do random initialization
-      matrixA.randomInitialize();
-      matrixB.randomInitialize();
-
-      validateMultiplicationResult(matrixA, matrixB, matrixA.multiply(matrixB));
-    });
-  });
   describe('#multiply(Matrix)', function () {
-    it('should return a x b. Matrix a and Matrix b are not same size', function () {
-      var matrixA = new Matrix.Matrix(3, 10);//rows, columns
-      var matrixB = new Matrix.Matrix(10, 10);//rows, columns
+    it('should return a x b. Matrix a (4x1) and Matrix b (1x4))', function () {
+      var matrixA = new Matrix.Matrix(4, 1);//rows, columns
+      var matrixB = new Matrix.Matrix(1, 4);//rows, columns
 
       //Do random initialization
       matrixA.randomInitialize();
@@ -42,27 +29,36 @@ describe('Matrix', function () {
   });
 
   describe('#multiply(Matrix)', function () {
-    it('should return a x b repeated multiple times. Matrix a and Matrix b are not same size', function () {
-      var matrixA = new Matrix.Matrix(3, 10);//rows, columns
-      var matrixB = new Matrix.Matrix(10, 10);//rows, columns
+    it('should return a x b. should return a x b. Matrix a (20x5) and Matrix b (1x20))', function () {
+      var matrixA = new Matrix.Matrix(20, 5);//rows, columns
+      var matrixB = new Matrix.Matrix(1, 20);//rows, columns
 
       //Do random initialization
       matrixA.randomInitialize();
       matrixB.randomInitialize();
 
       validateMultiplicationResult(matrixA, matrixB, matrixA.multiply(matrixB));
-      validateMultiplicationResult(matrixA, matrixB, matrixA.multiply(matrixB));
-      validateMultiplicationResult(matrixA, matrixB, matrixA.multiply(matrixB));
-      validateMultiplicationResult(matrixA, matrixB, matrixA.multiply(matrixB));
-      validateMultiplicationResult(matrixA, matrixB, matrixA.multiply(matrixB));
     });
   });
   describe('#multiply(Matrix)', function () {
-    it('should multiply matrix a with matrix b 100 times. Different matrix dimensions', function () {
+    it('should return a x b. should return a x b. Matrix a (20x5) and Matrix b (15x20))', function () {
+      var matrixA = new Matrix.Matrix(20, 5);//rows, columns
+      var matrixB = new Matrix.Matrix(15, 20);//rows, columns
+
+      //Do random initialization
+      matrixA.randomInitialize();
+      matrixB.randomInitialize();
+
+      validateMultiplicationResult(matrixA, matrixB, matrixA.multiply(matrixB));
+    });
+  });
+
+  describe('#multiply(Matrix)', function () {
+    it('should multiply matrix a (200x3) with matrix b (10x200) 10 times. Different matrix dimensions', function () {
       this.timeout(0);//disable timeout
-      var matrixA = new Matrix.Matrix(3, 200);//rows, columns
-      var matrixB = new Matrix.Matrix(200, 10);//rows, columns
-      for (let i = 0; i < 1; i++) {
+      var matrixA = new Matrix.Matrix(200, 3);//rows, columns
+      var matrixB = new Matrix.Matrix(10, 200);//rows, columns
+      for (let i = 0; i < 10; i++) {
         //Do random initialization
         matrixA.randomInitialize();
         matrixB.randomInitialize();
@@ -72,11 +68,11 @@ describe('Matrix', function () {
   });
 
   describe('#multiply(Matrix)', function () {
-    it('should multiply matrix a with matrix b 10 times. Same matrix dimensions', function () {
+    it('should multiply matrix a (200x200) with matrix b (200x200) 10 times. Same matrix dimensions', function () {
       this.timeout(0);//disable timeout
       var matrixA = new Matrix.Matrix(200, 200);//rows, columns
       var matrixB = new Matrix.Matrix(200, 200);//rows, columns
-      for (let i = 0; i < 1; i++) {
+      for (let i = 0; i < 10; i++) {
         //Do random initialization
         matrixA.randomInitialize();
         matrixB.randomInitialize();
@@ -85,7 +81,19 @@ describe('Matrix', function () {
     });
   });
 
-  
+  describe('#multiply(Matrix)', function () {
+    it('should multiply matrix a (500x500) with matrix b (500x500)', function () {
+      this.timeout(0);//disable timeout
+      var matrixA = new Matrix.Matrix(500, 500);//rows, columns
+      var matrixB = new Matrix.Matrix(500, 500);//rows, columns
+
+      //Do random initialization
+      matrixA.randomInitialize();
+      matrixB.randomInitialize();
+
+      validateMultiplicationResult(matrixA, matrixB, matrixA.multiply(matrixB));
+    });
+  });
 });
 
 function jsMatMul(matrixA, matrixB) {
