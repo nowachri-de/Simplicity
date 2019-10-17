@@ -64,7 +64,7 @@ module.exports.Matrix = class Matrix {
      * @returns this matrix
      */
 
-    addColumn(column, columnVector) {
+    insertColumn(column, columnVector) {
         if (columnVector.length != this.height) {
             throw 'column vector length does not match matrix height'
         }
@@ -79,14 +79,48 @@ module.exports.Matrix = class Matrix {
         return this;
     }
 
-    /*
+    /**
+     * Add columnVector values to column at given column index
+     * @param column index of column
+     * @param columnVector column data to be set
+     * @returns this matrix
+     */
+
+    addColumn(column, columnVector) {
+        if (columnVector.length != this.height) {
+            throw 'column vector length does not match matrix height'
+        }
+        if (column >= this.width) {
+            throw 'column index is out of scope'
+        }
+
+        for (var row = 0; row < this.height; row++) {
+            this.data[row][column] += columnVector[row];
+        }
+
+        return this;
+    }
+
+    /** 
+     * Add rowVector values to row at given row index
+    * @returns This matrix
+    */
+    addRow(row, data) {
+
+        for (var col = 0; col < this.width; col++) {
+            this.data[row][col] += data[col];
+        }
+
+        return this;
+    }
+    /** 
      * Add row at given row index to matrix
      * @param row index of row
      * @param rowVector row data to be set
      * @returns this matrix
      */
 
-    addRow(row, rowVector) {
+    insertRow(row, rowVector) {
         if (rowVector.length != this.width) {
             throw 'row vector length does not match matrix width'
         }

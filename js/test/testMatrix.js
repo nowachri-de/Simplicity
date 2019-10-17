@@ -3,11 +3,11 @@ const { matrix, index, multiply } = require('mathjs');
 var assert = require('assert');
 
 describe('Matrix', function () {
-  describe('#addColumn(col,data)', function () {
+  describe('#insertColumn(col,data)', function () {
     it('should add a column to matrix', function () {
       var matrixA = new Matrix(2, 2);
-      matrixA.addColumn(0, [0, 0]);
-      matrixA.addColumn(1, [1, 1]);
+      matrixA.insertColumn(0, [0, 0]);
+      matrixA.insertColumn(1, [1, 1]);
       let col0 = matrixA.getColumn(0);
       let col1 = matrixA.getColumn(1);
       let row0 = matrixA.getRow(0);
@@ -25,20 +25,20 @@ describe('Matrix', function () {
     });
   });
 
-  describe('#addColumn(col,data)', function () {
+  describe('#insertColumn(col,data)', function () {
     it('should throw an error since column index is out of scope', function () {
       var matrixA = new Matrix(2, 2);
-      matrixA.addColumn(0, [0, 0]);
-      matrixA.addColumn(1, [1, 1]);
-      assert.throws(() => matrixA.addColumn(2, [1, 1]));
+      matrixA.insertColumn(0, [0, 0]);
+      matrixA.insertColumn(1, [1, 1]);
+      assert.throws(() => matrixA.insertColumn(2, [1, 1]));
     });
   });
 
-  describe('#addRow(row,data)', function () {
+  describe('#insertRow(row,data)', function () {
     it('should add a row to matrix', function () {
       var matrixA = new Matrix(2, 2);
-      matrixA.addRow(0, [0, 0]);
-      matrixA.addRow(1, [1, 1]);
+      matrixA.insertRow(0, [0, 0]);
+      matrixA.insertRow(1, [1, 1]);
       let col0 = matrixA.getColumn(0);
       let col1 = matrixA.getColumn(1);
       let row0 = matrixA.getRow(0);
@@ -218,13 +218,15 @@ describe('Matrix', function () {
     it('should generate the Matt Mazur values', function () {
       this.timeout(0);//disable timeout
       let input = new Matrix(2,1);
-      input.addRow(0,[.05,.10]);
+      input.insertRow(0,[.05,.10]);
 
       let w1 = new Matrix(2,2);
-      w1.addColumn(0,[.15,.25]);
-      w1.addColumn(1,[.20,.30]);
+      w1.insertColumn(0,[.15,.20]);
+      w1.insertColumn(1,[.20,.30]);
 
-      console.log(input.multiply(w1));
+      let result = input.multiply(w1);
+      result.addRow(0,[.35,.35]);
+      console.log(result);
     });
   });
 });
