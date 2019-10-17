@@ -1,20 +1,85 @@
-const {Matrix} = require(__dirname + '\\..\\modules\\matrix.js');
-const {matrix,index,multiply} = require('mathjs');
+const { Matrix } = require(__dirname + '\\..\\modules\\matrix.js');
+const { matrix, index, multiply } = require('mathjs');
 var assert = require('assert');
 
 describe('Matrix', function () {
-  describe('#print(decimals)', function () {
-    it('should print the matrix with 3 desimals', function () {
-      var matrixA = new Matrix(4, 4).randomInitialize();
-      console.log(matrixA.print(3));
+  describe('#addColumn(col,data)', function () {
+    it('should add a column to matrix', function () {
+      var matrixA = new Matrix(2, 2);
+      matrixA.addColumn(0, [0, 0]);
+      matrixA.addColumn(1, [1, 1]);
+      let col0 = matrixA.getColumn(0);
+      let col1 = matrixA.getColumn(1);
+      let row0 = matrixA.getRow(0);
+      let row1 = matrixA.getRow(1);
+
+      assert.equal(col0[0], 0);
+      assert.equal(col0[1], 0);
+      assert.equal(col1[0], 1);
+      assert.equal(col1[1], 1);
+
+      assert.equal(row0[0], 0);
+      assert.equal(row0[1], 1);
+      assert.equal(row1[0], 0);
+      assert.equal(row1[1], 1);
     });
   });
-  describe('#print(decimals)', function () {
-    it('should print the matrix with 0 desimals', function () {
-      var matrixA = new Matrix(4, 4).randomInitialize();
-      console.log(matrixA.print(0));
+
+  describe('#addColumn(col,data)', function () {
+    it('should throw an error since column index is out of scope', function () {
+      var matrixA = new Matrix(2, 2);
+      matrixA.addColumn(0, [0, 0]);
+      matrixA.addColumn(1, [1, 1]);
+      assert.throws(() => matrixA.addColumn(2, [1, 1]));
     });
   });
+
+  describe('#addRow(row,data)', function () {
+    it('should add a row to matrix', function () {
+      var matrixA = new Matrix(2, 2);
+      matrixA.addRow(0, [0, 0]);
+      matrixA.addRow(1, [1, 1]);
+      let col0 = matrixA.getColumn(0);
+      let col1 = matrixA.getColumn(1);
+      let row0 = matrixA.getRow(0);
+      let row1 = matrixA.getRow(1);
+
+      assert.equal(col0[0], 0);
+      assert.equal(col0[1], 1);
+      assert.equal(col1[0], 0);
+      assert.equal(col1[1], 1);
+
+      assert.equal(row0[0], 0);
+      assert.equal(row0[1], 0);
+      assert.equal(row1[0], 1);
+      assert.equal(row1[1], 1);
+    });
+  });
+
+  describe('#getRow(row)', function () {
+    it('', function () {
+      var matrixA = new Matrix(2, 2).sequenzeInitialize();
+      console.log(matrixA.getRow(0));
+      console.log(matrixA.getRow(1));
+      console.log(matrixA.getColumn(0));
+      console.log(matrixA.getColumn(1));
+    });
+  });
+
+  describe('#print(decimals)', function () {
+    it('should return a string representation of the matrix with 3 desimals', function () {
+      var matrixA = new Matrix(4, 4).randomInitialize();
+      assert.ok(matrixA.print(3).length > 0);
+    });
+  });
+
+  describe('#print(decimals)', function () {
+    it('should return a string representation of the matrix with 0 desimals', function () {
+      var matrixA = new Matrix(4, 4).randomInitialize();
+      assert.ok(matrixA.print(0).length > 0);
+    });
+  });
+
   describe('#getResultMatrixDimensions(Matrix)', function () {
     it('should return 4 x 4.', function () {
       var matrixA = new Matrix(4, 4);
@@ -123,7 +188,7 @@ describe('Matrix', function () {
     });
   });
 
-  describe('#multiply(Matrix)', function () {
+  /*describe('#multiply(Matrix)', function () {
     it('should multiply matrix a (200x200) with matrix b (200x200) 10 times.', function () {
       this.timeout(0);//disable timeout
       var matrixA = new Matrix(200, 200);//rows, columns
@@ -146,6 +211,20 @@ describe('Matrix', function () {
       matrixB.randomInitialize();
 
       validateMultiplicationResult(matrixA, matrixB, matrixA.multiply(matrixB));
+    });
+  });*/
+
+  describe('Matt Mazur test', function () {
+    it('should generate the Matt Mazur values', function () {
+      this.timeout(0);//disable timeout
+      let input = new Matrix(2,1);
+      input.addRow(0,[.05,.10]);
+
+      let w1 = new Matrix(2,2);
+      w1.addColumn(0,[.15,.25]);
+      w1.addColumn(1,[.20,.30]);
+
+      console.log(input.multiply(w1));
     });
   });
 });

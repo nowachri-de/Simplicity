@@ -11,7 +11,6 @@ module.exports.Matrix = class Matrix {
         this.height = height;
         this.resultTexture = null;
         this.data = new Array();
-
         for (var row = 0; row < this.height; row++) {
             this.data.push(new Float32Array(width));
         }
@@ -19,7 +18,7 @@ module.exports.Matrix = class Matrix {
 
     /**
      * Initializes the matrix to zeros.
-     * @returns Matrix data as 2D array.
+     * @returns This matrix.
      */
     zeroInitialize() {
         for (var row = 0; row < this.height; row++) {
@@ -27,7 +26,7 @@ module.exports.Matrix = class Matrix {
                 this.data[row][col] = 0;
             }
         }
-        return this.data;
+        return this;
     }
 
     /**
@@ -39,7 +38,7 @@ module.exports.Matrix = class Matrix {
     randomInitialize() {
         for (var row = 0; row < this.height; row++) {
             for (var col = 0; col < this.width; col++) {
-                this.data[row][col] = Math.random()/10.0;
+                this.data[row][col] = Math.random() / 10.0;
             }
         }
         return this;
@@ -47,7 +46,7 @@ module.exports.Matrix = class Matrix {
 
     /**
      * Initializes the matrix to ones
-     * @returns Matrix data as 2D array
+     * @returns This matrix
      */
     oneInitialize() {
         for (var row = 0; row < this.height; row++) {
@@ -55,20 +54,59 @@ module.exports.Matrix = class Matrix {
                 this.data[row][col] = 1;
             }
         }
-        return this.data;
+        return this;
     }
 
     /**
-     * Initializes the matrix to an ascending sequence.
-     * @returns Matrix data as 2D array
+     * Add column at given column index to matrix
+     * @param column index of column
+     * @param columnVector column data to be set
+     * @returns this matrix
      */
+
+    addColumn(column, columnVector) {
+        if (columnVector.length != this.height) {
+            throw 'column vector length does not match matrix height'
+        }
+        if (column >= this.width) {
+            throw 'column index is out of scope'
+        }
+
+        for (var row = 0; row < this.height; row++) {
+            this.data[row][column] = columnVector[row];
+        }
+
+        return this;
+    }
+
+    /*
+     * Add row at given row index to matrix
+     * @param row index of row
+     * @param rowVector row data to be set
+     * @returns this matrix
+     */
+
+    addRow(row, rowVector) {
+        if (rowVector.length != this.width) {
+            throw 'row vector length does not match matrix width'
+        }
+        if (row >= this.height) {
+            throw 'row index is out of scope'
+        }
+        this.data[row] = rowVector;
+
+        return this;
+    }
+    /** Initializes the matrix to an ascending sequence.
+    * @returns This matrix
+    */
     sequenzeInitialize() {
         for (var row = 0; row < this.height; row++) {
             for (var col = 0; col < this.width; col++) {
                 this.data[row][col] = (row * this.width) + col;
             }
         }
-        return this.data;
+        return this;
     }
 
     /**
@@ -116,13 +154,13 @@ module.exports.Matrix = class Matrix {
      * @param {Integer} row 
      * @param {Integer} col
      * @param {Number} value
-     * @returns the matrix data
+     * @returns This matrix
      */
     setValue(row, col, value) {
         if (row < this.height && col < this.width) {
             this.data[row][col] = value;
         }
-        return data;
+        return this;
     }
 
     /**
@@ -146,14 +184,14 @@ module.exports.Matrix = class Matrix {
      * @returns the matrix data
      */
     print(decimals) {
-        
+
         let result = "";
         let rowContent = "";
         for (let row = 0; row < this.height; row++) {
             for (let col = 0; col < this.width; col++) {
                 rowContent += (this.data[row][col]).toFixed(decimals) + " ; "
             }
-            result+=rowContent+"\r\n";
+            result += rowContent + "\r\n";
             rowContent = "";
         }
         return result;
@@ -310,7 +348,7 @@ module.exports.Matrix = class Matrix {
      * @return {Texture} - The result of the matrix multiplication stored in a texture
     */
 
-    static multiply2Texture(matrixA,matrixB) {
+    static multiply2Texture(matrixA, matrixB) {
 
     }
 
@@ -320,13 +358,13 @@ module.exports.Matrix = class Matrix {
      * @param {Texture} texture -   Texture to read matrix values from
      * @return {Integer} sourceIndex - The component index (R,G,B,A) to read the values from
     */
-    static texture2matrix(texture,sourceIndex){
-        let dimension = {width:texture.width,height:texture.height};
+    static texture2matrix(texture, sourceIndex) {
+        let dimension = { width: texture.width, height: texture.height };
         let gl = texture.gl;
 
-        let readableTexture = TextureFactory.createReadableTexture(gl,'readableTexture', dimension);
+        let readableTexture = TextureFactory.createReadableTexture(gl, 'readableTexture', dimension);
         let resultReader = new ResultReader(gl, texture.width, texture.height);
-        let result = resultReader.readByResultDimension(texture, readableTexture,dimension, sourceIndex);
+        let result = resultReader.readByResultDimension(texture, readableTexture, dimension, sourceIndex);
 
         readableTexture.free();
         return result;
@@ -344,25 +382,25 @@ module.exports.Matrix = class Matrix {
         let matrixStorage = new MatrixStorage();
         let program = new Program(this.width, this.height);
         let gl = program.gl;
-        
+
         //prepare the storage of the two matrices in a single texture
         matrixStorage.reset();
         matrixStorage.store(this, 'R');
         matrixStorage.store(matrixB, 'G');
 
         //width input texture = maxwidth(matrixA,matrixB,...), height of input texture = maxheight(matrixA,matrixB,...)
-        let inputTexture = TextureFactory.createTextureByDimension(gl,"inputTexture", matrixStorage.maxRows, matrixStorage.maxColumns, matrixStorage.getTexels());
-        
+        let inputTexture = TextureFactory.createTextureByDimension(gl, "inputTexture", matrixStorage.maxRows, matrixStorage.maxColumns, matrixStorage.getTexels());
+
         let outputDimensions = this.getResultMatrixDimensions(matrixB);
-        let resultTexture = TextureFactory.createResultTexture(gl,'resultTexture', outputDimensions);
-        
+        let resultTexture = TextureFactory.createResultTexture(gl, 'resultTexture', outputDimensions);
+
         let vertexShader = Shader.getVertexShader(gl, ShaderCode.getCode("VERTEX"));
         let fragmentShader = Shader.getFragmentShader(gl, ShaderCode.getCode("SINGLE"));
         program.buildProgram(vertexShader, fragmentShader);
-        
+
         let computationResult = program.multiplySingleTexture(inputTexture, resultTexture, outputDimensions, 0, 1);
-        let result = Matrix.texture2matrix(computationResult.resultTexture,0); //0 stands for index of component 'R'
-        
+        let result = Matrix.texture2matrix(computationResult.resultTexture, 0); //0 stands for index of component 'R'
+
         computationResult.resultTexture.free();
         inputTexture.free();
         program.free();
