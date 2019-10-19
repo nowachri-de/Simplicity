@@ -1,16 +1,17 @@
 module.exports.ShaderCode = class ShaderCode {
 
-  static getCode(type) {
-    switch (type){
-		case "READABLE": 	return ShaderCode.getReadableShaderCode();
-		case "SINGLE": 		return ShaderCode.getSingleTextureCode();
-		case "DUAL": 		return ShaderCode.getDualTextureCode();
-		case "VERTEX": 		return ShaderCode.getVertexShaderCode();
-		default: throw "getCode "+ type+" not known.";
+	static getCode(type) {
+		switch (type) {
+			case "READABLE": return ShaderCode.getReadableShaderCode();
+			case "SINGLE": return ShaderCode.getSingleTextureCode();
+			case "SINGLE-ACTIVATION": return ShaderCode.getMatMulWithActivationCode();
+			case "DUAL": return ShaderCode.getDualTextureCode();
+			case "VERTEX": return ShaderCode.getVertexShaderCode();
+			default: throw "getCode " + type + " not known.";
+		}
 	}
-  }
-  static getVertexShaderCode(){
-	var code =  `	
+	static getVertexShaderCode() {
+		var code = `	
 		// vertex shader for a single quad 
 		// work is performed based on the texels being passed 
 		// through to the texture shader. 
@@ -27,9 +28,9 @@ module.exports.ShaderCode = class ShaderCode {
 			vTexture = aTexture; 
 		}`;
 		return code;
-  }
-  static getReadableShaderCode(){
-	  var code =  ` 
+	}
+	static getReadableShaderCode() {
+		var code = ` 
 			/*Shader that creates a texture that can be converted to byte.
 			 *This is needed when reading a texture from javascript.*/
 
@@ -85,10 +86,10 @@ module.exports.ShaderCode = class ShaderCode {
 			}
 		`;
 		return code;
-  }
-  
-  static getDualTextureCode(){
-	   var code = `
+	}
+
+	static getDualTextureCode() {
+		var code = `
 			//Do matrix multiplication using two textures
 			#ifdef GL_ES
 					precision highp float;
@@ -129,11 +130,12 @@ module.exports.ShaderCode = class ShaderCode {
 					gl_FragColor = vec4(v,0.,0.,0.);
 			}
 	`;
-	return code;
-  }
-  
-  static getSingleTextureCode(){
-	  		var code = ` 
+		return code;
+	}
+
+
+	static getSingleTextureCode() {
+		var code = ` 
 			/* Do matrix multiplication using a single texture 
 			*  Upto four matrices can be stored in a single texture using the RGBA components. */
 			
@@ -222,6 +224,99 @@ module.exports.ShaderCode = class ShaderCode {
 				gl_FragColor = getResultValue(x,y,v,uTargetIndex);
 			}
 		`;
+		return code;
+	}
+
+	static getMatMulWithActivationCode() {
+		var code = ` 
+	  /* Do matrix multiplication using a single texture 
+	  *  Upto four matrices can be stored in a single texture using the RGBA components. */
+	  
+	  #ifdef GL_ES 
+		  precision highp float; 
+	  #endif 
+   
+	  varying highp vec2          vTexture;			// row, column to calculate 
+	  uniform highp sampler2D     usampler;			// merged matrix texels
+	  uniform highp float			uWidth;	    		// input texture width
+	  uniform highp float			uHeight;	    	// input texture height
+	  uniform highp float			uResultWidth;	    // result texture width
+	  uniform highp float			uResultHeight;	    // result texture height
+
+	  uniform 	  int 			uRGBAIndexA;        // R,G,B,A index matrixA
+	  uniform       int           uRGBAIndexB;        // R,G,B,A index matrixB
+	  uniform       int           uTargetIndex;       // vec4 index where to put result
+	  
+	  float getMatrixValue(float x, float y,int rgbaIndex){
+		  if (rgbaIndex == 0) return texture2D(usampler,vec2(x,y)).x;
+		  if (rgbaIndex == 1) return texture2D(usampler,vec2(x,y)).y;
+		  if (rgbaIndex == 2) return texture2D(usampler,vec2(x,y)).z;
+		  if (rgbaIndex == 3) return texture2D(usampler,vec2(x,y)).w;
+		  
+		  return 0.;
+	  }
+	  
+	  vec4 getResultValue(float col, float row,float value,int targetIndex){
+		  vec4 result = texture2D(usampler,vec2(col,row));
+		  
+		  if (targetIndex == 0) result.x = value; return result;
+		  if (targetIndex == 1) result.y = value; return result;
+		  if (targetIndex == 2) result.z = value; return result;
+		  if (targetIndex == 3) result.w = value; return result;
+
+		  return result;
+	  }
+	  
+	  float matrixmul(float col, float row){
+		  highp float sum = 0.;
+		  
+		  //convert pixel coordinate to texture coordinate
+		  highp float x = (col/uWidth)+(1.0/(2.0*uWidth));
+		  highp float y = (row/uHeight)+(1.0/(2.0*uHeight));
+		  
+		  //colum a and row b to multiply
+		  highp float columnA = y;
+		  highp float rowB    = x;
+
+		  //initialize x and y to zero texture coordinate
+		  x = (0.0/uWidth)+(1.0/(2.0*uWidth));
+		  y = (0.0/uHeight)+(1.0/(2.0*uHeight));
+
+		  highp float stepX = 1.0/uWidth;
+		  highp float stepY = 1.0/uHeight;
+
+		  for (int index=0; index < 2048; index ++){
+			  if (index>=int(uWidth)) break;
+
+			  float m1 = getMatrixValue(x,columnA,uRGBAIndexA);
+			  float m2 = getMatrixValue(rowB,y,uRGBAIndexB);
+			  
+			  x  += stepX;
+			  y  += stepY;
+
+			  sum += (m1*m2);
+		  }
+		return 1.0/(1.0+exp(sum*(-1.0)));
+		// return sum; 
+	  }
+	  
+	  void main(void) { 
+		  // The texture coordinates are coming from the target texture 
+		  // WebGL coordinate system is explained here
+		  // http://learnwebgl.brown37.net/10_surface_properties/texture_mapping_images.html
+		  highp float  col = vTexture.s;
+		  highp float  row = vTexture.t;
+		  
+		  //convert result texture coordinates to result texture pixel coordinates
+		  highp float  x = (col-(1.0/(2.0*uResultWidth)))*uResultWidth;
+		  highp float  y = (row-(1.0/(2.0*uResultHeight)))*uResultHeight;
+		  
+		  //x = (x/uResultWidth)+(1.0/(2.0*uResultWidth));
+		  //y = (y/uResultHeight)+(1.0/(2.0*uResultHeight));
+
+		  float v = matrixmul(x,y);
+		  gl_FragColor = getResultValue(x,y,v,uTargetIndex);
+	  } `;
 		return code;
 	}
 }

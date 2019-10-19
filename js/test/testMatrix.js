@@ -224,8 +224,8 @@ describe('Matrix', function () {
       w1.insertColumn(0,[.15,.20]);
       w1.insertColumn(1,[.20,.30]);
 
-      let result = input.multiply(w1);
-      result.addRow(0,[.35,.35]);
+      let result = input.multiplyWithActivation(w1);
+      //result.addRow(0,[.35,.35]);
       console.log(result);
     });
   });

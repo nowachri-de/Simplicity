@@ -220,6 +220,27 @@ module.exports.Program = class Program {
 		}
 	}
 
+	multiplySingleTextureWithActivation(texture, resultTexture, outputDimensions, componentA, componentB, targetIndex) {
+		var t0 = Date.now();
+		var gl = this.gl;
+
+		gl.useProgram(this.program);
+		gl.viewport(0, 0, outputDimensions.width, outputDimensions.height);
+
+		var frameBuffer = this.createFrameBuffer(resultTexture, "multiplySingleTexture");
+
+		gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.frameBuffer);
+		this.doBindings2(texture,resultTexture, this.program, componentA, componentB,targetIndex);
+
+		gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
+		
+
+		return {
+			resultTexture: resultTexture,
+			duration: Date.now() - t0
+		}
+	}
+
 	debugPrint(message) {
 		if (this.debug === true) {
 			console.log(message);
