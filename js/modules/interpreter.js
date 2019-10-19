@@ -1,3 +1,5 @@
+var Sqrl = require('squirrelly');
+
 function isInt(value) {
     return !isNaN(value) &&
         parseInt(Number(value)) == value &&
@@ -30,6 +32,7 @@ class CodeGenerator {
         sb.push('}');
     }
     forStatment(ce, sb) {
+        console.log(this.source.substring(ce.node.start,ce.node.end));
         sb.push("for(");
         this.variableDeclaration(ce.node.init, sb).push(" ;");
         this.binaryExpression(ce.node.test, sb).push(" ;");
@@ -71,13 +74,15 @@ class CodeGenerator {
 
 }
 class Interpreter {
-    constructor(visitor) {
+    constructor(visitor,source) {
         this.visitor = visitor;
+        this.source = source;
         this.visitor.codeGenerator = new CodeGenerator();
         this.visitor.codeGenerator.codeElements = [];
     }
     interpret(nodes) {
         this.visitor.run(nodes);
+        this.visitor.codeGenerator.source = this.source;
         console.log(this.visitor.codeGenerator.generate());
     }
 }

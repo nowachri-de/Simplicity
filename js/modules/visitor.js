@@ -52,7 +52,7 @@ class Visitor {
         }
     }
     visitNode(node) {
-        console.log(node.type);
+        //console.log(node);
         switch (node.type) {
             case 'FunctionDeclaration': this.handleFunctionDeclaration(node); break;
             case 'BlockStatement': this.handleBlockStatement(node); break;
