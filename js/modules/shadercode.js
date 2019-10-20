@@ -1,3 +1,4 @@
+var Sqrl = require('squirrelly');
 module.exports.ShaderCode = class ShaderCode {
 
 	static getCode(type) {
@@ -318,5 +319,62 @@ module.exports.ShaderCode = class ShaderCode {
 		  gl_FragColor = getResultValue(x,y,v,uTargetIndex);
 	  } `;
 		return code;
+	};
+	static generateFragmentShader(options) {
+		var shaderTemplate = `
+	/**
+	* This is a generated shader.
+	*/
+	
+	#ifdef GL_ES 
+		precision highp float; 
+	#endif
+	
+	{{each(options.samplers)}}
+	uniform sampler2D uSampler_{{@this.name}};
+	{{/each}}
+	
+	{{each(options.samplers)}}
+	uniform float uSampler_{{@this.name}}_width;
+	uniform float uSampler_{{@this.name}}_height;
+	
+	{{/each}}
+	uniform highp float uResultWidth; // result texture width
+	uniform highp float uResultHeight; // result texture height
+	
+	/*
+	*  functions for accessing values of sampler 
+	*  parameter x: pixel coordinate of result texture beeing shaded
+	*  parameter y: pixel coordinate of result texture beeing shaded
+	*  parameter index: R,G,B,A component
+	*/
+	{{each(options.samplers)}}
+	float getValueSampler_{{@this.name}}(float x,float y, int index){
+		//convert pixel coordinates of result texture to texture coordinates of sampler texture
+		float {{@this.name}}_x = (x/uSampler_{{@this.name}}_width)+(1.0/(2.0*uSampler_{{@this.name}}_width));
+		float {{@this.name}}_y = (y/uSampler_{{@this.name}}_height)+(1.0/(2.0*uSampler_{{@this.name}}_height));
+	
+		if (targetIndex == 0) texture2D(uSampler_{{@this.name}},vec2({{@this.name}}_x,{{@this.name}}_y)).x;
+		if (targetIndex == 1) texture2D(uSampler_{{@this.name}},vec2({{@this.name}}_x,{{@this.name}}_y)).y;
+		if (targetIndex == 2) texture2D(uSampler_{{@this.name}},vec2({{@this.name}}_x,{{@this.name}}_y)).z;
+		if (targetIndex == 3) texture2D(uSampler_{{@this.name}},vec2({{@this.name}}_x,{{@this.name}}_y)).w;
+	}
+	
+	{{/each}}
+	
+	void main(void) { 
+		//x,y are texture coordinates
+		highp float  x = vTexture.s;
+		highp float  y = vTexture.t;
+	
+		//convert texture coordinates to pixel coordinates
+		highp float  x = (x-(1.0/(2.0*uResultWidth)))*uResultWidth;
+		highp float  y = (y-(1.0/(2.0*uResultHeight)))*uResultHeight;
+	
+		float v = matrixmul(x,y);
+		gl_FragColor = getResultValue(x,y,v,uTargetIndex);
+	}
+	`;
+		return Sqrl.Render(shaderTemplate, options);
 	}
 }

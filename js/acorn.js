@@ -2,7 +2,8 @@
 const acorn = require('acorn');
 const Interpreter = require(__dirname + "\\modules\\interpreter.js");
 const Visitor = require(__dirname + "\\modules\\visitor.js");
-var Sqrl = require('squirrelly');
+const {ShaderCode} = require(__dirname + "\\modules\\ShaderCode.js");
+
 
 var STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
 var ARGUMENT_NAMES = /([^\s,]+)/g;
@@ -23,10 +24,10 @@ function isFloat(n) {
 }
 
 function generateFunction(a) {
-    var shaderTemplate = 
-`
+    var shaderTemplate =
+        `
 /**
-* This is a generated shader. May it work as expected and may you live long and prosper.
+* This is a generated shader.
 */
 
 #ifdef GL_ES 
@@ -42,15 +43,18 @@ uniform float uSampler_{{@this.name}}_width;
 uniform float uSampler_{{@this.name}}_height;
 
 {{/each}}
+uniform highp float uResultWidth; // result texture width
+uniform highp float uResultHeight; // result texture height
 
 /*
 *  functions for accessing values of sampler 
-*  parameter x: pixel coordinate of texture beeing shaded
-*  parameter y: pixel coordinate of textrue beeing shaded
+*  parameter x: pixel coordinate of result texture beeing shaded
+*  parameter y: pixel coordinate of result texture beeing shaded
 *  parameter index: R,G,B,A component
 */
 {{each(options.samplers)}}
 float getValueSampler_{{@this.name}}(float x,float y, int index){
+    //convert pixel coordinates of result texture to texture coordinates of sampler texture
     float {{@this.name}}_x = (x/uSampler_{{@this.name}}_width)+(1.0/(2.0*uSampler_{{@this.name}}_width));
     float {{@this.name}}_y = (y/uSampler_{{@this.name}}_height)+(1.0/(2.0*uSampler_{{@this.name}}_height));
 
@@ -61,13 +65,30 @@ float getValueSampler_{{@this.name}}(float x,float y, int index){
 }
 
 {{/each}}
+
+void main(void) { 
+    //x,y are texture coordinates
+    highp float  x = vTexture.s;
+    highp float  y = vTexture.t;
+
+    //convert texture coordinates to pixel coordinates
+    highp float  x = (x-(1.0/(2.0*uResultWidth)))*uResultWidth;
+    highp float  y = (y-(1.0/(2.0*uResultHeight)))*uResultHeight;
+
+    float v = matrixmul(x,y);
+    gl_FragColor = getResultValue(x,y,v,uTargetIndex);
+}
 `;
 
     let samplers = [];
-    samplers.push({name: 'input',width: '100', height: '100'});
-    samplers.push({name: 'bias',width: '100', height: '1'});
+    samplers.push({ name: 'input', width: '100', height: '100' });
+    samplers.push({ name: 'bias', width: '100', height: '1' });
 
-    console.log(Sqrl.Render(shaderTemplate, { samplers: samplers }));
+    let options = {
+        samplers: samplers
+    }
+
+    console.log(ShaderCode.generateFragmentShader(options));
 }
 generateFunction(1.0);
 
