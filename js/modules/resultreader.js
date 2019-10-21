@@ -29,7 +29,7 @@ module.exports.ResultReader = class ResultReader{
 		gl.scissor(0, 0, textureB.width,textureB.height);
 		var frameBuffer = this.program.createFrameBuffer(textureB);
 		
-		gl.activeTexture(gl.TEXTURE0 + textureB.index);
+		//gl.activeTexture(gl.TEXTURE0 + textureB.index);
         gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.frameBuffer);
 		this.program.doBindings(textureA,textureB,this.program.program,targetIndex);
         
@@ -49,14 +49,17 @@ module.exports.ResultReader = class ResultReader{
 	
 		return result;
 	}
-	
+	//http://www.realtimerendering.com/blog/webgl-2-basics/
 	readByResultDimension(textureA,textureB,dimension,targetIndex){
 		this.runShaders(textureA,textureB,targetIndex);
 		
 		var gl = this.gl;
 		 // extract the product and return in new matrix
         var rawBuffer = new ArrayBuffer(dimension.height * dimension.width * 4);
-        var glresult = new Uint8Array(rawBuffer);
+		var glresult = new Uint8Array(rawBuffer);
+		var ext = gl.getExtension('WEBGL_draw_buffers');
+		//gl.bindFramebuffer(gl.FRAMEBUFFER, textureA.frameBuffer);
+		//gl.readBuffer(ext.COLOR_ATTACHMENT1_WEBGL);
         gl.readPixels(0, 0,  dimension.width,dimension.height, gl.RGBA, gl.UNSIGNED_BYTE, glresult);
         var result = new Matrix.Matrix(dimension.width,dimension.height);
         result.setData(new Float32Array(rawBuffer));

@@ -1,6 +1,6 @@
 var headlessGL = require('gl');
 
-
+//https://stackoverflow.com/questions/25490189/how-to-render-to-multiple-textures-with-opengl
 module.exports.Program = class Program {
 
 	constructor(width, height, gl) {
@@ -41,23 +41,35 @@ module.exports.Program = class Program {
 
 		return gl;
 	}
-
+	//http://www.songho.ca/opengl/gl_fbo.html
+	//https://github.com/tsherif/webgl2examples/blob/master/deferred.html
+	//https://hacks.mozilla.org/2014/01/webgl-deferred-shading/
+	//https://stackoverflow.com/questions/34154300/readpixels-on-multiple-draw-buffers-in-webgl
+	//https://www.cs.cornell.edu/courses/cs4620/2017sp/cs4621/lecture08/exhibit03.html
 	createFrameBuffer(texture, name) {
 		var gl = this.gl;
+		var ext = gl.getExtension('WEBGL_draw_buffers');
+		ext.drawBuffersWEBGL([
+			ext.COLOR_ATTACHMENT0_WEBGL, // gl_FragData[0]
+			ext.COLOR_ATTACHMENT1_WEBGL, // gl_FragData[1]
+			ext.COLOR_ATTACHMENT2_WEBGL, // gl_FragData[2]
+			ext.COLOR_ATTACHMENT3_WEBGL  // gl_FragData[3]
+		]);
 
 		// create and bind renderbuffer
-		var renderBuffer = gl.createRenderbuffer();
-		gl.bindRenderbuffer(gl.RENDERBUFFER, null);
-		gl.bindRenderbuffer(gl.RENDERBUFFER, renderBuffer);
-		gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, texture.width, texture.height);
+		//var renderBuffer = gl.createRenderbuffer();
+		//gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+		//gl.bindRenderbuffer(gl.RENDERBUFFER, renderBuffer);
+		//gl.renderbufferStorage(gl.RENDERBUFFER, gl.UNSIGNED_BYTE, texture.width, texture.height);
 
 		// create and bind framebuffer
 		var frameBuffer = gl.createFramebuffer();
 		gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer);
+		//gl.framebufferTexture2D(gl.FRAMEBUFFER, ext.COLOR_ATTACHMENT0_WEBGL, gl.TEXTURE_2D, texture.texture, /*level*/ 0);
 		gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture.texture, /*level*/ 0);
-		gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, renderBuffer);
+		//gl.framebufferRenderbuffer(gl.FRAMEBUFFER, ext.COLOR_ATTACHMENT1_WEBGL, gl.RENDERBUFFER, renderBuffer);
 
-		gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer);
+		//gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer);
 
 		if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) != gl.FRAMEBUFFER_COMPLETE)
 			console.log("Error: binding of framebuffer failed");
@@ -65,7 +77,7 @@ module.exports.Program = class Program {
 		var result = {
 			texture: texture,
 			frameBuffer: frameBuffer,
-			renderBuffer: renderBuffer,
+			//renderBuffer: renderBuffer,
 			name: name,
 			width: texture.width,
 			height: texture.height
@@ -81,8 +93,8 @@ module.exports.Program = class Program {
 		this.doVertexBindings(program);
 	}
 
-	doBindings2(texture,resultTexture, program, componentIndexA, componentIndexB,targetIndex) {
-		this.doUniformBindingsSingleTexture(texture, resultTexture,program, componentIndexA, componentIndexB, targetIndex);
+	doBindings2(texture, resultTexture, program, componentIndexA, componentIndexB, targetIndex) {
+		this.doUniformBindingsSingleTexture(texture, resultTexture, program, componentIndexA, componentIndexB, targetIndex);
 		this.doVertexBindings(program);
 	}
 
@@ -107,13 +119,13 @@ module.exports.Program = class Program {
 		}
 	}
 
-	doUniformBindingsSingleTexture(inputTexture,resultTexture, program, componentIndexA, componentIndexB, targetIndex) {
+	doUniformBindingsSingleTexture(inputTexture, resultTexture, program, componentIndexA, componentIndexB, targetIndex) {
 		var gl = this.gl;
-		
+
 		gl.uniform1i(gl.getUniformLocation(program, "uRGBAIndexA"), componentIndexA);
 		gl.uniform1i(gl.getUniformLocation(program, "uRGBAIndexB"), componentIndexB);
 		gl.uniform1i(gl.getUniformLocation(program, "uTargetIndex"), targetIndex);
-		
+
 		gl.uniform1i(gl.getUniformLocation(program, "usampler"), inputTexture.index);
 		gl.uniform1f(gl.getUniformLocation(program, "uWidth"), inputTexture.width);
 		gl.uniform1f(gl.getUniformLocation(program, "uHeight"), inputTexture.height);
@@ -193,6 +205,7 @@ module.exports.Program = class Program {
 		gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.frameBuffer);
 		this.doBindings(textureA, textureB, this.program);
 
+
 		gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
 		var t1 = Date.now();
 		textureC.duration = t1 - t0;
@@ -209,10 +222,12 @@ module.exports.Program = class Program {
 		var frameBuffer = this.createFrameBuffer(resultTexture, "multiplySingleTexture");
 
 		gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.frameBuffer);
-		this.doBindings2(texture,resultTexture, this.program, componentA, componentB,targetIndex);
+		this.doBindings2(texture, resultTexture, this.program, componentA, componentB, targetIndex);
+
+		//gl.getExtension('WEBGL_draw_buffers').drawBuffersWEBGL([gl.COLOR_ATTACHMENT0, gl.COLOR_ATTACHMENT1]);
 
 		gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
-		
+		resultTexture.frameBuffer = frameBuffer;
 
 		return {
 			resultTexture: resultTexture,
@@ -230,10 +245,10 @@ module.exports.Program = class Program {
 		var frameBuffer = this.createFrameBuffer(resultTexture, "multiplySingleTexture");
 
 		gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.frameBuffer);
-		this.doBindings2(texture,resultTexture, this.program, componentA, componentB,targetIndex);
+		this.doBindings2(texture, resultTexture, this.program, componentA, componentB, targetIndex);
 
 		gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
-		
+
 
 		return {
 			resultTexture: resultTexture,
