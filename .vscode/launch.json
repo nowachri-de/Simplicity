@@ -1,83 +1,96 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "test2.js",
-            "program": "${workspaceFolder}\\js\\test\\test2.js"
-		},
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "test.js",
-            "program": "${workspaceFolder}\\js\\test\\test.js"
+	// Use IntelliSense to learn about possible attributes.
+	// Hover to view descriptions of existing attributes.
+	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "test2.js",
+			"program": "${workspaceFolder}\\js\\test\\test2.js"
 		},
 		{
-            "type": "node",
-            "request": "launch",
-            "name": "experiments.js",
-            "program": "${workspaceFolder}\\gpujs\\experiments.js"
+			"type": "node",
+			"request": "launch",
+			"name": "test.js",
+			"program": "${workspaceFolder}\\js\\test\\test.js"
 		},
 		{
-            "type": "node",
-            "request": "launch",
-            "name": "achorn.js",
-            "program": "${workspaceFolder}\\js\\acorn.js"
+			"type": "node",
+			"request": "launch",
+			"name": "experiments.js",
+			"program": "${workspaceFolder}\\gpujs\\experiments.js"
 		},
 		{
-            "type": "node",
-            "request": "launch",
-            "name": "headless.js",
-            "program": "${workspaceFolder}\\js\\headless.js"
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "webgl.js",
-            "program": "C:/nowak/development/git/headless-gl/example/webgl_fundamentals/test0.js"
-        },
+			"type": "node",
+			"request": "launch",
+			"name": "achorn.js",
+			"program": "${workspaceFolder}\\js\\acorn.js"
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "render-to-multiple-textures.js",
+			"program": "${workspaceFolder}\\js\\examples\\render-to-multiple-textures.js"
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "headless.js",
+			"program": "${workspaceFolder}\\js\\headless.js"
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "webgl.js",
+			"program": "C:/nowak/development/git/headless-gl/example/webgl_fundamentals/test0.js"
+		},
 		{
 			// Name of configuration; appears in the launch configuration drop down menu.
 			"name": "Run mocha testMatrix",
 			// Type of configuration. Possible values: "node", "mono".
-            "type": "node",
-            "request": "launch",
+			"type": "node",
+			"request": "launch",
 			// Workspace relative or absolute path to the program.
 			"program": "${workspaceFolder}\\js\\node_modules\\mocha\\bin\\_mocha",
 			// Automatically stop program after launch.
 			"stopOnEntry": false,
 			// Command line arguments passed to the program.
-			"args": ["test/testMatrix.js"],
+			"args": [
+				"test/testMatrix.js"
+			],
 			// Workspace relative or absolute path to the working directory of the program being debugged. Default is the current workspace.
 			"cwd": "${workspaceFolder}\\js",
 			// Workspace relative or absolute path to the runtime executable to be used. Default is the runtime executable on the PATH.
 			"runtimeExecutable": null,
 			// Environment variables passed to the program.
-			"env": { "NODE_ENV": "production"}
+			"env": {
+				"NODE_ENV": "production"
+			}
 		},
 		{
 			// Name of configuration; appears in the launch configuration drop down menu.
 			"name": "Run mocha MatrixStorage",
 			// Type of configuration. Possible values: "node", "mono".
-            "type": "node",
-            "request": "launch",
+			"type": "node",
+			"request": "launch",
 			// Workspace relative or absolute path to the program.
 			"program": "${workspaceFolder}\\js\\node_modules\\mocha\\bin\\_mocha",
 			// Automatically stop program after launch.
 			"stopOnEntry": false,
 			// Command line arguments passed to the program.
-			"args": ["test/testMatrixStorage.js"],
+			"args": [
+				"test/testMatrixStorage.js"
+			],
 			// Workspace relative or absolute path to the working directory of the program being debugged. Default is the current workspace.
 			"cwd": "${workspaceFolder}\\js",
 			// Workspace relative or absolute path to the runtime executable to be used. Default is the runtime executable on the PATH.
 			"runtimeExecutable": null,
 			// Environment variables passed to the program.
-			"env": { "NODE_ENV": "production"}
+			"env": {
+				"NODE_ENV": "production"
+			}
 		}
-    ]
+	]
 }

@@ -214,21 +214,7 @@ describe('Matrix', function () {
     });
   });*/
 
-  describe('Matt Mazur test', function () {
-    it('should generate the Matt Mazur values', function () {
-      this.timeout(0);//disable timeout
-      let input = new Matrix(2,1);
-      input.insertRow(0,[.05,.10]);
-
-      let w1 = new Matrix(2,2);
-      w1.insertColumn(0,[.15,.20]);
-      w1.insertColumn(1,[.20,.30]);
-
-      let result = input.multiplyWithActivation(w1);
-      //result.addRow(0,[.35,.35]);
-      console.log(result);
-    });
-  });
+ 
 });
 
 function jsMatMul(matrixA, matrixB) {

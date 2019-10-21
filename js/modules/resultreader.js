@@ -1,6 +1,7 @@
 const {Shader} = require(__dirname + "\\shader.js");
 const {ShaderCode} = require(__dirname + "\\shadercode.js");
 const {Program} = require(__dirname + "\\program.js");
+const {FrameBufferFactory} = require(__dirname + "\\framebufferfactory.js");
 const Matrix = require(__dirname + "\\matrix.js");
 
 module.exports.ResultReader = class ResultReader{
@@ -27,7 +28,7 @@ module.exports.ResultReader = class ResultReader{
 		gl.useProgram(this.program.program);
         gl.viewport(0, 0,textureB.width,textureB.height);
 		gl.scissor(0, 0, textureB.width,textureB.height);
-		var frameBuffer = this.program.createFrameBuffer(textureB);
+		var frameBuffer = FrameBufferFactory.createFrameBuffer(gl,textureB);
 		
 		//gl.activeTexture(gl.TEXTURE0 + textureB.index);
         gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.frameBuffer);

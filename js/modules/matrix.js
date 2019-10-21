@@ -424,16 +424,15 @@ module.exports.Matrix = class Matrix {
         let inputTexture = TextureFactory.createTextureByDimension(gl, "inputTexture", matrixStorage.maxRows, matrixStorage.maxColumns, matrixStorage.getTexels());
 
         let outputDimensions = this.getResultMatrixDimensions(matrixB);
-        let resultTexture = TextureFactory.createResultTexture(gl, 'resultTexture', outputDimensions);
 
         let vertexShader = Shader.getVertexShader(gl, ShaderCode.getCode("VERTEX"));
         let fragmentShader = Shader.getFragmentShader(gl, ShaderCode.getCode("SINGLE"));
         program.buildProgram(vertexShader, fragmentShader);
 
-        let computationResult = program.multiplySingleTexture(inputTexture, resultTexture, outputDimensions, 0, 1);
-        let result = Matrix.texture2matrix(computationResult.resultTexture, 0); //0 stands for index of component 'R'
+        let computationResult = program.multiplySingleTexture(inputTexture, outputDimensions, 0, 1);
+        let result = Matrix.texture2matrix(computationResult.texture, 0); //0 stands for index of component 'R'
 
-        computationResult.resultTexture.free();
+        computationResult.texture.free();
         inputTexture.free();
         program.free();
 
@@ -441,35 +440,7 @@ module.exports.Matrix = class Matrix {
     }
 
  
-   multiplyWithActivation(matrixB) {
-    let matrixStorage = new MatrixStorage();
-    let program = new Program(this.width, this.height);
-    let gl = program.gl;
-
-    //prepare the storage of the two matrices in a single texture
-    matrixStorage.reset();
-    matrixStorage.store(this, 'R');
-    matrixStorage.store(matrixB, 'G');
-
-    //width input texture = maxwidth(matrixA,matrixB,...), height of input texture = maxheight(matrixA,matrixB,...)
-    let inputTexture = TextureFactory.createTextureByDimension(gl, "inputTexture", matrixStorage.maxRows, matrixStorage.maxColumns, matrixStorage.getTexels());
-
-    let outputDimensions = this.getResultMatrixDimensions(matrixB);
-    let resultTexture = TextureFactory.createResultTexture(gl, 'resultTexture', outputDimensions);
-
-    let vertexShader = Shader.getVertexShader(gl, ShaderCode.getCode("VERTEX"));
-    let fragmentShader = Shader.getFragmentShader(gl, ShaderCode.getCode("SINGLE-ACTIVATION"));
-    program.buildProgram(vertexShader, fragmentShader);
-
-    let computationResult = program.multiplySingleTexture(inputTexture, resultTexture, outputDimensions, 0, 1);
-    let result = Matrix.texture2matrix(computationResult.resultTexture, 0); //0 stands for index of component 'R'
-
-    computationResult.resultTexture.free();
-    inputTexture.free();
-    program.free();
-
-    return result;
-}
+  
 }
 
 
