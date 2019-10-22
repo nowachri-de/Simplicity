@@ -7,7 +7,6 @@ function removeFromArray(array,value){
 	 }
 }
 
-	
 class Texture{
     constructor(gl,texture,index,name,width,height){
         this.gl = gl;
@@ -18,7 +17,7 @@ class Texture{
         this.height= height;
     }
 
-    free(){
+    delete(){
 		this.gl.deleteTexture(this.texture);
 		removeFromArray(usedIndices,this.index);
     }

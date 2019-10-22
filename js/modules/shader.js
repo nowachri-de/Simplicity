@@ -1,6 +1,6 @@
-module.exports.Shader = class Shader{
-	
-	static getVertexShader(gl,vertexShaderCode) {
+module.exports.ShaderFactory = class ShaderFactory{
+
+	static createVertexShader(gl,vertexShaderCode) {
         var shader = gl.createShader(gl.VERTEX_SHADER);
 
         gl.shaderSource(shader, vertexShaderCode);
@@ -19,7 +19,7 @@ module.exports.Shader = class Shader{
         return shader;
 	}
 	
-	static free(gl,shader){
+	static delete(gl,shader){
 		gl.deleteShader(shader);
 	}
 }

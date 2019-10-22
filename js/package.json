@@ -1,7 +1,7 @@
 {
   "name": "shader-utils",
   "version": "0.0.1",
-  "description": "GLSL Shader Utility functions for Node.js",
+  "description": "GLSL ShaderFactory Utility functions for Node.js",
   "main": "package-entry.js",
   "directories": {
     "test": "test"

@@ -33,9 +33,9 @@ module.exports.ShaderCode = class ShaderCode {
     }
     static getReadableShaderCode() {
         var code = ` 
-            /*Shader that creates a texture that can be converted to byte.
+            /*ShaderFactory that creates a texture that can be converted to byte.
              *This is needed when reading a texture from javascript.*/
-            #extension GL_EXT_draw_buffers : require
+
             #ifdef GL_ES 
                 precision highp float; 
             #endif 
@@ -226,7 +226,7 @@ module.exports.ShaderCode = class ShaderCode {
                 float v = matrixmul(x,y);
                 //gl_FragColor = getResultValue(x,y,v,uTargetIndex);
                 gl_FragData[0] = getResultValue(x,y,v,uTargetIndex);
-                gl_FragData[1] = getResultValue(x,y,v,uTargetIndex);
+                gl_FragData[1] = vec4(2.0,2.0,2.0,2.0);
                 //gl_FragColor = vec4(v,0.,0.,0.);
             }
         `;

@@ -2,7 +2,6 @@ var headlessGL = require('gl');
 const {FrameBufferFactory} = require(__dirname + "\\framebufferfactory.js");
 const {TextureFactory} = require(__dirname + "\\texturefactory.js");
 
-//https://stackoverflow.com/questions/25490189/how-to-render-to-multiple-textures-with-opengl
 module.exports.Program = class Program {
 
 	constructor(width, height, gl) {
@@ -15,8 +14,9 @@ module.exports.Program = class Program {
 		this.height = height;
 		this.index = 0;
 		this.debug = false;
-
-		if (typeof gl === 'undefined') {
+		
+		
+		if (typeof gl === 'undefined' && typeof this.gl === 'undefined') {
 			this.gl = Program.createGl(width, height);
 		} else {
 			this.gl = gl;
@@ -50,7 +50,7 @@ module.exports.Program = class Program {
 		this.doVertexBindings(program);
 	}
 
-	doBindings2(texture, outputDimensions, program, componentIndexA, componentIndexB, targetIndex) {
+	doSingleTextureBindings(texture, outputDimensions, program, componentIndexA, componentIndexB, targetIndex) {
 		this.doUniformBindingsSingleTexture(texture, outputDimensions, program, componentIndexA, componentIndexB, targetIndex);
 		this.doVertexBindings(program);
 	}
@@ -172,48 +172,31 @@ module.exports.Program = class Program {
 	}
 
 	multiplySingleTexture(texture, outputDimensions, componentA, componentB, targetIndex) {
-		var t0 = Date.now();
-		var gl = this.gl;
+		let gl = this.gl;
 
 		gl.useProgram(this.program);
 		gl.viewport(0, 0, outputDimensions.width, outputDimensions.height);
 
 		let resultTexture = TextureFactory.createResultTexture(gl, 'resultTexture', outputDimensions);
-		var frameBuffer =  FrameBufferFactory.createFrameBuffer(gl,resultTexture);
-		//var frameBuffer = FrameBufferFactory.createFrameBufferMultiAttachement(gl, resultTexture);
-
+		let frameBuffer =  FrameBufferFactory.createFrameBuffer(gl,resultTexture);
+		
 		gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.frameBuffer);
-		this.doBindings2(texture, resultTexture, this.program, componentA, componentB, targetIndex);
+		this.doSingleTextureBindings(texture, resultTexture, this.program, componentA, componentB, targetIndex);
 
 		gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
-		//gl.drawArrays(gl.TRIANGLES, 0, 3);
-		resultTexture.frameBuffer = frameBuffer;
 
-		return {
-			texture: resultTexture,
-			duration: Date.now() - t0
-		}
+		return resultTexture;
 	}
 
-	test(texture, resultTexture, outputDimensions, componentA, componentB, targetIndex) {
 	
-	}
-
-
 	debugPrint(message) {
 		if (this.debug === true) {
 			console.log(message);
 		}
 	}
-	free() {
+	delete() {
 		let gl = this.gl;
-		let self = this;
-		this.frameBuffers.forEach(function logMapElements(value, key, map) {
-			gl.deleteFramebuffer(value.frameBuffer);
-			gl.deleteRenderbuffer(value.renderBuffer);
-			gl.deleteTexture(value.texture.texture);
-			self.debugPrint("Called gl.deleteFramebuffer for framebuffer " + value.name + " holding texture with texture index " + value.texture.index);
-		});
+		
 		gl.deleteShader(this.vShader);
 		this.debugPrint("Deleted vertex shader");
 		gl.deleteShader(this.fShader);

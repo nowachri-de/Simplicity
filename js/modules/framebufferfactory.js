@@ -47,7 +47,7 @@ module.exports.FrameBufferFactory = class FrameBufferFactory {
 			buffers.push(offset + i);
 			i++;
 		});
-		ext.drawBuffersWEBGL(buffers);
+		
 
 		var frameBuffer = gl.createFramebuffer();
 		gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer);
@@ -58,6 +58,7 @@ module.exports.FrameBufferFactory = class FrameBufferFactory {
 			++i;
 		});
 
+		ext.drawBuffersWEBGL(buffers);
 		if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) != gl.FRAMEBUFFER_COMPLETE)
 			console.log("Error: binding of framebuffer failed");
 

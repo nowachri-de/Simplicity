@@ -1,5 +1,5 @@
 const { Program } = require(__dirname + "\\program.js");
-const { Shader } = require(__dirname + "\\shader.js");
+const { ShaderFactory } = require(__dirname + "\\shader.js");
 const { ShaderCode } = require(__dirname + "\\shadercode.js");
 const { ResultReader } = require(__dirname + "\\resultreader.js");
 const { MatrixStorage } = require(__dirname + "\\matrixstorage.js");
@@ -399,7 +399,7 @@ module.exports.Matrix = class Matrix {
         let resultReader = new ResultReader(gl, texture.width, texture.height);
         let result = resultReader.readByResultDimension(texture, readableTexture, dimension, sourceIndex);
 
-        readableTexture.free();
+        readableTexture.delete();
         return result;
     }
 
@@ -422,24 +422,20 @@ module.exports.Matrix = class Matrix {
         //width input texture = maxwidth(matrixA,matrixB,...), height of input texture = maxheight(matrixA,matrixB,...)
         let inputTexture = TextureFactory.createTextureByDimension(gl, "inputTexture", matrixStorage.maxRows, matrixStorage.maxColumns, matrixStorage.getTexels());
 
-        let outputDimensions = this.getResultMatrixDimensions(matrixB);
-
-        let vertexShader = Shader.getVertexShader(gl, ShaderCode.getCode("VERTEX"));
-        let fragmentShader = Shader.getFragmentShader(gl, ShaderCode.getCode("SINGLE"));
+        let vertexShader = ShaderFactory.createVertexShader(gl, ShaderCode.getCode("VERTEX"));
+        let fragmentShader = ShaderFactory.getFragmentShader(gl, ShaderCode.getCode("SINGLE"));
         program.buildProgram(vertexShader, fragmentShader);
 
-        let computationResult = program.multiplySingleTexture(inputTexture, outputDimensions, 0, 1,0);
-        let result = Matrix.texture2matrix(gl,computationResult.texture, 0); //0 stands for index of component 'R'
+        let resultTexture = program.multiplySingleTexture(inputTexture, this.getResultMatrixDimensions(matrixB), 0, 1, 0);
+        let result = Matrix.texture2matrix(gl,resultTexture, 0); //0 stands for index of component 'R'
 
-        computationResult.texture.free();
-        inputTexture.free();
-        program.free();
-
+        resultTexture.delete();
+        inputTexture.delete();
+        program.delete();
+        ShaderFactory.delete(gl,vertexShader);
+        ShaderFactory.delete(gl,fragmentShader);
         return result;
     }
-
- 
-  
 }
 
 
