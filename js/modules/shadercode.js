@@ -225,8 +225,9 @@ module.exports.ShaderCode = class ShaderCode {
 
                 float v = matrixmul(x,y);
                 //gl_FragColor = getResultValue(x,y,v,uTargetIndex);
-                //gl_FragData[1] = getResultValue(x,y,v,uTargetIndex);
-                gl_FragColor = vec4(v,0.,0.,0.);
+                gl_FragData[0] = getResultValue(x,y,v,uTargetIndex);
+                gl_FragData[1] = getResultValue(x,y,v,uTargetIndex);
+                //gl_FragColor = vec4(v,0.,0.,0.);
             }
         `;
         return code;

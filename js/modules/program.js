@@ -98,11 +98,12 @@ module.exports.Program = class Program {
 		// bind vertices
 		var aPosition = gl.getAttribLocation(program, "aPosition");
 		var vertexBuffer = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+
 		var vertices = [-1.0, -1.0, 0.0, 1.0, -1.0, 0.0, 1.0, 1.0, 0.0, -1.0, 1.0, 0.0];
 
-		gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
 		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-		gl.vertexAttribPointer(aPosition, /*item size*/ 3, gl.FLOAT, false, 0, 0);
+		gl.vertexAttribPointer(aPosition,  3, gl.FLOAT, false, 0, 0);
 		gl.enableVertexAttribArray(aPosition);
 
 		// bind texture cords
@@ -112,7 +113,7 @@ module.exports.Program = class Program {
 
 		gl.bindBuffer(gl.ARRAY_BUFFER, texCoords);
 		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoords), gl.STATIC_DRAW);
-		gl.vertexAttribPointer(aTexture, /*item size*/ 2, gl.FLOAT, false, 0, 0);
+		gl.vertexAttribPointer(aTexture,  2, gl.FLOAT, false, 0, 0);
 		gl.enableVertexAttribArray(aTexture);
 
 		// index to vertices
@@ -121,6 +122,7 @@ module.exports.Program = class Program {
 		var vertexIndices = [0, 1, 2, 0, 2, 3];
 		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(vertexIndices), gl.STATIC_DRAW);
 	}
+
 
 	buildProgram(vertexShader, fragmentShader) {
 		var gl = this.gl;
@@ -178,13 +180,13 @@ module.exports.Program = class Program {
 
 		let resultTexture = TextureFactory.createResultTexture(gl, 'resultTexture', outputDimensions);
 		var frameBuffer =  FrameBufferFactory.createFrameBuffer(gl,resultTexture);
+		//var frameBuffer = FrameBufferFactory.createFrameBufferMultiAttachement(gl, resultTexture);
 
 		gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.frameBuffer);
-		this.doBindings2(texture, outputDimensions, this.program, componentA, componentB, targetIndex);
-
-		//gl.getExtension('WEBGL_draw_buffers').drawBuffersWEBGL([gl.COLOR_ATTACHMENT0, gl.COLOR_ATTACHMENT1]);
+		this.doBindings2(texture, resultTexture, this.program, componentA, componentB, targetIndex);
 
 		gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
+		//gl.drawArrays(gl.TRIANGLES, 0, 3);
 		resultTexture.frameBuffer = frameBuffer;
 
 		return {
@@ -197,26 +199,6 @@ module.exports.Program = class Program {
 	
 	}
 
-	multiplySingleTextureWithActivation(texture, resultTexture, outputDimensions, componentA, componentB, targetIndex) {
-		var t0 = Date.now();
-		var gl = this.gl;
-
-		gl.useProgram(this.program);
-		gl.viewport(0, 0, outputDimensions.width, outputDimensions.height);
-
-		var frameBuffer = this.createFrameBuffer(resultTexture, "multiplySingleTexture");
-
-		gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.frameBuffer);
-		this.doBindings2(texture, resultTexture, this.program, componentA, componentB, targetIndex);
-
-		gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
-
-
-		return {
-			resultTexture: resultTexture,
-			duration: Date.now() - t0
-		}
-	}
 
 	debugPrint(message) {
 		if (this.debug === true) {

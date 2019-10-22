@@ -392,10 +392,9 @@ module.exports.Matrix = class Matrix {
      * @param {Texture} texture -   Texture to read matrix values from
      * @return {Integer} sourceIndex - The component index (R,G,B,A) to read the values from
     */
-    static texture2matrix(texture, sourceIndex) {
+    static texture2matrix(gl,texture, sourceIndex) {
+        
         let dimension = { width: texture.width, height: texture.height };
-        let gl = texture.gl;
-
         let readableTexture = TextureFactory.createReadableTexture(gl, 'readableTexture', dimension);
         let resultReader = new ResultReader(gl, texture.width, texture.height);
         let result = resultReader.readByResultDimension(texture, readableTexture, dimension, sourceIndex);
@@ -429,8 +428,8 @@ module.exports.Matrix = class Matrix {
         let fragmentShader = Shader.getFragmentShader(gl, ShaderCode.getCode("SINGLE"));
         program.buildProgram(vertexShader, fragmentShader);
 
-        let computationResult = program.multiplySingleTexture(inputTexture, outputDimensions, 0, 1);
-        let result = Matrix.texture2matrix(computationResult.texture, 0); //0 stands for index of component 'R'
+        let computationResult = program.multiplySingleTexture(inputTexture, outputDimensions, 0, 1,0);
+        let result = Matrix.texture2matrix(gl,computationResult.texture, 0); //0 stands for index of component 'R'
 
         computationResult.texture.free();
         inputTexture.free();

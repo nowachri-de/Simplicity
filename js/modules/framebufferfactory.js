@@ -1,21 +1,12 @@
 
 
-module.exports.FrameBufferFactory  = class FrameBufferFactory{
-    //http://www.songho.ca/opengl/gl_fbo.html
+module.exports.FrameBufferFactory = class FrameBufferFactory {
+	//http://www.songho.ca/opengl/gl_fbo.html
 	//https://github.com/tsherif/webgl2examples/blob/master/deferred.html
 	//https://hacks.mozilla.org/2014/01/webgl-deferred-shading/
 	//https://stackoverflow.com/questions/34154300/readpixels-on-multiple-draw-buffers-in-webgl
 	//https://www.cs.cornell.edu/courses/cs4620/2017sp/cs4621/lecture08/exhibit03.html
-	static createFrameBuffer(gl,texture) {
-
-		var ext = gl.getExtension('WEBGL_draw_buffers');
-		ext.drawBuffersWEBGL([
-			ext.COLOR_ATTACHMENT0_WEBGL, // gl_FragData[0]
-			ext.COLOR_ATTACHMENT1_WEBGL, // gl_FragData[1]
-			ext.COLOR_ATTACHMENT2_WEBGL, // gl_FragData[2]
-			ext.COLOR_ATTACHMENT3_WEBGL  // gl_FragData[3]
-		]);
-
+	static createFrameBuffer(gl, texture) {
 		// create and bind renderbuffer
 		//var renderBuffer = gl.createRenderbuffer();
 		//gl.bindRenderbuffer(gl.RENDERBUFFER, null);
@@ -41,6 +32,37 @@ module.exports.FrameBufferFactory  = class FrameBufferFactory{
 			//name: name,
 			width: texture.width,
 			height: texture.height
+		}
+
+		return result;
+	}
+
+	static createFrameBufferMultiAttachement(gl, ...textures) {
+		let ext = gl.getExtension('WEBGL_draw_buffers');
+		let offset = ext.COLOR_ATTACHMENT0_WEBGL;
+		let buffers = [];
+		let i = 0;
+
+		textures.forEach(() => {
+			buffers.push(offset + i);
+			i++;
+		});
+		ext.drawBuffersWEBGL(buffers);
+
+		var frameBuffer = gl.createFramebuffer();
+		gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer);
+
+		i = 0;
+		textures.forEach(arg => {
+			gl.framebufferTexture2D(gl.FRAMEBUFFER, ext.COLOR_ATTACHMENT0_WEBGL + i, gl.TEXTURE_2D, arg.texture, /*level*/ 0);
+			++i;
+		});
+
+		if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) != gl.FRAMEBUFFER_COMPLETE)
+			console.log("Error: binding of framebuffer failed");
+
+		var result = {
+			frameBuffer: frameBuffer
 		}
 
 		return result;

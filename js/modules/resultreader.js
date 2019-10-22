@@ -1,9 +1,4 @@
-const {Shader} = require(__dirname + "\\shader.js");
-const {ShaderCode} = require(__dirname + "\\shadercode.js");
-const {Program} = require(__dirname + "\\program.js");
-const {FrameBufferFactory} = require(__dirname + "\\framebufferfactory.js");
-const Matrix = require(__dirname + "\\matrix.js");
-
+//See requirements at the end of the file. Requirements are at the end of the file due to circular dependencies.
 module.exports.ResultReader = class ResultReader{
 	constructor(gl,width,height){
 		this.gl = gl;
@@ -51,14 +46,13 @@ module.exports.ResultReader = class ResultReader{
 		return result;
 	}
 	//http://www.realtimerendering.com/blog/webgl-2-basics/
-	readByResultDimension(textureA,textureB,dimension,targetIndex){
-		this.runShaders(textureA,textureB,targetIndex);
+	readByResultDimension(inputTexture,outputTexture,dimension,targetIndex){
+		this.runShaders(inputTexture,outputTexture,targetIndex);
 		
 		var gl = this.gl;
 		 // extract the product and return in new matrix
         var rawBuffer = new ArrayBuffer(dimension.height * dimension.width * 4);
 		var glresult = new Uint8Array(rawBuffer);
-		var ext = gl.getExtension('WEBGL_draw_buffers');
 		//gl.bindFramebuffer(gl.FRAMEBUFFER, textureA.frameBuffer);
 		//gl.readBuffer(ext.COLOR_ATTACHMENT1_WEBGL);
         gl.readPixels(0, 0,  dimension.width,dimension.height, gl.RGBA, gl.UNSIGNED_BYTE, glresult);
@@ -76,3 +70,8 @@ module.exports.ResultReader = class ResultReader{
 	}
 }
 
+const {Shader} = require(__dirname + "\\shader.js");
+const {ShaderCode} = require(__dirname + "\\shadercode.js");
+const {Program} = require(__dirname + "\\program.js");
+const {FrameBufferFactory} = require(__dirname + "\\framebufferfactory.js");
+const Matrix = require(__dirname + "\\matrix.js");
