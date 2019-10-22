@@ -3,16 +3,9 @@ const {FrameBufferFactory} = require(__dirname + "\\framebufferfactory.js");
 const {TextureFactory} = require(__dirname + "\\texturefactory.js");
 
 module.exports.Program = class Program {
-
+	
 	constructor(width, height, gl) {
-		this.frameBuffers = new Map();
-		this.self = this;
 		this.program = null;
-		this.vShader = null;
-		this.fShader = null;
-		this.width = width;
-		this.height = height;
-		this.index = 0;
 		this.debug = false;
 		
 		
@@ -24,7 +17,7 @@ module.exports.Program = class Program {
 	}
 
 	static createGl(width, height) {
-		var gl = headlessGL(width, height, {
+		let gl = headlessGL(width, height, {
 			premultipliedAlpha: false,
 			preserveDrawingBuffer: false
 		});
@@ -32,7 +25,7 @@ module.exports.Program = class Program {
 		if (gl === undefined)
 			throw "webgl is not supported.";
 		// must support float texture
-		var ext;
+		let ext;
 		try {
 			ext = gl.getExtension("OES_texture_float");
 		} catch (e) { }

@@ -383,7 +383,33 @@ module.exports.Matrix = class Matrix {
     */
 
     static multiply2Texture(matrixA, matrixB) {
+        let matrixStorage = new MatrixStorage();
+        
+        //prepare the storage of the two matrices in a single texture
+        matrixStorage.store(matrixA, 'R');
+        matrixStorage.store(matrixB, 'G');
 
+        let program = new Program( matrixStorage.maxRows, matrixStorage.maxColumns);
+        let gl = program.gl;
+
+        //width input texture = maxwidth(matrixA,matrixB,...), height of input texture = maxheight(matrixA,matrixB,...)
+        let inputTexture = TextureFactory.createTextureByDimension(gl, "inputTexture", matrixStorage.maxRows, matrixStorage.maxColumns, matrixStorage.getTexels());
+
+        let vertexShader = ShaderFactory.createVertexShader(gl, ShaderCode.getCode("VERTEX"));
+        let fragmentShader = ShaderFactory.getFragmentShader(gl, ShaderCode.getCode("SINGLE"));
+        program.buildProgram(vertexShader, fragmentShader);
+
+        let result = program.multiplySingleTexture(inputTexture, matrixA.getResultMatrixDimensions(matrixB), 0, 1, 0);
+
+        
+        inputTexture.delete();
+        program.delete();
+        ShaderFactory.delete(gl,vertexShader);
+        ShaderFactory.delete(gl,fragmentShader);
+        program.delete();
+
+        result.gl = gl;
+        return result;
     }
 
     /**
@@ -410,30 +436,9 @@ module.exports.Matrix = class Matrix {
      * @return {Texture} - The result of the matrix multiplication stored in a texture
     */
     multiply(matrixB) {
-        let matrixStorage = new MatrixStorage();
-        let program = new Program(this.width, this.height);
-        let gl = program.gl;
+        let resultTexture = Matrix.multiply2Texture(this,matrixB);
+        let result = Matrix.texture2matrix(resultTexture.gl,resultTexture, 0); //0 stands for index of component 'R'
 
-        //prepare the storage of the two matrices in a single texture
-        matrixStorage.reset();
-        matrixStorage.store(this, 'R');
-        matrixStorage.store(matrixB, 'G');
-
-        //width input texture = maxwidth(matrixA,matrixB,...), height of input texture = maxheight(matrixA,matrixB,...)
-        let inputTexture = TextureFactory.createTextureByDimension(gl, "inputTexture", matrixStorage.maxRows, matrixStorage.maxColumns, matrixStorage.getTexels());
-
-        let vertexShader = ShaderFactory.createVertexShader(gl, ShaderCode.getCode("VERTEX"));
-        let fragmentShader = ShaderFactory.getFragmentShader(gl, ShaderCode.getCode("SINGLE"));
-        program.buildProgram(vertexShader, fragmentShader);
-
-        let resultTexture = program.multiplySingleTexture(inputTexture, this.getResultMatrixDimensions(matrixB), 0, 1, 0);
-        let result = Matrix.texture2matrix(gl,resultTexture, 0); //0 stands for index of component 'R'
-
-        resultTexture.delete();
-        inputTexture.delete();
-        program.delete();
-        ShaderFactory.delete(gl,vertexShader);
-        ShaderFactory.delete(gl,fragmentShader);
         return result;
     }
 }

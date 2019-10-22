@@ -10,22 +10,13 @@ describe('MatrixStorage', function () {
     it('should store four matrices using the store method', function () {
       let matrixA = new Matrix(2, 2);//rows, columns
       let matrixB = new Matrix(2, 2);//rows, columns
-      let matrixC = new Matrix(2, 2);//rows, columns
-      let matrixD = new Matrix(2, 2);//rows, columns
-      let storage = new MatrixStorage();
+     
 
       matrixA.randomInitialize();
       matrixB.randomInitialize();
-      matrixC.randomInitialize();
-      matrixD.randomInitialize();
-      
-      storage.store(matrixA,'R');
-      storage.store(matrixB,'G');
-      storage.store(matrixC,'B');
-      storage.store(matrixD,'A');
-
-      let outputDimensions = matrixA.getResultMatrixDimensions(matrixB);
-      Matrix.multiply2Texture(storage,matrixA.componentToIndex('R'),matrixA.componentToIndex('G'),outputDimensions);
+     
+     
+      Matrix.multiply2Texture(matrixA,matrixB);
       
     });
   });
