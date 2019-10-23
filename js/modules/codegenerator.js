@@ -29,13 +29,29 @@ class ForStatement extends Code {
         super(node);
     }
     generate(node) {
-        let variableDeclation = new VariableDeclaration(node);
-        let binaryExpression = new BinaryExpression(node);
-        let updateExpression = new UpdateExpression(node);
+        let init = new VariableDeclaration(node);
+        let test = new BinaryExpression(node);
+        let update = new UpdateExpression(node);
 
         let template = "for ({{init}};{{test}};{{update}})"
 
-        Sqrl.Render(shaderTemplate, options);
+        Sqrl.Render(template, {init:init,test:test,update:update});
+    }
+}
+
+class VariableDeclarator extends Code{
+    constructor(node){
+        super(node);
+    }
+    generate(node){
+        if (node.init != "undefined" && isInt(node.init.value)) {
+            sb.push('int ');
+        }
+        sb.push(node.id.name);
+        if (node.init !== null) {
+            sb.push('=');
+            sb.push(node.init.value);
+        }
     }
 }
 
@@ -101,6 +117,9 @@ class Visitor {
         }
     }
     visitNode(node) {
+        if (node === null || typeof node === 'undefined'){
+            return;
+        }
         //console.log(node);
         switch (node.type) {
             case 'FunctionDeclaration': this.handleFunctionDeclaration(node); break;
@@ -136,7 +155,7 @@ class CodeGenerator {
     translate(source) {
         this.interpreter = new Interpreter(new Visitor(), source);
         this.body = acorn.parse(source).body;
-        this.codeElements = this.interpreter.interpret(body);
+        this.codeElements = this.interpreter.interpret(this.body);
 
         let sb = [];
         this.codeElements.forEach(element => {
@@ -185,12 +204,8 @@ class CodeGenerator {
         })
         return sb;
     }
-    memberExpression(node, sb) {
-        sb.push(node.object.name);
-        sb.push("[" + node.property.name + "];");
-    }
     variableDeclarator(node, sb) {
-        if (isInt(node.init.value)) {
+        if (node.init != "undefined" && isInt(node.init.value)) {
             sb.push('int ');
         }
         sb.push(node.id.name);
@@ -198,8 +213,12 @@ class CodeGenerator {
             sb.push('=');
             sb.push(node.init.value);
         }
-
     }
+    memberExpression(node, sb) {
+        sb.push(node.object.name);
+        sb.push("[" + node.property.name + "];");
+    }
+   
 }
 
 module.exports.CodeGenerator = CodeGenerator
