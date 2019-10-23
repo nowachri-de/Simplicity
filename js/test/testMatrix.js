@@ -188,6 +188,21 @@ describe('Matrix', function () {
     });
   });
 
+  describe('#multiply2Texture(matrixA,matrixB)', function () {
+    it('should store four matrices using the store method', function () {
+      let matrixA = new Matrix(2, 2);//rows, columns
+      let matrixB = new Matrix(2, 2);//rows, columns
+     
+
+      matrixA.randomInitialize();
+      matrixB.randomInitialize();
+
+      let result = Matrix.multiply2Texture(matrixA,matrixB);
+      let resultMatrix =   Matrix.texture2matrix(result.gl,result, 0); //0 stands for index of component 'R'
+      validateMultiplicationResult(matrixA, matrixB,resultMatrix);
+      result.delete();
+    });
+  });
   /*describe('#multiply(Matrix)', function () {
     it('should multiply matrix a (200x200) with matrix b (200x200) 10 times.', function () {
       this.timeout(0);//disable timeout

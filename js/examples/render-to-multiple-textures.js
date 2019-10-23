@@ -14,8 +14,8 @@ function multiply(gl,inputTexture,program,outputDimensions){
     gl.useProgram(program);
     gl.viewport(0, 0, outputDimensions.width, outputDimensions.height);
 
-    resultTexture = TextureFactory.createResultTexture(gl, 'resultTexture', outputDimensions);
-    testTexture = TextureFactory.createResultTexture(gl, 'testTexture', outputDimensions);
+    resultTexture = TextureFactory.createReadableTexture(gl, 'resultTexture', outputDimensions);
+    testTexture = TextureFactory.createReadableTexture(gl, 'testTexture', outputDimensions);
     var frameBuffer = FrameBufferFactory.createFrameBufferMultiAttachement(gl, resultTexture,testTexture);
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.frameBuffer);

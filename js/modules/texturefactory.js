@@ -68,7 +68,7 @@ module.exports.TextureFactory = class TextureFactory {
 		return this.createTextureByDimension(gl,name, matrix.width, matrix.height, matrix.getTexels(component));
 	}
 
-	static createResultTexture(gl, name, outputdimensions) {
+	static createReadableTexture(gl, name, outputdimensions) {
 		return this.createTextureByDimension(gl,name, outputdimensions.width, outputdimensions.height, null);
 	}
 

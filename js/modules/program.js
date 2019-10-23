@@ -7,8 +7,9 @@ module.exports.Program = class Program {
 	constructor(width, height, gl) {
 		this.program = null;
 		this.debug = false;
-		
-		
+		this.vertexBuffer = null;
+		this.texCoords = null;
+
 		if (typeof gl === 'undefined' && typeof this.gl === 'undefined') {
 			this.gl = Program.createGl(width, height);
 		} else {
@@ -40,12 +41,12 @@ module.exports.Program = class Program {
 
 	doBindings(textureA, textureB, program, targetIndex) {
 		this.doUniformBindings(textureA, textureB, program, targetIndex);
-		this.doVertexBindings(program);
+		//this.doVertexBindings(program);
 	}
 
 	doSingleTextureBindings(texture, outputDimensions, program, componentIndexA, componentIndexB, targetIndex) {
 		this.doUniformBindingsSingleTexture(texture, outputDimensions, program, componentIndexA, componentIndexB, targetIndex);
-		this.doVertexBindings(program);
+		//this.doVertexBindings(program);
 	}
 
 	doUniformBindings(textureA, textureB, program, targetIndex) {
@@ -68,7 +69,9 @@ module.exports.Program = class Program {
 			gl.uniform1i(uTargetIndex, targetIndex);
 		}
 	}
+	doGenericUniformBinding(unifroms){
 
+	}
 	doUniformBindingsSingleTexture(inputTexture, outputDimensions, program, componentIndexA, componentIndexB, targetIndex) {
 		var gl = this.gl;
 
@@ -86,59 +89,60 @@ module.exports.Program = class Program {
 		gl.uniform1f(gl.getUniformLocation(program, "uResultHeight"), outputDimensions.height);
 	}
 
-	doVertexBindings(program) {
-		var gl = this.gl;
+	doVertexBindings() {
+		
+		let gl = this.gl;
 		// bind vertices
-		var aPosition = gl.getAttribLocation(program, "aPosition");
-		var vertexBuffer = gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+		let aPosition = gl.getAttribLocation(this.program, "aPosition");
+		this.vertexBuffer = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
 
-		var vertices = [-1.0, -1.0, 0.0, 1.0, -1.0, 0.0, 1.0, 1.0, 0.0, -1.0, 1.0, 0.0];
+		let vertices = [-1.0, -1.0, 0.0, 1.0, -1.0, 0.0, 1.0, 1.0, 0.0, -1.0, 1.0, 0.0];
 
 		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
 		gl.vertexAttribPointer(aPosition,  3, gl.FLOAT, false, 0, 0);
 		gl.enableVertexAttribArray(aPosition);
 
 		// bind texture cords
-		var aTexture = gl.getAttribLocation(program, "aTexture");
-		var texCoords = gl.createBuffer();
-		var textureCoords = [0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0];
+		let aTexture = gl.getAttribLocation(this.program, "aTexture");
+		this.texCoords = gl.createBuffer();
+		let textureCoords = [0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0];
 
-		gl.bindBuffer(gl.ARRAY_BUFFER, texCoords);
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.texCoords);
 		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoords), gl.STATIC_DRAW);
 		gl.vertexAttribPointer(aTexture,  2, gl.FLOAT, false, 0, 0);
 		gl.enableVertexAttribArray(aTexture);
 
 		// index to vertices
-		var indices = gl.createBuffer();
+		let indices = gl.createBuffer();
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indices);
-		var vertexIndices = [0, 1, 2, 0, 2, 3];
+		let vertexIndices = [0, 1, 2, 0, 2, 3];
 		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(vertexIndices), gl.STATIC_DRAW);
 	}
 
 
 	buildProgram(vertexShader, fragmentShader) {
-		var gl = this.gl;
+		let gl = this.gl;
 
 		this.vShader = vertexShader;
 		this.fShader = fragmentShader;
 
 		// link into a program
-		var program = gl.createProgram();
-		gl.validateProgram(program);
-		gl.attachShader(program, vertexShader);
-		gl.attachShader(program, fragmentShader);
-		gl.linkProgram(program);
-		gl.useProgram(program);
-		gl.validateProgram(program);
+		this.program = gl.createProgram();
+		gl.attachShader(this.program, vertexShader);
+		gl.attachShader(this.program, fragmentShader);
+		gl.linkProgram(this.program);
+		gl.useProgram(this.program);
+		gl.validateProgram(this.program);
 
-		if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-			var info = gl.getProgramInfoLog(program);
+		if (!gl.getProgramParameter(this.program, gl.LINK_STATUS)) {
+			var info = gl.getProgramInfoLog(this.program);
 			throw 'Could not compile WebGL program. \n\n' + info;
 		}
 
-		this.program = program;
-		return program;
+		this.doVertexBindings();
+
+		return this.program;
 	}
 
 	compute(textureA, textureB, textureC, outputDimensions) {
@@ -170,7 +174,7 @@ module.exports.Program = class Program {
 		gl.useProgram(this.program);
 		gl.viewport(0, 0, outputDimensions.width, outputDimensions.height);
 
-		let resultTexture = TextureFactory.createResultTexture(gl, 'resultTexture', outputDimensions);
+		let resultTexture = TextureFactory.createReadableTexture(gl, 'resultTexture', outputDimensions);
 		let frameBuffer =  FrameBufferFactory.createFrameBuffer(gl,resultTexture);
 		
 		gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.frameBuffer);
@@ -181,12 +185,12 @@ module.exports.Program = class Program {
 		return resultTexture;
 	}
 
-	
 	debugPrint(message) {
 		if (this.debug === true) {
 			console.log(message);
 		}
 	}
+
 	delete() {
 		let gl = this.gl;
 		
@@ -196,5 +200,9 @@ module.exports.Program = class Program {
 		this.debugPrint("Deleted fragment shader");
 		gl.deleteProgram(this.program);
 		this.debugPrint("Deleted program");
+		gl.deleteBuffer(this.vertexBuffer);
+		this.debugPrint("Deleted vertex buffer");
+		gl.deleteBuffer(this.texCoords);
+		this.debugPrint("Deleted texture coordinates");
 	}
 }

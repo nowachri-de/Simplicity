@@ -401,7 +401,6 @@ module.exports.Matrix = class Matrix {
 
         let result = program.multiplySingleTexture(inputTexture, matrixA.getResultMatrixDimensions(matrixB), 0, 1, 0);
 
-        
         inputTexture.delete();
         program.delete();
         ShaderFactory.delete(gl,vertexShader);
