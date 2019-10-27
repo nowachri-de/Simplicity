@@ -1,61 +1,14 @@
 var Sqrl = require('squirrelly');
 const acorn = require('acorn');
+let space = 0;
 
-class Code {
-    constructor(node) {
-        this.node = node;
+function genSpace(space) {
+    let s = [];
+    for (let i = 0; i < space; ++i) {
+        s.push(' ');
     }
+    return s.join('');
 }
-
-class BinaryExpression extends Code {
-    constructor(node) {
-        super(node);
-    }
-    generate(node) {
-
-    }
-}
-
-class UpdateExpression extends Code {
-    constructor(node) {
-        super(node);
-    }
-    generate(node) {
-
-    }
-}
-class ForStatement extends Code {
-    constructor(node) {
-        super(node);
-    }
-    generate(node) {
-        let init = new VariableDeclaration(node);
-        let test = new BinaryExpression(node);
-        let update = new UpdateExpression(node);
-
-        let template = "for ({{init}};{{test}};{{update}})"
-
-        Sqrl.Render(template, {init:init,test:test,update:update});
-    }
-}
-
-class VariableDeclarator extends Code{
-    constructor(node){
-        super(node);
-    }
-    generate(node){
-        if (node.init != "undefined" && isInt(node.init.value)) {
-            sb.push('int ');
-        }
-        sb.push(node.id.name);
-        if (node.init !== null) {
-            sb.push('=');
-            sb.push(node.init.value);
-        }
-    }
-}
-
-
 function isInt(value) {
     return !isNaN(value) &&
         parseInt(Number(value)) == value &&
@@ -63,52 +16,18 @@ function isInt(value) {
 }
 
 const l = console.log
-const ops = {
-    ADD: '+',
-    SUB: '-',
-    MUL: '*',
-    DIV: '/'
-}
+
 let globalScope = new Map();
 class Visitor {
-    constructor(){
+    constructor() { }
 
-    }
-    handleFunctionDeclaration(node) {
-        this.codeElements.push({ node: node });
-        node.body.parent = node;
-        this.visitNode(node.body);
-    }
     handleBlockStatement(node) {
-        node.codeElements = [];
-        this.codeElements.push({ node: node })
-        let prevCodeElements = this.codeElements;
-        this.codeElements = node.codeElements;
+        this.codenodes.push(node);
+        let prevCodenodes = this.codenodes;
+        this.codenodes = [];
         this.visitNodes(node.body);
-
-        this.codeElements = prevCodeElements;
-    }
-    handleVariableDeclaration(node) {
-        node.declarations.parent = node.node;
-        this.codeElements.push({ node: node });
-        this.visitNodes(node.declarations);
-    }
-    handleVariableDeclarator(node) {
-        this.codeElements.push({ node: node });
-        this.visitNode(node.init);
-    }
-
-    handleForStatement(node) {
-        this.codeElements.push({ node: node });
-        node.body.parent = node;
-        this.visitNode(node.body);
-    }
-
-    handleBinaryExpression(node) {
-        this.codeElements.push({ node: node });
-    }
-    handleMemberExpression(node) {
-        this.codeElements.push({ node: node });
+        node.codenodes = this.codenodes;
+        this.codenodes = prevCodenodes;
     }
 
     visitNodes(nodes) {
@@ -116,24 +35,21 @@ class Visitor {
             this.visitNode(node)
         }
     }
+
     visitNode(node) {
-        if (node === null || typeof node === 'undefined'){
+        if (node === null || typeof node === 'undefined') {
             return;
         }
-        //console.log(node);
+
         switch (node.type) {
-            case 'FunctionDeclaration': this.handleFunctionDeclaration(node); break;
             case 'BlockStatement': this.handleBlockStatement(node); break;
-            case 'VariableDeclarator': this.handleVariableDeclarator(node); break;
-            case 'VariableDeclaration': this.handleVariableDeclaration(node); break;
-            case 'ForStatement': this.handleForStatement(node); break;
-            case 'BinaryExpression': this.handleBinaryExpression(node); break;
-            case 'MemberExpression': this.handleMemberExpression(node); break;
+            default: this.codenodes.push(node);
         }
     }
+
     run(nodes) {
         this.visitNodes(nodes);
-        return this.codeElements;
+        return this.codenodes;
     }
 }
 
@@ -142,7 +58,7 @@ class Interpreter {
     constructor(visitor, source) {
         this.visitor = visitor;
         this.source = source;
-        this.visitor.codeElements = [];
+        this.visitor.codenodes = [];
     }
     interpret(nodes) {
         return this.visitor.run(nodes);
@@ -150,75 +66,187 @@ class Interpreter {
 }
 
 class CodeGenerator {
-    constructor(){}
 
+    constructor() {
+        this.postProcessNodes = [];
+    }
+
+    processLater(node) {
+        this.postProcessNodes.push(node);
+    }
+
+    postProcess(nodes){
+        nodes.forEach(node => {
+            console.log(node);
+        });
+    }
     translate(source) {
         this.interpreter = new Interpreter(new Visitor(), source);
         this.body = acorn.parse(source).body;
-        this.codeElements = this.interpreter.interpret(this.body);
+        this.codenodes = this.interpreter.interpret(this.body);
 
         let sb = [];
-        this.codeElements.forEach(element => {
-            console.log(element.node.type);
-            this.handleType(element, sb);
-        });
+        this.iterate(this.codenodes, sb);
+        this.postProcess(this.postProcessNodes,sb);
         return sb.join('');
     }
-    handleType(element, sb) {
-        switch (element.node.type) {
-            case 'ForStatement': this.forStatment(element, sb); break;
-            case 'BlockStatement': this.blockStatement(element.node, sb); break;
-            case 'VariableDeclaration': this.variableDeclaration(element.node, sb); break;
-            case 'MemberExpression': this.memberExpression(element.node, sb); break;
-        }
-    }
-    blockStatement(node, sb) {
-        sb.push('{');
-        node.codeElements.forEach(element => {
-            console.log(element.node.type);
-            this.handleType(element, sb);
+
+    iterate(codenodes, sb) {
+        codenodes.forEach(node => {
+            this.handleType(node, sb);
         });
+    }
+
+    handleType(node, sb) {
+        //console.log(node.type);
+        switch (node.type) {
+            case 'VariableDeclarator': return this.genVariableDeclarator(node, sb);
+            case 'VariableDeclaration': return this.genVariableDeclaration(node, sb);
+            case 'ForStatement': return this.genForStatement(node, sb);
+            case 'BinaryExpression': return this.genBinaryExpression(node, sb);
+            case 'Identifier': return this.genIdentifier(node, sb);
+            case 'Literal': return this.genLiteral(node, sb);
+            case 'ForSLiteraltatement': return this.genLiteral(node, sb);
+            case 'UpdateExpression': return this.genUpdateExpression(node, sb);
+            case 'BlockStatement': return this.genBlockStatement(node, sb);
+            case 'ExpressionStatement': return this.genExpressionStatement(node, sb);
+            case 'CallExpression': return this.genCallExpression(node, sb);
+            case 'MemberExpression': return this.genMemberExpression(node, sb);
+            case 'IfStatement': return this.genIfStatement(node, sb);
+            case 'WhileStatement': return this.genWhileStatement(node, sb);
+            case 'AssignmentExpression': return this.genAssignmentExpression(node, sb);
+            case 'ArrayExpression': return this.genArrayExpression(node, sb);
+            case 'FunctionDeclaration': return this.genFunctionDeclaration(node, sb);
+            case 'ThisExpression': return this.genThisExpression(node, sb);
+            case 'ReturnStatement': return this.genReturnStatement(node, sb);
+           
+        }
+        
+    }
+
+    genReturnStatement(node,sb){
+        sb.push('return ');
+        this.handleType(node.argument,sb);
+        sb.push(';');
+    }
+    genArrayExpression(node, sb) {
+
+    }
+    genThisExpression(node,sb){
+        sb.push('this');
+    }
+    genFunctionDeclaration(node,sb){
+        this.handleType(node.id,sb);
+        this.handleType(node.body,sb);
+    }
+    genAssignmentExpression(node, sb) {
+        this.handleType(node.left, sb);
+        sb.push(node.operator);
+        this.handleType(node.right, sb);
+    }
+    genWhileStatement(node, sb) {
+        sb.push('while (')
+        this.handleType(node.test, sb);
+        sb.push(')')
+        this.handleType(node.body, sb);
+       
+    }
+    genIfStatement(node, sb) {
+
+        sb.push(genSpace(space));
+        sb.push('if(');
+        this.handleType(node.test, sb);
+        sb.push(')');
+        this.handleType(node.consequent, sb);
+        if (node.alternate !== null) {
+            sb.push('else ');
+            this.handleType(node.alternate, sb);
+        }
+
+    }
+    genBlockStatement(node, sb) {
+        sb.push(genSpace(space));
+        sb.push('{');
+        this.iterate(node.body, sb);
         sb.push('}');
     }
-    forStatment(ce, sb) {
-        console.log(this.source.substring(ce.node.start, ce.node.end));
-        sb.push("for(");
-        this.variableDeclaration(ce.node.init, sb).push(" ;");
-        this.binaryExpression(ce.node.test, sb).push(" ;");
-        this.updateExpression(ce.node.update, sb);
-        sb.push(")");
+    genExpressionStatement(node, sb) {
+        this.handleType(node.expression, sb)
+        sb.push[';'];
     }
-    updateExpression(node, sb) {
-        sb.push(node.operator);
-        return sb;
-    }
-    binaryExpression(node, sb) {
-        sb.push(node.left.name);
-        sb.push(node.operator);
-        sb.push(node.right.value);
-        return sb;
-    }
-    variableDeclaration(node, sb) {
-        node.declarations.forEach(element => {
-            this.variableDeclarator(element, sb);
-        })
-        return sb;
-    }
-    variableDeclarator(node, sb) {
-        if (node.init != "undefined" && isInt(node.init.value)) {
-            sb.push('int ');
+    genCallExpression(node, sb) {
+        this.processLater(node);
+        this.handleType(node.callee, sb);
+        sb.push('(');
+
+        for (let i = 0; i < node.arguments.length; ++i) {
+            this.handleType(node.arguments[i], sb);
+            if (i + 1 < node.arguments.length) {
+                sb.push(',');
+            }
         }
+        sb.push(')');
+        sb.push(';');
+    }
+
+    ppCallExpression() { }
+
+    genMemberExpression(node, sb) {
+        this.processLater(node);
+        this.handleType(node.object, sb);
+        node.computed === false ? sb.push('.') : sb.push('[');
+        this.handleType(node.property, sb);
+        node.computed === false ? "" : sb.push(']');
+    }
+    ppMemberExpression(node, sb) {
+
+
+    }
+    genVariableDeclarator(node, sb) {
+
         sb.push(node.id.name);
         if (node.init !== null) {
             sb.push('=');
-            sb.push(node.init.value);
+            this.handleType(node.init, sb);
         }
+        sb.push(';');
     }
-    memberExpression(node, sb) {
-        sb.push(node.object.name);
-        sb.push("[" + node.property.name + "];");
+    genVariableDeclaration(node, sb) {
+        this.processLater(node);
+        this.iterate(node.declarations, sb);
     }
-   
+    genForStatement(node, sb) {
+        sb.push(genSpace(space));
+        sb.push('for(');
+        this.handleType(node.init, sb);
+        //sb.push(';');
+        this.handleType(node.test, sb);
+        sb.push(';');
+        this.handleType(node.update, sb);
+        sb.push(')');
+        this.handleType(node.body, sb);
+    }
+    genBody(node, sb) {
+        sb.push('{');
+        this.iterate(node, sb);
+        sb.push('}');
+    }
+    genBinaryExpression(node, sb) {
+        this.handleType(node.left, sb);
+        sb.push(node.operator);
+        this.handleType(node.right, sb);
+    }
+    genIdentifier(node, sb) {
+        sb.push(node.name);
+    }
+    genLiteral(node, sb) {
+        sb.push(node.raw);
+    }
+    genUpdateExpression(node, sb) {
+        sb.push(node.operator);
+        this.handleType(node.argument, sb);
+        sb.push(';');
+    }
 }
 
 module.exports.CodeGenerator = CodeGenerator
