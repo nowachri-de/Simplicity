@@ -1,4 +1,4 @@
-module.exports.ShaderFactory = class ShaderFactory{
+class ShaderFactory{
 
 	static createVertexShader(gl,vertexShaderCode) {
         var shader = gl.createShader(gl.VERTEX_SHADER);
@@ -24,3 +24,4 @@ module.exports.ShaderFactory = class ShaderFactory{
 	}
 }
 
+module.exports.ShaderFactory = ShaderFactory

@@ -1,5 +1,5 @@
 var Sqrl = require('squirrelly');
-module.exports.ShaderCode = class ShaderCode {
+class ShaderCode {
 
     static getCode(type) {
         switch (type) {
@@ -383,3 +383,4 @@ void main(void) {
         return Sqrl.Render(shaderTemplate, options);
     }
 }
+module.exports.ShaderCode = ShaderCode

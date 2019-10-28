@@ -2,7 +2,7 @@ var headlessGL = require('gl');
 const {FrameBufferFactory} = require(__dirname + "\\framebufferfactory.js");
 const {TextureFactory} = require(__dirname + "\\texturefactory.js");
 
-module.exports.Program = class Program {
+class Program {
 	
 	constructor(width, height, gl) {
 		this.program = null;
@@ -206,3 +206,5 @@ module.exports.Program = class Program {
 		this.debugPrint("Deleted texture coordinates");
 	}
 }
+
+module.exports.Program = Program

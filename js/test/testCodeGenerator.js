@@ -4,6 +4,11 @@ const { CodeGenerator } = require(__dirname + '\\..\\modules\\codegenerator.js')
 describe('CodeGenerator', function () {
   it('should translate variable declaration ', function () {
     let codeGen = new CodeGenerator();
+    console.log(codeGen.translate(`y[x];`));
+  });
+
+  it('should translate variable declaration ', function () {
+    let codeGen = new CodeGenerator();
     console.log(codeGen.translate(`function a(){
     let sum = 0;
     for (let i = 0; i < 512; i++) {
@@ -12,11 +17,15 @@ describe('CodeGenerator', function () {
     return sum;}`));
   });
 
-  /*it('should translate variable declaration with initialization ', function () {
+  it('should throw an exception since variable is not initialized', function () {
+    let codeGen = new CodeGenerator();
+    assert.throws(() => codeGen.translate(`let sum;`));
+  });
+
+  it('should translate variable declaration with initialization ', function () {
     let codeGen = new CodeGenerator();
     console.log(codeGen.translate(
       ` let a = 0;
-        let b; 
         for(let a=0; a < 10;++a){
           console.log(a,b);
         }
@@ -34,6 +43,8 @@ describe('CodeGenerator', function () {
 
         let x = y[a][b];
       `));
-  });*/
+  });
+
+  
 
 });

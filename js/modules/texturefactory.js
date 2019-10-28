@@ -23,7 +23,7 @@ class Texture{
     }
 };
 
-module.exports.TextureFactory = class TextureFactory {
+class TextureFactory {
 	
 	static fetchFreeIndex(){
 		if ( usedIndices.length === 0){
@@ -100,3 +100,5 @@ module.exports.TextureFactory = class TextureFactory {
 		}
 	}
 }
+
+module.exports.TextureFactory = TextureFactory

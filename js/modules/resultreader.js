@@ -1,5 +1,5 @@
 //See requirements at the end of the file. Requirements are at the end of the file due to circular dependencies.
-module.exports.ResultReader = class ResultReader{
+class ResultReader{
 	constructor(gl,width,height){
 		this.gl = gl;
 		this.build(width,height);
@@ -73,6 +73,7 @@ module.exports.ResultReader = class ResultReader{
 	}
 }
 
+module.exports.ResultReader = ResultReader
 const {ShaderFactory} = require(__dirname + "\\shader.js");
 const {ShaderCode} = require(__dirname + "\\shadercode.js");
 const {Program} = require(__dirname + "\\program.js");

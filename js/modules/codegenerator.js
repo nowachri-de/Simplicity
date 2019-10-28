@@ -68,18 +68,13 @@ class Interpreter {
 class CodeGenerator {
 
     constructor() {
-        this.postProcessNodes = [];
+        
     }
 
-    processLater(node) {
-        this.postProcessNodes.push(node);
+  
+    postProcess(nodes) {
     }
-
-    postProcess(nodes){
-        nodes.forEach(node => {
-            console.log(node);
-        });
-    }
+    
     translate(source) {
         this.interpreter = new Interpreter(new Visitor(), source);
         this.body = acorn.parse(source).body;
@@ -87,7 +82,7 @@ class CodeGenerator {
 
         let sb = [];
         this.iterate(this.codenodes, sb);
-        this.postProcess(this.postProcessNodes,sb);
+        this.postProcess(this.postProcessNodes, sb);
         return sb.join('');
     }
 
@@ -98,7 +93,7 @@ class CodeGenerator {
     }
 
     handleType(node, sb) {
-        //console.log(node.type);
+        console.log(node.type);
         switch (node.type) {
             case 'VariableDeclarator': return this.genVariableDeclarator(node, sb);
             case 'VariableDeclaration': return this.genVariableDeclaration(node, sb);
@@ -119,25 +114,23 @@ class CodeGenerator {
             case 'FunctionDeclaration': return this.genFunctionDeclaration(node, sb);
             case 'ThisExpression': return this.genThisExpression(node, sb);
             case 'ReturnStatement': return this.genReturnStatement(node, sb);
-           
         }
-        
     }
 
-    genReturnStatement(node,sb){
+    genReturnStatement(node, sb) {
         sb.push('return ');
-        this.handleType(node.argument,sb);
+        this.handleType(node.argument, sb);
         sb.push(';');
     }
     genArrayExpression(node, sb) {
 
     }
-    genThisExpression(node,sb){
+    genThisExpression(node, sb) {
         sb.push('this');
     }
-    genFunctionDeclaration(node,sb){
-        this.handleType(node.id,sb);
-        this.handleType(node.body,sb);
+    genFunctionDeclaration(node, sb) {
+        this.handleType(node.id, sb);
+        this.handleType(node.body, sb);
     }
     genAssignmentExpression(node, sb) {
         this.handleType(node.left, sb);
@@ -149,10 +142,8 @@ class CodeGenerator {
         this.handleType(node.test, sb);
         sb.push(')')
         this.handleType(node.body, sb);
-       
     }
     genIfStatement(node, sb) {
-
         sb.push(genSpace(space));
         sb.push('if(');
         this.handleType(node.test, sb);
@@ -162,7 +153,6 @@ class CodeGenerator {
             sb.push('else ');
             this.handleType(node.alternate, sb);
         }
-
     }
     genBlockStatement(node, sb) {
         sb.push(genSpace(space));
@@ -175,7 +165,6 @@ class CodeGenerator {
         sb.push[';'];
     }
     genCallExpression(node, sb) {
-        this.processLater(node);
         this.handleType(node.callee, sb);
         sb.push('(');
 
@@ -188,31 +177,33 @@ class CodeGenerator {
         sb.push(')');
         sb.push(';');
     }
-
-    ppCallExpression() { }
-
     genMemberExpression(node, sb) {
-        this.processLater(node);
         this.handleType(node.object, sb);
         node.computed === false ? sb.push('.') : sb.push('[');
         this.handleType(node.property, sb);
         node.computed === false ? "" : sb.push(']');
     }
-    ppMemberExpression(node, sb) {
-
-
+    type2String(node) {
+        if (node.type === 'Literal' && typeof node.value === 'number') {
+            if (node.raw.includes(".")) {
+                return "float";
+            } else {
+                return "int";
+            }
+        }
     }
     genVariableDeclarator(node, sb) {
-
-        sb.push(node.id.name);
-        if (node.init !== null) {
-            sb.push('=');
-            this.handleType(node.init, sb);
+        if (node.init === null) {
+            throw '@line ' + node.start + " .Variable declarator needs to be initialized. This is mandatory in order to define the type of the translated variable";
         }
+        sb.push(this.type2String(node.init) + ' ');
+        sb.push(node.id.name);
+        sb.push('=');
+        this.handleType(node.init, sb);
+
         sb.push(';');
     }
     genVariableDeclaration(node, sb) {
-        this.processLater(node);
         this.iterate(node.declarations, sb);
     }
     genForStatement(node, sb) {
@@ -245,8 +236,6 @@ class CodeGenerator {
     genUpdateExpression(node, sb) {
         sb.push(node.operator);
         this.handleType(node.argument, sb);
-        sb.push(';');
     }
 }
-
 module.exports.CodeGenerator = CodeGenerator
