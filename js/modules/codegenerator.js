@@ -68,7 +68,7 @@ class Interpreter {
 class CodeGenerator {
 
     constructor() {
-        
+        this.variables = new Map();
     }
 
   
@@ -84,6 +84,10 @@ class CodeGenerator {
         this.iterate(this.codenodes, sb);
         this.postProcess(this.postProcessNodes, sb);
         return sb.join('');
+    }
+
+    setVariableType(name,type){
+        this.variables.set(name,type);
     }
 
     iterate(codenodes, sb) {
@@ -193,13 +197,20 @@ class CodeGenerator {
         }
     }
     genVariableDeclarator(node, sb) {
-        if (node.init === null) {
-            throw '@line ' + node.start + " .Variable declarator needs to be initialized. This is mandatory in order to define the type of the translated variable";
+        if (node.init === null && typeof this.variables.get(node.id.name) === 'undefined' ) {
+            throw '@line ' + node.start + " .Variable declarator needs to be initialized or type of variable needs to be specified using type declaration.";
         }
-        sb.push(this.type2String(node.init) + ' ');
+        let type;
+        if (node.init === null){
+            type = this.variables.get(node.id.name);
+        }else{
+            type = this.type2String(node.init);
+        }
+        sb.push(type + ' ');
+        
         sb.push(node.id.name);
         sb.push('=');
-        this.handleType(node.init, sb);
+        (node.init !== null) ? this.handleType(node.init, sb):"";
 
         sb.push(';');
     }
@@ -234,8 +245,9 @@ class CodeGenerator {
         sb.push(node.raw);
     }
     genUpdateExpression(node, sb) {
-        sb.push(node.operator);
+        (node.prefix === true) ? sb.push(node.operator):"";
         this.handleType(node.argument, sb);
+        (node.prefix !== true) ? sb.push(node.operator):"";
     }
 }
 module.exports.CodeGenerator = CodeGenerator

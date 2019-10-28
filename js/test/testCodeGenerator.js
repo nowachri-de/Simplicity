@@ -2,7 +2,7 @@ var assert = require('assert');
 const { CodeGenerator } = require(__dirname + '\\..\\modules\\codegenerator.js');
 
 describe('CodeGenerator', function () {
-  it('should translate variable declaration ', function () {
+  it('test Memberdeclaration', function () {
     let codeGen = new CodeGenerator();
     console.log(codeGen.translate(`y[x];`));
   });
@@ -20,6 +20,12 @@ describe('CodeGenerator', function () {
   it('should throw an exception since variable is not initialized', function () {
     let codeGen = new CodeGenerator();
     assert.throws(() => codeGen.translate(`let sum;`));
+  });
+
+  it('should not throw an exception since variable type has been specified', function () {
+    let codeGen = new CodeGenerator();
+    codeGen.setVariableType('sum','int');
+    codeGen.translate(`let sum;`);
   });
 
   it('should translate variable declaration with initialization ', function () {
