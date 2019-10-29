@@ -66,6 +66,8 @@ describe('CodeGenerator', function () {
   */
 
   it('should build a kernel', function () {
-    FunctionBuilder.buildFunction(1,2)(1,2,true);
+    Kernel.create(function a(a,b){
+      console.log('hello world');
+    })(1,2.0);
   });
 });

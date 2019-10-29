@@ -1,5 +1,5 @@
 const { CodeGenerator } = require(__dirname + '\\..\\modules\\codegenerator.js');
-
+const Sqrl = require('squirrelly');
 
 function getType(argument) {
     if (Array.isArray(argument)) {
@@ -23,18 +23,28 @@ function getType(argument) {
 
 
 class FunctionBuilder{
-    static buildFunction(codeGen,codeTemplate){
-       
-        let src = 
-        `
-            let src = 
-        
-        
-        `;
-       let fnctSource = Function(codeGen.parameters,src);
-
-       fnctSource.extend = function()
-       return fnctSource;
+    static buildFunction(codeGen,templateCode){
+      
+      function getFunctionParameters(){
+        return codeGen.parameters;
+      }
+      function abc(...args){
+        let parameters = getFunctionParameters();
+        let options = {};
+        let i = 0;
+        parameters.forEach(element => {
+          Object.defineProperty(options, 'arg_' + element + '_type', 
+            {
+              value : getType(args[i]),
+              writable : true,
+              enumerable : true,
+              configurable : true
+            });
+            ++i;
+        });
+        console.log(Sqrl.Render(templateCode,options));
+      }
+      return abc;
     }
 }
 
@@ -46,7 +56,7 @@ class Kernel{
         let codeGen = new CodeGenerator();
         let templateCode = codeGen.translate(fnct.toString());
         
-        FunctionBuilder.buildFunction(codeGen,templateCode);
+        return FunctionBuilder.buildFunction(codeGen,templateCode);
     }
 }
 module.exports.Kernel = Kernel;

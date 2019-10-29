@@ -1,4 +1,3 @@
-var Sqrl = require('squirrelly');
 const acorn = require('acorn');
 let space = 0;
 
@@ -144,7 +143,7 @@ class CodeGenerator {
         sb.push('(');
         let self = this;
         this.iteratePlus(node.params,sb,function(nodes,node,index,sb){
-            sb.push('{{arg_' + node.name + '_type}}');
+            sb.push('{{arg_' + node.name + '_type}} ');
             self.parameters.push(node.name);
             self.handleType(node,sb);
             if ((index + 1) < nodes.length){
@@ -189,9 +188,12 @@ class CodeGenerator {
     genCallExpression(node, sb) {
         this.handleType(node.callee, sb);
         sb.push('(');
-        this.iteratePlus(node.arguments,sb,function(){
-            sb.push(',');
+        this.iteratePlus(node.arguments,sb,function(nodes,node,index,sb){
+            if ((index + 1) < nodes.length){
+                sb.push(',');
+            }
         })
+       
         
         sb.push(')');
         sb.push(';');
