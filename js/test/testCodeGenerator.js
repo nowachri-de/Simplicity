@@ -1,8 +1,13 @@
 var assert = require('assert');
 const { CodeGenerator } = require(__dirname + '\\..\\modules\\codegenerator.js');
+const { Kernel } = require(__dirname + '\\..\\modules\\kernel.js');
+const { FunctionBuilder } = require(__dirname + '\\..\\modules\\kernel.js');
+
+
+
 
 describe('CodeGenerator', function () {
-  it('test Memberdeclaration', function () {
+  /*it('test Memberdeclaration', function () {
     let codeGen = new CodeGenerator();
     console.log(codeGen.translate(`y[x];`));
   });
@@ -50,7 +55,17 @@ describe('CodeGenerator', function () {
         let x = y[a][b];
       `));
   });
-
+  it('should translate a function', function () {
+    let codeGen = new CodeGenerator();
+    console.log(codeGen.translate(`function x(a,b){}`));
+  });
   
+  it('should build a kernel', function () {
+    let kernel = Kernel.create(function a(){});
+  });
+  */
 
+  it('should build a kernel', function () {
+    FunctionBuilder.buildFunction(1,2)(1,2,true);
+  });
 });

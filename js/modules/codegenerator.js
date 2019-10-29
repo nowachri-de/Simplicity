@@ -69,9 +69,10 @@ class CodeGenerator {
 
     constructor() {
         this.variables = new Map();
+        this.parameters = [];
     }
 
-  
+    
     postProcess(nodes) {
     }
     
@@ -94,6 +95,12 @@ class CodeGenerator {
         codenodes.forEach(node => {
             this.handleType(node, sb);
         });
+    }
+
+    iteratePlus(codenodes,sb, action){
+        for (let i = 0; i < codenodes.length; ++i) {
+            action(codenodes,codenodes[i],i,sb);
+        }
     }
 
     handleType(node, sb) {
@@ -134,6 +141,17 @@ class CodeGenerator {
     }
     genFunctionDeclaration(node, sb) {
         this.handleType(node.id, sb);
+        sb.push('(');
+        let self = this;
+        this.iteratePlus(node.params,sb,function(nodes,node,index,sb){
+            sb.push('{{arg_' + node.name + '_type}}');
+            self.parameters.push(node.name);
+            self.handleType(node,sb);
+            if ((index + 1) < nodes.length){
+                sb.push(',');
+            }
+        })
+        sb.push(')');
         this.handleType(node.body, sb);
     }
     genAssignmentExpression(node, sb) {
@@ -171,13 +189,10 @@ class CodeGenerator {
     genCallExpression(node, sb) {
         this.handleType(node.callee, sb);
         sb.push('(');
-
-        for (let i = 0; i < node.arguments.length; ++i) {
-            this.handleType(node.arguments[i], sb);
-            if (i + 1 < node.arguments.length) {
-                sb.push(',');
-            }
-        }
+        this.iteratePlus(node.arguments,sb,function(){
+            sb.push(',');
+        })
+        
         sb.push(')');
         sb.push(';');
     }
@@ -188,13 +203,14 @@ class CodeGenerator {
         node.computed === false ? "" : sb.push(']');
     }
     type2String(node) {
-        if (node.type === 'Literal' && typeof node.value === 'number') {
+        /*if (node.type === 'Literal' && typeof node.value === 'number') {
             if (node.raw.includes(".")) {
                 return "float";
             } else {
                 return "int";
             }
-        }
+        }*/
+        return '{{}}'
     }
     genVariableDeclarator(node, sb) {
         if (node.init === null && typeof this.variables.get(node.id.name) === 'undefined' ) {
