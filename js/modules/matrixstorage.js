@@ -64,7 +64,6 @@ class MatrixStorage {
                 resultIndex += 4;
             }
         }
-
         return result;
     }
 
