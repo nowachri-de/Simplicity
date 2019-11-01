@@ -318,7 +318,6 @@ module.exports.Matrix = class Matrix {
             default:
                 throw "componentToIndex: component " + component + " unknown";
         }
-
     }
 
     getTexels(component) {
