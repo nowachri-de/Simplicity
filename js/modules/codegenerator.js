@@ -1,11 +1,6 @@
 const acorn = require('acorn');
 let space = 0;
 
-String.prototype.replaceAll = function (search, replacement) {
-    var target = this;
-    return target.split(search).join(replacement);
-};
-
 function genSpace(space) {
     let s = [];
     for (let i = 0; i < space; ++i) {
@@ -74,7 +69,7 @@ class CodeGenerator {
     constructor() {
         this.scopes = [];
         this.parameters = [];
-        this.postProcess = [];
+        this.postProcessNodes = [];
     }
 
     translate(source) {
@@ -84,6 +79,7 @@ class CodeGenerator {
 
         let sb = [];
         this.iterate(this.codenodes, sb);
+        
         return sb.join('');
     }
 
@@ -97,10 +93,6 @@ class CodeGenerator {
     }
     removeScope() {
         this.scopes.pop();
-    }
-    
-    addParameter(name) {
-        this.parameters.push(name);
     }
 
     iterate(codenodes, sb) {
@@ -139,7 +131,11 @@ class CodeGenerator {
             case 'AssignmentPattern': return this.genAssignmentPattern(node, sb);
         }
     }
-
+    event(type,node){
+        let x = [];
+        this.handleType(node,x);
+        console.log(x.join(''));
+    }
     genAssignmentPattern(node, sb) {
         //console.log(node);
     }
@@ -205,10 +201,17 @@ class CodeGenerator {
         this.removeScope();
     }
     genExpressionStatement(node, sb) {
-        this.addScope();
-        this.handleType(node, sb);
-        console.log(this.getScope().identifier);
-        sb.push(';');
+        let tmp = [];
+        this.handleType(node, tmp);
+        if (node.type === 'MemberExpression'){
+            this.addScope().node = node;
+            this.getScope().code = tmp;
+            this.postProcessNodes.push(this.getScope());
+            sb.push('{{' + node.type +'_' + (this.scopes.length-1) +'}}' );
+        }else{
+            sb.concat(tmp);
+            sb.push(';');
+        }
     }
     genCallExpression(node, sb) {
         this.handleType(node.callee, sb);
@@ -224,26 +227,13 @@ class CodeGenerator {
     }
     genMemberExpression(node, sb) {
         this.handleType(node.object, sb);
-        if ( node.computed){
-            typeof this.getScope().properties === 'undefined' ? this.getScope().properties = [] : "";
-            if (typeof this.getScope().identifier === 'undefined'){
-                this.getScope().identifier = node.object.name;
-            }
-            sb = [];
-        }else{
-            sb.push('.');
-        }
-
-        //node.computed === false ? sb.push('.'): sb.push('[');
-        
+        node.computed === false ? sb.push('.'): sb.push('[');
         this.handleType(node.property, sb);
-        //node.computed === false ? "" : sb.push(']');
-
+       
         if (node.computed){
-            this.getScope().properties.push(sb.join(''));
+            this.event('Property',node.property);
+            sb.push(']');
         }
-
-        //console.log(tmp.join(''));
     }
     type2String(node) {
         if (node.type === 'Literal' && typeof node.value === 'number') {

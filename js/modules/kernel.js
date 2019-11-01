@@ -79,7 +79,8 @@ class FunctionBuilder {
           ++i;
       });
       console.log((new Formatter()).format(Sqrl.Render(templateCode,options)));*/
-      console.log((new Formatter()).format(templateCode));
+      //console.log((new Formatter()).format(templateCode));
+      console.log(templateCode);
       console.log(implementation.dimensions);
     }
  
