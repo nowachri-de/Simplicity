@@ -1,6 +1,11 @@
 const acorn = require('acorn');
 let space = 0;
 
+String.prototype.replaceAll = function (search, replacement) {
+    var target = this;
+    return target.split(search).join(replacement);
+};
+
 function genSpace(space) {
     let s = [];
     for (let i = 0; i < space; ++i) {
@@ -14,11 +19,10 @@ function isInt(value) {
         !isNaN(parseInt(value, 10));
 }
 
-const l = console.log
-
-let globalScope = new Map();
 class Visitor {
-    constructor() { }
+    constructor() {
+        this.codenodes = [];
+    }
 
     handleBlockStatement(node) {
         this.codenodes.push(node);
@@ -53,11 +57,12 @@ class Visitor {
 }
 
 
+
+
 class Interpreter {
     constructor(visitor, source) {
         this.visitor = visitor;
         this.source = source;
-        this.visitor.codenodes = [];
     }
     interpret(nodes) {
         return this.visitor.run(nodes);
@@ -67,14 +72,11 @@ class Interpreter {
 class CodeGenerator {
 
     constructor() {
-        this.variables = new Map();
+        this.scopes = [];
         this.parameters = [];
+        this.postProcess = [];
     }
 
-    
-    postProcess(nodes) {
-    }
-    
     translate(source) {
         this.interpreter = new Interpreter(new Visitor(), source);
         this.body = acorn.parse(source).body;
@@ -82,12 +84,23 @@ class CodeGenerator {
 
         let sb = [];
         this.iterate(this.codenodes, sb);
-        this.postProcess(this.postProcessNodes, sb);
         return sb.join('');
     }
 
-    setVariableType(name,type){
-        this.variables.set(name,type);
+    addScope() {
+        let newScope = {};
+        this.scopes.push(newScope);
+        return newScope;
+    }
+    getScope() {
+        return this.scopes[this.scopes.length-1];
+    }
+    removeScope() {
+        this.scopes.pop();
+    }
+    
+    addParameter(name) {
+        this.parameters.push(name);
     }
 
     iterate(codenodes, sb) {
@@ -95,10 +108,10 @@ class CodeGenerator {
             this.handleType(node, sb);
         });
     }
-
-    iteratePlus(codenodes,sb, action){
+ 
+    iteratePlus(codenodes, sb, action) {
         for (let i = 0; i < codenodes.length; ++i) {
-            action(codenodes,codenodes[i],i,sb);
+            action(codenodes, codenodes[i], i, sb);
         }
     }
 
@@ -111,10 +124,9 @@ class CodeGenerator {
             case 'BinaryExpression': return this.genBinaryExpression(node, sb);
             case 'Identifier': return this.genIdentifier(node, sb);
             case 'Literal': return this.genLiteral(node, sb);
-            case 'ForSLiteraltatement': return this.genLiteral(node, sb);
             case 'UpdateExpression': return this.genUpdateExpression(node, sb);
             case 'BlockStatement': return this.genBlockStatement(node, sb);
-            case 'ExpressionStatement': return this.genExpressionStatement(node, sb);
+            case 'ExpressionStatement': return this.genExpressionStatement(node.expression, sb);
             case 'CallExpression': return this.genCallExpression(node, sb);
             case 'MemberExpression': return this.genMemberExpression(node, sb);
             case 'IfStatement': return this.genIfStatement(node, sb);
@@ -124,9 +136,13 @@ class CodeGenerator {
             case 'FunctionDeclaration': return this.genFunctionDeclaration(node, sb);
             case 'ThisExpression': return this.genThisExpression(node, sb);
             case 'ReturnStatement': return this.genReturnStatement(node, sb);
+            case 'AssignmentPattern': return this.genAssignmentPattern(node, sb);
         }
     }
 
+    genAssignmentPattern(node, sb) {
+        //console.log(node);
+    }
     genReturnStatement(node, sb) {
         sb.push('return ');
         this.handleType(node.argument, sb);
@@ -142,11 +158,18 @@ class CodeGenerator {
         this.handleType(node.id, sb);
         sb.push('(');
         let self = this;
-        this.iteratePlus(node.params,sb,function(nodes,node,index,sb){
-            sb.push('{{arg_' + node.name + '_type}} ');
-            self.parameters.push(node.name);
-            self.handleType(node,sb);
-            if ((index + 1) < nodes.length){
+        this.iteratePlus(node.params, sb, function (nodes, node, index, sb) {
+            sb.push(self.arg2String(node));
+            let name;
+            if (node.type === 'AssignmentPattern') {
+                name = node.left.name;
+            } else {
+                name = node.name;
+            };
+            self.parameters.push(name);
+            sb.push(name);
+            self.handleType(node, sb);
+            if ((index + 1) < nodes.length) {
                 sb.push(',');
             }
         })
@@ -165,7 +188,6 @@ class CodeGenerator {
         this.handleType(node.body, sb);
     }
     genIfStatement(node, sb) {
-        sb.push(genSpace(space));
         sb.push('if(');
         this.handleType(node.test, sb);
         sb.push(')');
@@ -176,59 +198,99 @@ class CodeGenerator {
         }
     }
     genBlockStatement(node, sb) {
-        sb.push(genSpace(space));
+        this.addScope();
         sb.push('{');
         this.iterate(node.body, sb);
         sb.push('}');
+        this.removeScope();
     }
     genExpressionStatement(node, sb) {
-        this.handleType(node.expression, sb)
-        sb.push[';'];
+        this.addScope();
+        this.handleType(node, sb);
+        console.log(this.getScope().identifier);
+        sb.push(';');
     }
     genCallExpression(node, sb) {
         this.handleType(node.callee, sb);
         sb.push('(');
-        this.iteratePlus(node.arguments,sb,function(nodes,node,index,sb){
-            if ((index + 1) < nodes.length){
+        let self = this;
+        this.iteratePlus(node.arguments, sb, function (nodes, node, index, sb) {
+            self.handleType(node, sb);
+            if ((index + 1) < nodes.length) {
                 sb.push(',');
             }
         })
-       
-        
         sb.push(')');
-        sb.push(';');
     }
     genMemberExpression(node, sb) {
         this.handleType(node.object, sb);
-        node.computed === false ? sb.push('.') : sb.push('[');
+        if ( node.computed){
+            typeof this.getScope().properties === 'undefined' ? this.getScope().properties = [] : "";
+            if (typeof this.getScope().identifier === 'undefined'){
+                this.getScope().identifier = node.object.name;
+            }
+            sb = [];
+        }else{
+            sb.push('.');
+        }
+
+        //node.computed === false ? sb.push('.'): sb.push('[');
+        
         this.handleType(node.property, sb);
-        node.computed === false ? "" : sb.push(']');
+        //node.computed === false ? "" : sb.push(']');
+
+        if (node.computed){
+            this.getScope().properties.push(sb.join(''));
+        }
+
+        //console.log(tmp.join(''));
     }
     type2String(node) {
-        /*if (node.type === 'Literal' && typeof node.value === 'number') {
+        if (node.type === 'Literal' && typeof node.value === 'number') {
             if (node.raw.includes(".")) {
-                return "float";
+                return "float ";
             } else {
-                return "int";
+                return "int ";
             }
-        }*/
-        return '{{}}'
+        }
+
+        if (node.type === 'AssignmentPattern') {
+            return this.type2String(node.right);
+        }
+
+        if (node.type === 'ArrayExpression') {
+            if (node.elements.length > 1) {
+                throw 'Only 1D or 2D arrays can be handled';
+            } else if (node.elements.length === 1) {
+                return "float [][]";
+            }
+            return "float []";
+        }
+
+
+        return "unknown";
+        //return '{{arg_' + node.name + '_type}} '
+    }
+
+    arg2String(node) {
+        // return '{{arg_' + node.name + '_type}} '
+        return this.type2String(node);
     }
     genVariableDeclarator(node, sb) {
-        if (node.init === null && typeof this.variables.get(node.id.name) === 'undefined' ) {
+        if (node.init === null && typeof this.getVariableType(node.id.name) === 'undefined') {
             throw '@line ' + node.start + " .Variable declarator needs to be initialized or type of variable needs to be specified using type declaration.";
         }
         let type;
-        if (node.init === null){
-            type = this.variables.get(node.id.name);
-        }else{
+        if (node.init === null) {
+            type = this.getVariableType(node.id.name);
+        } else {
             type = this.type2String(node.init);
         }
         sb.push(type + ' ');
-        
+
         sb.push(node.id.name);
         sb.push('=');
-        (node.init !== null) ? this.handleType(node.init, sb):"";
+        (node.init !== null) ? this.handleType(node.init, sb) : "";
 
         sb.push(';');
     }
@@ -263,9 +325,13 @@ class CodeGenerator {
         sb.push(node.raw);
     }
     genUpdateExpression(node, sb) {
-        (node.prefix === true) ? sb.push(node.operator):"";
+        (node.prefix === true) ? sb.push(node.operator) : "";
         this.handleType(node.argument, sb);
-        (node.prefix !== true) ? sb.push(node.operator):"";
+        (node.prefix !== true) ? sb.push(node.operator) : "";
     }
+}
+
+function transformMemberAccess() {
+
 }
 module.exports.CodeGenerator = CodeGenerator

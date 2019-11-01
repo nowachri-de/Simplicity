@@ -339,6 +339,10 @@ class ShaderCode {
 uniform sampler2D uSampler_{{@this.name}};
 {{/each}}
 
+{{each(options.integers)}}
+uniform int u_{{@this.name}};
+{{/each}}
+
 {{each(options.samplers)}}
 uniform float uSampler_{{@this.name}}_width;
 uniform float uSampler_{{@this.name}}_height;
@@ -354,33 +358,47 @@ uniform highp float uResultHeight; // result texture height
 *  parameter index: R,G,B,A component
 */
 {{each(options.samplers)}}
-float getValueSampler_{{@this.name}}(float x,float y, int index){
+float readValue_{{@this.name}}(float x,float y, int index){
     //convert pixel coordinates of result texture to texture coordinates of sampler texture
     float {{@this.name}}_x = (x/uSampler_{{@this.name}}_width)+(1.0/(2.0*uSampler_{{@this.name}}_width));
     float {{@this.name}}_y = (y/uSampler_{{@this.name}}_height)+(1.0/(2.0*uSampler_{{@this.name}}_height));
 
-    if (targetIndex == 0) texture2D(uSampler_{{@this.name}},vec2({{@this.name}}_x,{{@this.name}}_y)).x;
-    if (targetIndex == 1) texture2D(uSampler_{{@this.name}},vec2({{@this.name}}_x,{{@this.name}}_y)).y;
-    if (targetIndex == 2) texture2D(uSampler_{{@this.name}},vec2({{@this.name}}_x,{{@this.name}}_y)).z;
-    if (targetIndex == 3) texture2D(uSampler_{{@this.name}},vec2({{@this.name}}_x,{{@this.name}}_y)).w;
+    if (index == 0) return texture2D(uSampler_{{@this.name}},vec2({{@this.name}}_x,{{@this.name}}_y)).x;
+    if (index == 1) return texture2D(uSampler_{{@this.name}},vec2({{@this.name}}_x,{{@this.name}}_y)).y;
+    if (index == 2) return texture2D(uSampler_{{@this.name}},vec2({{@this.name}}_x,{{@this.name}}_y)).z;
+    if (index == 3) return texture2D(uSampler_{{@this.name}},vec2({{@this.name}}_x,{{@this.name}}_y)).w;
 }
 
 {{/each}}
-
+{{each(options.functions)}}
+{{@this.code}}
+{{/each}}
 void main(void) { 
     //x,y are texture coordinates
     highp float  x = vTexture.s;
     highp float  y = vTexture.t;
 
     //convert texture coordinates to pixel coordinates
-    highp float  x = (x-(1.0/(2.0*uResultWidth)))*uResultWidth;
-    highp float  y = (y-(1.0/(2.0*uResultHeight)))*uResultHeight;
+    x = (x-(1.0/(2.0*uResultWidth)))*uResultWidth;
+    y = (y-(1.0/(2.0*uResultHeight)))*uResultHeight;
 
     {{main}}
 
 }
 `;
+        String.prototype.replaceAll = function (search, replacement) {
+            var target = this;
+            return target.split(search).join(replacement);
+        };
+
+        let oldRender = Sqrl.Render;
+        Sqrl.Render = function(...args){
+            let result = oldRender.apply(this, arguments);
+            return result.replaceAll('&lt;', '<');
+        }
+        
         return Sqrl.Render(shaderTemplate, options);
+        //return extendedRender(shaderTemplate, options);
     }
 }
 module.exports.ShaderCode = ShaderCode

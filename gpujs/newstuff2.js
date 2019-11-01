@@ -33,8 +33,6 @@ function derivativeRelu(i) {
     return 0;
 }
 
-
-
 const feedForward = gpu.createKernelMap({
     net: function mul(dataIn, weights, numInputs) {
         let sum = 0;

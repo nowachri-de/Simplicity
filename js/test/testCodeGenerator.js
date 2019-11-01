@@ -63,11 +63,41 @@ describe('CodeGenerator', function () {
   it('should build a kernel', function () {
     let kernel = Kernel.create(function a(){});
   });
-  */
+  
 
-  it('should build a kernel', function () {
-    Kernel.create(function a(a,b){
-      console.log('hello world');
-    })(1,2.0);
+  it('should create the propper parameter types', function () {
+    Kernel.create(function a(a = [],b = 0){
+      let c = a[this.thread.x];
+    }).setOutput([1,2])([1.0,2.0],2);
   });
+
+ 
+
+  it('should throw an exception since no output dimensions are specified', function () {
+    assert.throws(() =>{ Kernel.create(function a(a = [],b = 0){
+     
+    })([1.0,2.0],2);});
+   
+  });
+  it('should throw an exception since empty array is passed', function () {
+    assert.throws(() =>{ Kernel.create(function a(a = [],b = 0){
+     
+    })([],2);});
+   
+  });
+  it('should generate float[][] for first function parameter', function () {
+    Kernel.create(function a(a = [[]],b = 0){
+      let c = a[this.thread.x];
+    }).setOutput([1,2])([1.0,2.0],2);
+  })
+  it('should generate float[] for first function parameter', function () {
+    Kernel.create(function a(a = [],b = 0){
+      a[this.thread.x][this.thread.y+2];
+    }).setOutput([1,2])([1.0,2.0],2);
+  });;*/
+  it('should generate float[] for first function parameter', function () {
+    Kernel.create(function a(){
+      a[this.thread.x][this.thread.y];
+    }).setOutput([1,2])([1.0,2.0],2);
+  })
 });
