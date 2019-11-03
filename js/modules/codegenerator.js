@@ -160,15 +160,24 @@ class CodeGenerator {
     popScope() {
         this.scopeIndex--;
     }
-
+    getVariableType(name){
+        this.scopes.forEach(function(scope,index,scopes){
+            while(index >= 0){
+                if (scope.get(name) !== 'undefined'){
+                    return scope.get(name).type;
+                }
+                scope = scopes[--index];
+            }
+        });
+    }
+    addVariableType(name,type){
+        this.getScope().variables.set(name,type);
+    }
     iterate(codenodes, sb) {
         codenodes.forEach(node => {
             this.handleType(node, sb);
         });
     }
-
-
-
     iteratePlus(codenodes, sb, action) {
         for (let i = 0; i < codenodes.length; ++i) {
             action(codenodes, codenodes[i], i, sb);
@@ -377,6 +386,7 @@ class CodeGenerator {
         } else {
             type = this.type2String(node.init);
         }
+        this.addVariableType(node.id.name,type);
         sb.push(type + ' ');
 
         sb.push(node.id.name);
