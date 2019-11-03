@@ -1,8 +1,4 @@
 const { CodeGenerator } = require(__dirname + '\\..\\modules\\codegenerator.js');
-const { Formatter } = require(__dirname + '\\..\\modules\\formatter.js');
-const { ShaderCode } = require(__dirname + '\\..\\modules\\shadercode.js');
-
-const Sqrl = require('squirrelly');
 
 function getType(argument) {
   if (Array.isArray(argument)) {
@@ -59,10 +55,7 @@ class FunctionBuilder {
 
     function implementation(...args) {
       check(implementation);
-      let options;
-      if (typeof args !== 'undefined') {
-        options = createOptions(codeGen, args);
-      }
+      
       //console.log(ShaderCode.generateFragmentShader(options));
       
       /*let parameters = getFunctionParameters();
@@ -79,9 +72,8 @@ class FunctionBuilder {
           ++i;
       });
       console.log((new Formatter()).format(Sqrl.Render(templateCode,options)));*/
-      //console.log((new Formatter()).format(templateCode));
       console.log(templateCode);
-      console.log(implementation.dimensions);
+    
     }
  
 

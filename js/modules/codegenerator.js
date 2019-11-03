@@ -1,5 +1,13 @@
 const acorn = require('acorn');
+const Sqrl = require('squirrelly');
+const { Formatter } = require(__dirname + "\\formatter.js");
+
 let space = 0;
+
+String.prototype.replaceAll = function (search, replacement) {
+    var target = this;
+    return target.split(search).join(replacement);
+};
 
 function genSpace(space) {
     let s = [];
@@ -74,7 +82,6 @@ function translateMemberExpression(eventType, node, self) {
         let sb = [];
         self.handleType(node, sb);
         this.properties.push(sb.join(''));
-        console.log(sb);
     }
 
     if (eventType === 'Generate') {
@@ -87,12 +94,16 @@ function translateMemberExpression(eventType, node, self) {
                 sb.push(',');
             }
         }
-        sb.push(')');
+        sb.push(');');
         this.identifier = null;
         this.properties = [];
-        return sb.join('');
+        let code = sb.join('');
+        code = code.replaceAll('this.thread.x','kernelX');
+        code = code.replaceAll('this.thread.y','kernelY');
+        return code;
     }
 }
+
 
 class CodeGenerator {
 
@@ -101,6 +112,8 @@ class CodeGenerator {
         this.parameters = [];
         this.postProcessNodes = [];
         this.eventListeners = new Map();
+        this.sequenceID = 0;
+        this.scopeIndex = -1;
     }
 
     translate(source) {
@@ -110,28 +123,9 @@ class CodeGenerator {
 
         let sb = [];
         this.iterate(this.codenodes, sb);
-        this.postProcess(this.postProcessNodes, sb);
-        return sb.join('');
+        return this.postProcess(this.postProcessNodes, sb);
+        
     }
-
-    addScope() {
-        let newScope = {};
-        this.scopes.push(newScope);
-        return newScope;
-    }
-    getScope() {
-        return this.scopes[this.scopes.length - 1];
-    }
-    removeScope() {
-        this.scopes.pop();
-    }
-
-    iterate(codenodes, sb) {
-        codenodes.forEach(node => {
-            this.handleType(node, sb);
-        });
-    }
-
     postProcess(codenodes, sb) {
         let self = this;
         codenodes.forEach(function (node) {
@@ -140,14 +134,40 @@ class CodeGenerator {
                     translateMemberExpression = translateMemberExpression.bind({ identifier: null, properties: [] });
                     self.register(translateMemberExpression, 'MemberExpression');
                     self.handleType(node.node, []);
-                    sb.push(translateMemberExpression('Generate', null, null));
-                    break;
+                    node.translatedCode =  translateMemberExpression('Generate', null, null);
+                    self.unregister('MemberExpression');
             }
-
-
         })
-
+        let options = {};
+        codenodes.forEach(function (node) {
+           options[node.tagID] = node.translatedCode;
+        })
+        return (new Formatter()).format(Sqrl.Render(sb.join(''),options));
     }
+
+    pushScope() {
+        if (this.scopeIndex <= (this.scopes.length-1)){
+            let newScope = {};
+            newScope.variables = new Map();
+            this.scopes.push(newScope);
+            this.scopeIndex++;
+        }
+        return this.getScope();
+    }
+    getScope() {
+        return this.scopes[this.scopeIndex];
+    }
+    popScope() {
+        this.scopeIndex--;
+    }
+
+    iterate(codenodes, sb) {
+        codenodes.forEach(node => {
+            this.handleType(node, sb);
+        });
+    }
+
+
 
     iteratePlus(codenodes, sb, action) {
         for (let i = 0; i < codenodes.length; ++i) {
@@ -186,6 +206,10 @@ class CodeGenerator {
         typeof (this.eventListeners.get(type) === 'undefined') ? this.eventListeners.set(type, newListener) : this.eventListeners.get(type).concat(newListener);
     }
 
+    unregister(key){
+        this.eventListeners.delete(key);
+    }
+
     event(type, node) {
         let self = this;
         this.eventListeners.forEach(function (value, key, map) {
@@ -219,8 +243,14 @@ class CodeGenerator {
             if (node.type === 'AssignmentPattern') {
                 name = node.left.name;
             } else {
-                name = node.name;
+                throw 'function parameters need to have default values assigned'
             };
+
+            if (self.getScope().variables.get(name)){
+                throw 'variable '+name+' already has been declared in this scope'
+            }
+            self.getScope().variables.set(name,self.arg2String(node));
+
             self.parameters.push(name);
             sb.push(name);
             self.handleType(node, sb);
@@ -253,20 +283,22 @@ class CodeGenerator {
         }
     }
     genBlockStatement(node, sb) {
-        this.addScope();
+        this.pushScope();
         sb.push('{');
         this.iterate(node.body, sb);
         sb.push('}');
-        this.removeScope();
+        this.popScope();
     }
     genExpressionStatement(node, sb) {
         let tmp = [];
         this.handleType(node.expression, tmp);
         if (node.expression.type === 'MemberExpression') {
-            this.addScope().node = node.expression;
+            let appendix =  '_' +(this.sequenceID++);
+            this.pushScope().node = node.expression;
             this.getScope().code = tmp;
+            this.getScope().tagID =  node.expression.type + appendix;
             this.postProcessNodes.push(this.getScope());
-            sb.push('{{' + node.expression.type + '_' + (this.scopes.length - 1) + '}}');
+            sb.push('{{' + node.expression.type +appendix+ '}}');
         } else {
             sb.concat(tmp);
             sb.push(';');
@@ -314,6 +346,16 @@ class CodeGenerator {
                 return "float [][]";
             }
             return "float []";
+        }
+
+        if (node.type === 'BinaryExpression') {
+            switch(node.operator){
+                case '%' : return 'int'; break
+                case '+' : {
+                    let left = this.type2String(node.left);
+                    let right = this.type2String(node.right);
+                }
+            }
         }
 
 
