@@ -104,6 +104,13 @@ function translateMemberExpression(eventType, node, self) {
     }
 }
 
+function getStrongerDataType(a,b){
+    let types = [];
+    types.push(a);
+    types.push(b);
+
+    
+}
 
 class CodeGenerator {
 
@@ -363,6 +370,11 @@ class CodeGenerator {
                 case '+' : {
                     let left = this.type2String(node.left);
                     let right = this.type2String(node.right);
+
+                    if (left !== 'unknown'){
+                        return left;
+                    }
+                    return right;
                 }
             }
         }
