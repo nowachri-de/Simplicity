@@ -64,12 +64,43 @@ class Interpreter {
     }
 }
 
+function translateMemberExpression(eventType, node, self) {
+    if (eventType === 'Identifier' && this.identifier === null) {
+        this.identifier = node.name;
+        return;
+    }
+
+    if (eventType === 'Property') {
+        let sb = [];
+        self.handleType(node, sb);
+        this.properties.push(sb.join(''));
+        console.log(sb);
+    }
+
+    if (eventType === 'Generate') {
+        let sb = [];
+        sb.push('read_' + this.identifier + '(');
+
+        for (let i = 0; i < this.properties.length; ++i) {
+            sb.push(this.properties[i]);
+            if (i < (this.properties.length - 1)) {
+                sb.push(',');
+            }
+        }
+        sb.push(')');
+        this.identifier = null;
+        this.properties = [];
+        return sb.join('');
+    }
+}
+
 class CodeGenerator {
 
     constructor() {
         this.scopes = [];
         this.parameters = [];
         this.postProcessNodes = [];
+        this.eventListeners = new Map();
     }
 
     translate(source) {
@@ -79,7 +110,7 @@ class CodeGenerator {
 
         let sb = [];
         this.iterate(this.codenodes, sb);
-        
+        this.postProcess(this.postProcessNodes, sb);
         return sb.join('');
     }
 
@@ -89,7 +120,7 @@ class CodeGenerator {
         return newScope;
     }
     getScope() {
-        return this.scopes[this.scopes.length-1];
+        return this.scopes[this.scopes.length - 1];
     }
     removeScope() {
         this.scopes.pop();
@@ -100,7 +131,24 @@ class CodeGenerator {
             this.handleType(node, sb);
         });
     }
- 
+
+    postProcess(codenodes, sb) {
+        let self = this;
+        codenodes.forEach(function (node) {
+            switch (node.node.type) {
+                case 'MemberExpression':
+                    translateMemberExpression = translateMemberExpression.bind({ identifier: null, properties: [] });
+                    self.register(translateMemberExpression, 'MemberExpression');
+                    self.handleType(node.node, []);
+                    sb.push(translateMemberExpression('Generate', null, null));
+                    break;
+            }
+
+
+        })
+
+    }
+
     iteratePlus(codenodes, sb, action) {
         for (let i = 0; i < codenodes.length; ++i) {
             action(codenodes, codenodes[i], i, sb);
@@ -118,7 +166,7 @@ class CodeGenerator {
             case 'Literal': return this.genLiteral(node, sb);
             case 'UpdateExpression': return this.genUpdateExpression(node, sb);
             case 'BlockStatement': return this.genBlockStatement(node, sb);
-            case 'ExpressionStatement': return this.genExpressionStatement(node.expression, sb);
+            case 'ExpressionStatement': return this.genExpressionStatement(node, sb);
             case 'CallExpression': return this.genCallExpression(node, sb);
             case 'MemberExpression': return this.genMemberExpression(node, sb);
             case 'IfStatement': return this.genIfStatement(node, sb);
@@ -131,10 +179,21 @@ class CodeGenerator {
             case 'AssignmentPattern': return this.genAssignmentPattern(node, sb);
         }
     }
-    event(type,node){
-        let x = [];
-        this.handleType(node,x);
-        console.log(x.join(''));
+
+    register(listener, type) {
+        let newListener = [];
+        newListener.push(listener);
+        typeof (this.eventListeners.get(type) === 'undefined') ? this.eventListeners.set(type, newListener) : this.eventListeners.get(type).concat(newListener);
+    }
+
+    event(type, node) {
+        let self = this;
+        this.eventListeners.forEach(function (value, key, map) {
+            value.forEach(function (action, index, array) {
+                action(type, node, self);
+            });
+        });
+
     }
     genAssignmentPattern(node, sb) {
         //console.log(node);
@@ -202,13 +261,13 @@ class CodeGenerator {
     }
     genExpressionStatement(node, sb) {
         let tmp = [];
-        this.handleType(node, tmp);
-        if (node.type === 'MemberExpression'){
-            this.addScope().node = node;
+        this.handleType(node.expression, tmp);
+        if (node.expression.type === 'MemberExpression') {
+            this.addScope().node = node.expression;
             this.getScope().code = tmp;
             this.postProcessNodes.push(this.getScope());
-            sb.push('{{' + node.type +'_' + (this.scopes.length-1) +'}}' );
-        }else{
+            sb.push('{{' + node.expression.type + '_' + (this.scopes.length - 1) + '}}');
+        } else {
             sb.concat(tmp);
             sb.push(';');
         }
@@ -227,11 +286,11 @@ class CodeGenerator {
     }
     genMemberExpression(node, sb) {
         this.handleType(node.object, sb);
-        node.computed === false ? sb.push('.'): sb.push('[');
+        node.computed === false ? sb.push('.') : sb.push('[');
         this.handleType(node.property, sb);
-       
-        if (node.computed){
-            this.event('Property',node.property);
+
+        if (node.computed) {
+            this.event('Property', node.property);
             sb.push(']');
         }
     }
@@ -310,6 +369,7 @@ class CodeGenerator {
     }
     genIdentifier(node, sb) {
         sb.push(node.name);
+        this.event('Identifier', node);
     }
     genLiteral(node, sb) {
         sb.push(node.raw);

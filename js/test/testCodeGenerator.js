@@ -98,6 +98,7 @@ describe('CodeGenerator', function () {
   it('should generate float[] for first function parameter', function () {
     Kernel.create(function a(){
       b[this.thread.x][this.thread.y];
+      c[this.thread.x][this.thread.y];
     }).setOutput([1,2])([1.0,2.0],2);
   })
 });
