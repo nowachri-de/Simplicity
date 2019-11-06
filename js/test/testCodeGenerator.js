@@ -8,10 +8,18 @@ const { FunctionBuilder } = require(__dirname + '\\..\\modules\\kernel.js');
 
 describe('CodeGenerator', function () {
   /*it('test Memberdeclaration', function () {
-    let codeGen = new CodeGenerator();
-    console.log(codeGen.translate(`y[x];`));
+    Kernel.create(function main(y=[]){
+      y[x];
+    }).setOutput([1,2])([1.0,2.0],2);
+  });*/
+
+  it('should throw an exception since y is unknown', function () {
+    Kernel.create(function main(x=0,z=0){
+      y[x][z];
+    }).setOutput([1,2])([1.0,2.0],2);
   });
 
+  /*
   it('should translate variable declaration ', function () {
     let codeGen = new CodeGenerator();
     console.log(codeGen.translate(`function a(){
@@ -20,8 +28,12 @@ describe('CodeGenerator', function () {
         sum += a[this.thread.y][i] * b[i][this.thread.x];
     }
     return sum;}`));
-  });
+    Kernel.create(function main(y=[]){
+      y[x];
+    }).setOutput([1,2])([1.0,2.0],2);
 
+  });
+/*
   it('should throw an exception since variable is not initialized', function () {
     let codeGen = new CodeGenerator();
     assert.throws(() => codeGen.translate(`let sum;`));
@@ -66,52 +78,95 @@ describe('CodeGenerator', function () {
   
 
   it('should create the propper parameter types', function () {
-    Kernel.create(function a(a = [],b = 0){
+    Kernel.create(function a(a = [], b = 0 ){ 
       let c = a[this.thread.x];
     }).setOutput([1,2])([1.0,2.0],2);
-  });
+   });
 
+   
+     
+  it('sho uld throw an exception since no output dimensions are specified', function () {
+    assert.throws( () =>{ Ke rnel. create(function a(a = [],b  =  0){    
  
-
-  it('should throw an exception since no output dimensions are specified', function () {
-    assert.throws(() =>{ Kernel.create(function a(a = [],b = 0){
+  })([1.0,2.0],2);}); 
+      
+  ;    
+    s hould throw an exception since empty array is passed', function () {
+  ssert.throws(() =>{ Kernel.create(function a(a = [],b = 0){
      
-    })([1.0,2.0],2);});
-   
-  });
-  it('should throw an exception since empty array is passed', function () {
-    assert.throws(() =>{ Kernel.create(function a(a = [],b = 0){
-     
-    })([],2);});
-   
-  });
-  it('should generate float[][] for first function parameter', function () {
-    Kernel.create(function a(a = [[]],b = 0){
-      let c = a[this.thread.x];
-    }).setOutput([1,2])([1.0,2.0],2);
-  })
-  it('should generate float[] for first function parameter', function () {
-    Kernel.create(function a(a = [],b = 0){
-      a[this.thread.x][this.thread.y+2];
-    }).setOutput([1,2])([1.0,2.0],2);
-  });;
-  it('should generate float[] for first function parameter', function () {
-    Kernel.create(function a(){
-      b[this.thread.x][this.thread.y];
-      c[this.thread.x][this.thread.y];
-    }).setOutput([1,2])([1.0,2.0],2);
-  })
-  it('should generate float[] for first function parameter', function () {
-    Kernel.create(function a(){
-      let c= a+b;
-      c[this.thread.x][this.thread.y];
-    }).setOutput([1,2])([1.0,2.0],2);
-  })
-  */
+      ],2); });  
+       
+  }); 
+    'should generate float[][] for first function parameter', function () {
+    Kernel.create(function a(a =  [[]],b = 0){
+      let c =  a[t h is.thread.x];
+    }).setOutput([1,2] )([1.0,2. 0],2) ; 
+         
+'should generate float[] for first function parameter', function () {
+      nel.create(function a(a = [],b = 0){
+        a[this.thread.x][this.thre ad.y+2];
+          etOut put([1 , 2])([1.0,2.0],2);
+              
+          s hould generate float[] for first function parameter', function () {
+        ernel.create(function a(){
+          b[this.thread.x][this.thre ad.y];
+            this. thre a d.x] [ this.thread.y];
+          .setOutput([1,2] )([1.0,2. 0],2) ;           
+          
+            should generate float[] for f i rs t function parameter', function () {
+              el.create(function a(){
+            let c= a+b;      
+            this.thread.x][this.thread.y] ;  
+              Output([1,2])([1.0,2.0],2);
+               
+          
+        
  it('should generate float[] for first function parameter', function () {
   Kernel.create(function a(){
     let c= 0.;
     let d= c + 5;
   }).setOutput([1,2])([1.0,2.0],2);
-})
+  it('should generate float[] for first function parameter', function () {
+    Kernel.create(function a(){
+      let d= (1+2);
+    }).setOutput([1,2])([1.0,2.0],2);
+    it('should generate float[] for first function parameter', function () {
+      Kernel.create(function a(){
+        let d= (1.+2);
+      }).setOutput([1,2])([1.0,2.0],2);
+      
+     it('should generate float[] for first function parameter', function () {
+      Kernel.create(function a(){
+        let d= (1+2);
+      }).setOutput([1,2])([1.0,2.0],2);
+      
+     it('should generate float[] for first function parameter', function () {
+      Kernel.create(function a(){
+        let d= (1.0+2);
+      }).setOutput([1,2])([1.0,2.0],2);
+      
+
+     it('should generate float[] for first function parameter', function () {
+      Kernel.create(function a(){
+        let d= (1%(3.0%5));
+      }).setOutput([1,2])([1.0,2.0],2);
+     */
+   /*  it('should generate float[] for first function parameter', function () {
+      Kernel.create(function main(a=0){
+        let b = a;
+      }).setOutput([1,2])([1.0,2.0],2);
+    });
+
+    it('should generate float[] for first function parameter', function () {
+      Kernel.create(function test(a=0){
+        let b = a;
+      }).setOutput([1,2])([1.0,2.0],2);
+    });
+
+    it('should generate float[] for first function parameter', function () {
+      Kernel.create(function test(a=0, b=0.){
+        let c = b;
+      }).setOutput([1,2])([1.0,2.0],2);
+    });*/
+    
 });
