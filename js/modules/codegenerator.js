@@ -16,12 +16,10 @@ function genSpace(space) {
     }
     return s.join('');
 }
-function isInt(value) {
-    return !isNaN(value) &&
-        parseInt(Number(value)) == value &&
-        !isNaN(parseInt(value, 10));
-}
 
+function isArray(type){
+    return type.includes("[]");
+}
 class Visitor {
     constructor() {
         this.codenodes = [];
@@ -107,8 +105,8 @@ function translateFunctionDeclaration(eventType, node, cgen) {
 }
 
 function castNeeded(a,b){
-    a= a.replace(/ /g, '');
-    b= b.replace(/ /g, '');
+    a= a.replace(/ /g, ''); //remove whitespace
+    b= b.replace(/ /g, ''); //remove whitespace
 
     if (a === b){
         return null;
@@ -122,14 +120,14 @@ function castNeeded(a,b){
 }
 
 function formatThrowMessage(node,message){
-    return 'line: ' + node.start + ' column: ' + node.end + ' :' + message;
+    return '[' + node.start + ',' + node.end + ']:' + message;
 }
 
 class CodeGenerator {
 
     constructor() {
         this.scopes = [];
-        this.parameters = [];
+        this.code = "";
         this.postProcessNodes = [];
         this.eventListeners = new Map();
         this.sequenceID = 0;
@@ -143,7 +141,8 @@ class CodeGenerator {
         this.pushScope();
         let sb = [];
         this.iterate(this.codenodes, sb);
-        return this.postProcess(this.postProcessNodes, sb);
+        this.code = this.postProcess(this.postProcessNodes, sb);
+        return this.code;
         
     }
     postProcess(codenodes, sb) {
@@ -214,7 +213,7 @@ class CodeGenerator {
     }
 
     handleType(node, sb) {
-        console.log(node.type);
+        //console.log(node.type);
         switch (node.type) {
             case 'VariableDeclarator': return this.genVariableDeclarator(node, sb);
             case 'VariableDeclaration': return this.genVariableDeclaration(node, sb);
@@ -256,7 +255,6 @@ class CodeGenerator {
                 action(type, node, self);
             });
         });
-
     }
     genAssignmentPattern(node, sb) {
         sb.push(this.type2String(node.right)+' ');
@@ -352,8 +350,21 @@ class CodeGenerator {
     }
     genExpressionStatement(node, sb) {
         let tmp = [];
-        this.handleType(node.expression, tmp);
+        
         if (node.expression.type === 'MemberExpression') {
+            let object = node.expression.object;
+
+            while (object.type !== "Identifier" ){
+                object = object["object"];
+            }
+            if (this.getType(object.name) === null){
+                throw formatThrowMessage(node,node.expression.object.name + ' undefined');
+            }
+            if (!isArray(this.getType(object.name))){
+                throw formatThrowMessage(node,object.name + ' is of type ' + this.getType(object.name) + ' but must be array type');
+            }
+            
+            this.handleType(node.expression, tmp);
             let appendix =  '_' +(this.sequenceID++);
             this.pushScope().node = node.expression;
             this.getScope().code = tmp;
@@ -361,6 +372,7 @@ class CodeGenerator {
             this.postProcessNodes.push(this.getScope());
             sb.push('{{' + node.expression.type +appendix+ '}}');
         } else {
+            this.handleType(node.expression, tmp);
             sb.concat(tmp);
             sb.push(';');
         }
@@ -383,8 +395,10 @@ class CodeGenerator {
         this.handleType(node.property, sb);
 
         if (node.computed) {
+
+            //check that property (variable) has been defined.
             if(this.getType(node.property.name) === null){
-                throw formatThrowMessage(node,'variable '+node.property.name+'  has not been declared in this scope')
+                throw formatThrowMessage(node,node.property.name+' undefined')
             }
              
             this.event('Property', node.property);
@@ -447,10 +461,6 @@ class CodeGenerator {
         //return '{{arg_' + node.name + '_type}} '
     }
 
-    arg2String(node) {
-        // return '{{arg_' + node.name + '_type}} '
-        return this.type2String(node);
-    }
     genVariableDeclarator(node, sb) {
         if (node.init === null &&  this.getType(node.id.name) === null) {
             throw '@line ' + node.start + " .Variable declarator needs to be initialized or type of variable needs to be specified using type declaration.";

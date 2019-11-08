@@ -81,7 +81,7 @@ class FunctionBuilder {
       implementation.dimensions=a;
       return  implementation;
     }
-    implementation.code = templateCode;
+    implementation.main = templateCode;
     return  implementation;
   }
 }
