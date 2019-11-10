@@ -24,7 +24,7 @@ function getType(argument) {
 class FunctionBuilder {
   static buildFunction(codeGen, templateCode) {
 
-    /*function createOptions(codeGen, args) {
+    function createOptions(codeGen, args) {
       let options = {};
       let samplers = [];
       let integers = [];
@@ -46,7 +46,7 @@ class FunctionBuilder {
       options.integers = integers;
       options.functions = [];
       return options;
-    }*/
+    }
 
     function check(fnct){
       if (typeof fnct.dimensions === 'undefined')
@@ -55,25 +55,7 @@ class FunctionBuilder {
 
     function implementation(...args) {
       check(implementation);
-      
-      //console.log(ShaderCode.generateFragmentShader(options));
-      
-      /*let parameters = getFunctionParameters();
-      let options = {};
-      let i = 0;
-      parameters.forEach(element => {
-        Object.defineProperty(options, 'arg_' + element + '_type', 
-          {
-            value : getType(args[i]),
-            writable : true,
-            enumerable : true,
-            configurable : true
-          });
-          ++i;
-      });
-      console.log((new Formatter()).format(Sqrl.Render(templateCode,options)));*/
       console.log(templateCode);
-    
     }
  
     implementation.setOutput= function(a){

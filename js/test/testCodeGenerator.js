@@ -150,6 +150,7 @@ it('should create the propper parameter types', function () {
    it('should throw an exception since kernel has not output dimensions specified', function () {
     let kernel = Kernel.create(function main(a=[[]]){
       let b = a[this.thread.x][this.thread.y];
+      a[this.thread.x][this.thread.y];
       return b;
     }).setOutput([1,2] )([1.0,2.0],2) ; 
   });

@@ -20,6 +20,22 @@ function genSpace(space) {
 function isArray(type){
     return type.includes("[]");
 }
+
+function handleMemberExpression(sb,data){
+    
+    sb.push('read_');
+    sb.push(data.name);
+    sb.push('(');
+    for (let i=0; i < data.properties.length;i++){
+        data.properties[i] = data.properties[i].replaceAll('this.thread.x','kernelX');
+        data.properties[i] = data.properties[i].replaceAll('this.thread.y','kernelY');
+        sb.push(data.properties[i]);
+        if (i+1 < data.properties.length){
+            sb.push(',');
+        }
+    }
+    sb.push(');');
+}
 class Visitor {
     constructor() {
         this.codenodes = [];
@@ -67,42 +83,6 @@ class Interpreter {
     }
 }
 
-function translateMemberExpression(eventType, node, self) {
-    if (eventType === 'Identifier' && this.identifier === null) {
-        this.identifier = node.name;
-        return;
-    }
-
-    if (eventType === 'Property') {
-        let sb = [];
-        self.handleType(node, sb);
-        this.properties.push(sb.join(''));
-    }
-
-    if (eventType === 'Generate') {
-        let sb = [];
-        sb.push('read_' + this.identifier + '(');
-
-        for (let i = 0; i < this.properties.length; ++i) {
-            sb.push(this.properties[i]);
-            if (i < (this.properties.length - 1)) {
-                sb.push(',');
-            }
-        }
-        sb.push(');');
-        this.identifier = null;
-        this.properties = [];
-        let code = sb.join('');
-        code = code.replaceAll('this.thread.x','kernelX');
-        code = code.replaceAll('this.thread.y','kernelY');
-        return code;
-    }
-}
-
-function translateFunctionDeclaration(eventType, node, cgen) {
-   
-   
-}
 
 function castNeeded(a,b){
     a= a.replace(/ /g, ''); //remove whitespace
@@ -147,26 +127,8 @@ class CodeGenerator {
         return this.code;
         
     }
-    postProcess(codenodes, sb) {
-        let self = this;
-        codenodes.forEach(function (node) {
-            switch (node.node.type) {
-                case 'MemberExpression':
-                    translateMemberExpression = translateMemberExpression.bind({ identifier: null, properties: [] });
-                    self.register(translateMemberExpression, 'MemberExpression');
-                    self.handleType(node.node, []);
-                    node.translatedCode =  translateMemberExpression('Generate', null, null);
-                    self.unregister('MemberExpression');
-                    break;
-                case 'FunctionDeclaration':
-                    translateFunctionDeclaration = translateFunctionDeclaration.bind({ identifier: null, properties: [] });
-                    self.register(translateFunctionDeclaration, 'FunctionDeclaration');
-                    self.handleType(node.node, []);
-                    node.translatedCode =  translateFunctionDeclaration('Generate', null, null);
-                    self.unregister('FunctionDeclaration');
-                    break;
-            }
-        })
+   postProcess(codenodes, sb) {
+       
         let options = {};
         codenodes.forEach(function (node) {
            options[node.tagID] = node.translatedCode;
@@ -240,24 +202,7 @@ class CodeGenerator {
         }
     }
 
-    register(listener, type) {
-        let newListener = [];
-        newListener.push(listener);
-        typeof (this.eventListeners.get(type) === 'undefined') ? this.eventListeners.set(type, newListener) : this.eventListeners.get(type).concat(newListener);
-    }
-
-    unregister(key){
-        this.eventListeners.delete(key);
-    }
-
-    event(type, node) {
-        let self = this;
-        this.eventListeners.forEach(function (value, key, map) {
-            value.forEach(function (action, index, array) {
-                action(type, node, self);
-            });
-        });
-    }
+  
     genAssignmentPattern(node, sb) {
         sb.push(this.type2String(node.right)+' ');
         this.handleType(node.left,sb);
@@ -381,13 +326,15 @@ class CodeGenerator {
                 throw formatThrowMessage(node,object.name + ' is of type ' + this.getType(object.name) + ' but must be array type');
             }
             
+            
+            let data = {};
+            data.name = object.name;
+            data.properties = [];
+
+            this.transformationRequests.set('memberExpression',data);
             this.handleType(node.expression, tmp);
-            let appendix =  '_' +(this.sequenceID++);
-            this.pushScope().node = node.expression;
-            this.getScope().code = tmp;
-            this.getScope().tagID =  node.expression.type + appendix;
-            this.postProcessNodes.push(this.getScope());
-            sb.push('{{' + node.expression.type +appendix+ '}}');
+            handleMemberExpression(sb,data);
+            this.transformationRequests.delete('memberExpression');
         } else {
             this.handleType(node.expression, tmp);
             sb.push(tmp.join(''));
@@ -421,8 +368,12 @@ class CodeGenerator {
             if(node.property.type === 'Identifier' && this.getType(node.property.name) === null){
                 throw formatThrowMessage(node,node.property.name+' undefined')
             }
-             
-            this.event('Property', node.property);
+            if (typeof this.transformationRequests.get('memberExpression') != 'undefined'){
+                let tmp = [];
+                this.handleType(node.property,tmp);
+                this.transformationRequests.get('memberExpression').properties.push(tmp.join(''));
+            }
+
             sb.push(']');
         }
     }
@@ -479,9 +430,7 @@ class CodeGenerator {
             }
         }
 
-
         return "unknown";
-        //return '{{arg_' + node.name + '_type}} '
     }
 
     genVariableDeclarator(node, sb) {
@@ -501,11 +450,15 @@ class CodeGenerator {
         sb.push('=');
 
         if (node.init.type === 'MemberExpression'){
-            let appendix =  '_' +(this.sequenceID++);
-            this.pushScope().node = node.init;
-            this.getScope().tagID =  node.init.type + appendix;
-            this.postProcessNodes.push(this.getScope());
-            sb.push('{{' + node.init.type +appendix+ '}}');
+            let tmp = [];
+            let data = {};
+            data.name = node.init.object.object.name;
+            data.properties = [];
+
+            this.transformationRequests.set('memberExpression',data);
+            this.handleType(node.init, tmp);
+
+            handleMemberExpression(sb,data);
             return;
         }else{
             this.handleType(node.init, sb)
@@ -564,7 +517,6 @@ class CodeGenerator {
 
     genIdentifier(node, sb) {
         sb.push(node.name);
-        this.event('Identifier', node);
     }
     genLiteral(node, sb) {
         sb.push(node.raw);
