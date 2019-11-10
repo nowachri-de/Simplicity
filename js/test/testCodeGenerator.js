@@ -136,7 +136,8 @@ it('should create the propper parameter types', function () {
       let c =  a[this.thread.x];
     }).setOutput([1,2] )([1.0,2.0],2) ; 
   });
-*/
+
+ 
   it('should throw an exception since kernel has not output dimensions specified', function () {
     let kernel = Kernel.create(function b(){
       let a = 0;
@@ -144,8 +145,16 @@ it('should create the propper parameter types', function () {
       let c = 0;
     }).setOutput([1,2] )([1.0,2.0],2) ; 
   });
- /* 
-  
+*/
+
+   it('should throw an exception since kernel has not output dimensions specified', function () {
+    let kernel = Kernel.create(function main(a=[[]]){
+      let b = a[this.thread.x][this.thread.y];
+      return b;
+    }).setOutput([1,2] )([1.0,2.0],2) ; 
+  });
+ 
+  /*
       'should generate float[][] for first function parameter', function () {
      
            

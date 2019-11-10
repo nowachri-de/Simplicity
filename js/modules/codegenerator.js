@@ -133,6 +133,7 @@ class CodeGenerator {
         this.function = null;
         this.sequenceID = 0;
         this.scopeIndex = -1;
+        this.transformationRequests = new Map();
     }
 
     translate(source) {
@@ -260,12 +261,22 @@ class CodeGenerator {
     genAssignmentPattern(node, sb) {
         sb.push(this.type2String(node.right)+' ');
         this.handleType(node.left,sb);
-        
     }
     genReturnStatement(node, sb) {
-        sb.push('return ');
-        this.handleType(node.argument, sb);
-        sb.push(';');
+        let replace = 'gl_FragmentColor = vec4({{returnValue}},0.,0.,0.);';
+        
+        if (this.transformationRequests.get('replaceReturnStatement') === true){
+            let tmp = [];
+            this.handleType(node.argument, tmp);
+            replace = Sqrl.Render(replace,{returnValue:tmp.join('')});
+            sb.push(replace);
+            this.transformationRequests.delete('replaceReturnStatement');
+        }else{
+            sb.push('return ');
+            this.handleType(node.argument, sb);
+            sb.push(';');
+        }
+       
     }
     genArrayExpression(node, sb) {
 
@@ -279,12 +290,15 @@ class CodeGenerator {
         let name = tmp.join('');
         if (name === 'main'){
             sb.push('void ');
+            this.transformationRequests.set('replaceReturnStatement',true);
         }
         sb.push(name);
         sb.push('(');
         let self = this;
      
         tmp = [];
+        node.parameters = [];
+        let functionNode = node;
         //process function parameters and store in tmp stringbuilder
         this.iteratePlus(node.params, tmp, function (nodes, node, index, sb) {
             let name = '';
@@ -299,7 +313,8 @@ class CodeGenerator {
             }
     
             self.getScope().variables.set(name,self.type2String(node));
-    
+            functionNode.parameters.push({node: functionNode, name: name,type:self.type2String(node) });
+
             self.handleType(node, sb);
             if ((index + 1) < nodes.length) {
                 sb.push(',');
