@@ -130,6 +130,7 @@ class CodeGenerator {
         this.code = "";
         this.postProcessNodes = [];
         this.eventListeners = new Map();
+        this.function = null;
         this.sequenceID = 0;
         this.scopeIndex = -1;
     }
@@ -274,7 +275,6 @@ class CodeGenerator {
     }
     genFunctionDeclaration(node, sb) {
         let tmp = [];
-        
         this.handleType(node.id, tmp);
         let name = tmp.join('');
         if (name === 'main'){
@@ -314,6 +314,8 @@ class CodeGenerator {
 
         sb.push(')');
         this.handleType(node.body, sb);
+        node.code = sb.join('');
+        this.function= node;
     }
     getParenthesizedExpression(node, sb) {
         sb.push('(');

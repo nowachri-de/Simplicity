@@ -117,7 +117,7 @@ it('should create the propper parameter types', function () {
       }).setOutput([1,2])([1.0,2.0],2);
      });
    
-*/
+
   it('should throw an exception since kernel has not output dimensions specified', function () {
     try {
       Kernel.create(function a(a = [], b = 0) {
@@ -129,25 +129,25 @@ it('should create the propper parameter types', function () {
     }
   });
 
-  /*
-     
-       
-    it('sho uld throw an exception since no output dimensions are specified', function () {
-      assert.throws( () =>{ Ke rnel. create(function a(a = [],b  =  0){    
+  
    
-    })([1.0,2.0],2);}); 
-        
-    ;    
-      s hould throw an exception since empty array is passed', function () {
-    ssert.throws(() =>{ Kernel.create(function a(a = [],b = 0){
-       
-        ],2); });  
-         
-    });   
+  it('should throw an exception since kernel has not output dimensions specified', function () {
+    Kernel.create(function main(a =  [[]],b = 0){
+      let c =  a[this.thread.x];
+    }).setOutput([1,2] )([1.0,2.0],2) ; 
+  });
+*/
+  it('should throw an exception since kernel has not output dimensions specified', function () {
+    let kernel = Kernel.create(function b(){
+      let a = 0;
+    },function main(){
+      let c = 0;
+    }).setOutput([1,2] )([1.0,2.0],2) ; 
+  });
+ /* 
+  
       'should generate float[][] for first function parameter', function () {
-      Kernel.create(function a(a =  [[]],b = 0){
-        let c =  a[t h is.thread.x];
-      }).setOutput([1,2] )([1.0,2. 0],2) ; 
+     
            
   'should generate float[] for first function parameter', function () {
         nel.create(function a(a = [],b = 0){
