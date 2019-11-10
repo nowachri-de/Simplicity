@@ -213,7 +213,7 @@ class CodeGenerator {
     }
 
     handleType(node, sb) {
-        //console.log(node.type);
+        console.log(node.type);
         switch (node.type) {
             case 'VariableDeclarator': return this.genVariableDeclarator(node, sb);
             case 'VariableDeclaration': return this.genVariableDeclaration(node, sb);
@@ -373,7 +373,7 @@ class CodeGenerator {
             sb.push('{{' + node.expression.type +appendix+ '}}');
         } else {
             this.handleType(node.expression, tmp);
-            sb.concat(tmp);
+            sb.push(tmp.join(''));
             sb.push(';');
         }
     }
@@ -382,7 +382,12 @@ class CodeGenerator {
         sb.push('(');
         let self = this;
         this.iteratePlus(node.arguments, sb, function (nodes, node, index, sb) {
-            self.handleType(node, sb);
+            let tmp = []
+            self.handleType(node, tmp);
+            if (node.type === 'Identifier' &&  self.getType(tmp.join('')) === null){
+                throw formatThrowMessage(node,tmp.join('')+ " unknown identifier");
+            }
+            sb.push(tmp.join(''));
             if ((index + 1) < nodes.length) {
                 sb.push(',');
             }
@@ -395,9 +400,8 @@ class CodeGenerator {
         this.handleType(node.property, sb);
 
         if (node.computed) {
-
             //check that property (variable) has been defined.
-            if(this.getType(node.property.name) === null){
+            if(node.property.type === 'Identifier' && this.getType(node.property.name) === null){
                 throw formatThrowMessage(node,node.property.name+' undefined')
             }
              
@@ -406,6 +410,9 @@ class CodeGenerator {
         }
     }
     type2String(node) {
+        if (node.type === 'MemberExpression') {
+            return 'float';
+        }
         if (node.type === 'ParenthesizedExpression') {
             return this.type2String(node.expression);
         }
@@ -440,7 +447,6 @@ class CodeGenerator {
                     let left = this.type2String(node.left);
                     let right = this.type2String(node.right);
 
-                   
                    if (left.includes('float')){
                        return left;
                    }
@@ -463,7 +469,7 @@ class CodeGenerator {
 
     genVariableDeclarator(node, sb) {
         if (node.init === null &&  this.getType(node.id.name) === null) {
-            throw '@line ' + node.start + " .Variable declarator needs to be initialized or type of variable needs to be specified using type declaration.";
+            throw formatThrowMessage(node,"Variable declarator must be initialized");
         }
         let type;
         if (node.init === null) {
@@ -471,13 +477,23 @@ class CodeGenerator {
         } else {
             type = this.type2String(node.init);
         }
+
         this.addVariableType(node.id.name,type);
         sb.push(type + ' ');
-
         sb.push(node.id.name);
         sb.push('=');
-        (node.init !== null) ? this.handleType(node.init, sb) : "";
 
+        if (node.init.type === 'MemberExpression'){
+            let appendix =  '_' +(this.sequenceID++);
+            this.pushScope().node = node.init;
+            this.getScope().tagID =  node.init.type + appendix;
+            this.postProcessNodes.push(this.getScope());
+            sb.push('{{' + node.init.type +appendix+ '}}');
+            return;
+        }else{
+            this.handleType(node.init, sb)
+        }
+       
         sb.push(';');
     }
     genVariableDeclaration(node, sb) {
