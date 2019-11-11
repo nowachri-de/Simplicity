@@ -2,7 +2,6 @@ const { CodeGenerator } = require(__dirname + '\\..\\modules\\codegenerator.js')
 const { Util } = require(__dirname + '\\..\\modules\\util.js');
 const { ShaderCode } = require(__dirname + '\\..\\modules\\shadercode.js');
 
-
 function check(fnct) {
   if (typeof fnct.dimensions === 'undefined')
     throw 'kernel has no dimensions specified. Use setOutput([x,y]) to specify kernel output dimensions';
