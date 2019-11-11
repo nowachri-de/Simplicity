@@ -1,4 +1,6 @@
 var Sqrl = require('squirrelly');
+
+
 class ShaderCode {
 
     static getCode(type) {

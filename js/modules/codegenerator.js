@@ -1,6 +1,7 @@
 const acorn = require('acorn');
 const Sqrl = require('squirrelly');
 const { Formatter } = require(__dirname + "\\formatter.js");
+const { Util } = require(__dirname + "\\util.js");
 
 let space = 0;
 
@@ -17,9 +18,6 @@ function genSpace(space) {
     return s.join('');
 }
 
-function isArray(type){
-    return type.includes("[]");
-}
 
 function handleMemberExpression(sb,data){
     
@@ -233,6 +231,8 @@ class CodeGenerator {
         let tmp = [];
         this.handleType(node.id, tmp);
         let name = tmp.join('');
+
+        //if the function has the name main it needs to be handled specially
         if (name === 'main'){
             sb.push('void ');
             this.transformationRequests.set('replaceReturnStatement',true);
@@ -258,7 +258,7 @@ class CodeGenerator {
             }
     
             self.getScope().variables.set(name,self.type2String(node));
-            functionNode.parameters.push({node: functionNode, name: name,type:self.type2String(node) });
+            functionNode.parameters.push({node: functionNode, name: name,type:self.type2String(node)});
 
             self.handleType(node, sb);
             if ((index + 1) < nodes.length) {
@@ -322,7 +322,7 @@ class CodeGenerator {
             if (this.getType(object.name) === null){
                 throw formatThrowMessage(node,node.expression.object.name + ' undefined');
             }
-            if (!isArray(this.getType(object.name))){
+            if (!Util.isArray(this.getType(object.name))){
                 throw formatThrowMessage(node,object.name + ' is of type ' + this.getType(object.name) + ' but must be array type');
             }
             
