@@ -5,7 +5,8 @@ const { FunctionBuilder } = require(__dirname + '\\..\\modules\\kernel.js');
 
 describe('CodeGenerator', function () {
   it('test created options using float parameter', function () {
-    Kernel.create(function main(y=[],i = 0.) {
+    Kernel.create(function main(y=[]) {
+      return y[this.thread.x][this.thread.y];
     }).setOutput([1, 1])(1, 1);
   });
   /*

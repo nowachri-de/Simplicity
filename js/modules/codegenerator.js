@@ -32,7 +32,7 @@ function handleMemberExpression(sb,data){
             sb.push(',');
         }
     }
-    sb.push(');');
+    sb.push(')');
 }
 class Visitor {
     constructor() {
@@ -210,7 +210,20 @@ class CodeGenerator {
         
         if (this.transformationRequests.get('replaceReturnStatement') === true){
             let tmp = [];
-            this.handleType(node.argument, tmp);
+            if (node.argument.type === 'MemberExpression'){
+                let data = {};
+                data.name = node.argument.object.object.name;
+                data.properties = [];
+    
+                this.transformationRequests.set('memberExpression',data);
+                this.handleType(node.argument, []);
+    
+                handleMemberExpression(tmp,data);
+                
+            }else{
+                this.handleType(node.argument, tmp);
+            }
+
             replace = Sqrl.Render(replace,{returnValue:tmp.join('')});
             sb.push(replace);
             this.transformationRequests.delete('replaceReturnStatement');
@@ -219,7 +232,6 @@ class CodeGenerator {
             this.handleType(node.argument, sb);
             sb.push(';');
         }
-       
     }
     genArrayExpression(node, sb) {
 
@@ -334,6 +346,7 @@ class CodeGenerator {
             this.transformationRequests.set('memberExpression',data);
             this.handleType(node.expression, tmp);
             handleMemberExpression(sb,data);
+            sb.push(';');
             this.transformationRequests.delete('memberExpression');
         } else {
             this.handleType(node.expression, tmp);
@@ -459,6 +472,7 @@ class CodeGenerator {
             this.handleType(node.init, tmp);
 
             handleMemberExpression(sb,data);
+            sb.push(';');
             return;
         }else{
             this.handleType(node.init, sb)

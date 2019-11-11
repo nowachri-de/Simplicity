@@ -13,6 +13,8 @@ class ShaderCode {
             default: throw "getCode " + type + " not known.";
         }
     }
+
+    
     static getVertexShaderCode() {
         var code = `
         
@@ -244,16 +246,16 @@ class ShaderCode {
           precision highp float; 
       #endif 
    
-      varying highp vec2          vTexture;			// row, column to calculate 
-      uniform highp sampler2D     usampler;			// merged matrix texels
-      uniform highp float			uWidth;	    		// input texture width
-      uniform highp float			uHeight;	    	// input texture height
-      uniform highp float			uResultWidth;	    // result texture width
-      uniform highp float			uResultHeight;	    // result texture height
+      varying highp vec2          vTexture;         // row, column to calculate 
+      uniform highp sampler2D     usampler;         // merged matrix texels
+      uniform highp float         uWidth;           // input texture width
+      uniform highp float         uHeight;	    	// input texture height
+      uniform highp float         uResultWidth;	    // result texture width
+      uniform highp float         uResultHeight;    // result texture height
 
-      uniform 	  int 			uRGBAIndexA;        // R,G,B,A index matrixA
-      uniform       int           uRGBAIndexB;        // R,G,B,A index matrixB
-      uniform       int           uTargetIndex;       // vec4 index where to put result
+      uniform       int           uRGBAIndexA;      // R,G,B,A index matrixA
+      uniform       int           uRGBAIndexB;      // R,G,B,A index matrixB
+      uniform       int           uTargetIndex;     // vec4 index where to put result
       
       float getMatrixValue(float x, float y,int rgbaIndex){
           if (rgbaIndex == 0) return texture2D(usampler,vec2(x,y)).x;
@@ -327,6 +329,38 @@ class ShaderCode {
       } `;
         return code;
     };
+    static generateVertexShaderCode() {
+        var code = `
+// vertex shader for a single quad 
+// work is performed based on the texels being passed 
+// through to the texture shader.
+
+#ifdef GL_ES
+    precision highp float; 
+#endif 
+attribute highp vec3 aPosition; 
+attribute highp vec2 aTexture;
+        
+uniform highp float uTextureWidth; // result texture width
+uniform highp float uTextureHeight; // result texture height
+        
+varying   highp float vKernelX; 
+varying   highp float vKernelY; 
+        
+//col = vTexture.s;
+//row = vTexture.t;
+
+void main(void) { 
+    // just pass the position and texture coords 
+    gl_Position = vec4(aPosition, 1.0); 
+            
+    //convert texture coordinates to pixel coordinates
+    vKernelX = (aTexture.s-(1.0/(2.0*uTextureWidth)))*uTextureWidth;
+    vKernelY = (aTexture.t-(1.0/(2.0*uTextureHeight)))*uTextureHeight;
+}`;
+        return code;
+    }
+
     static generateFragmentShader(options) {
         var shaderTemplate = `
 /**
@@ -340,19 +374,14 @@ class ShaderCode {
 {{each(options.samplers)}}
 uniform sampler2D uSampler_{{@this.name}};
 {{/each}}
+{{each(options.samplers)}}
+uniform float uSampler_{{@this.name}}_width;
+uniform float uSampler_{{@this.name}}_height;
+{{/each}}
 
 {{each(options.integers)}}
 uniform int u_{{@this.name}};
 {{/each}}
-
-{{each(options.samplers)}}
-uniform float uSampler_{{@this.name}}_width;
-uniform float uSampler_{{@this.name}}_height;
-
-{{/each}}
-uniform highp float uResultWidth; // result texture width
-uniform highp float uResultHeight; // result texture height
-
 /*
 *  functions for accessing values of sampler 
 *  parameter x: pixel coordinate of result texture beeing shaded
@@ -375,18 +404,7 @@ float readValue_{{@this.name}}(float x,float y, int index){
 {{each(options.functions)}}
 {{@this.code}}
 {{/each}}
-void main(void) { 
-    //x,y are texture coordinates
-    highp float  x = vTexture.s;
-    highp float  y = vTexture.t;
-
-    //convert texture coordinates to pixel coordinates
-    x = (x-(1.0/(2.0*uResultWidth)))*uResultWidth;
-    y = (y-(1.0/(2.0*uResultHeight)))*uResultHeight;
-
-    {{main}}
-
-}
+{{main}}
 `;
         String.prototype.replaceAll = function (search, replacement) {
             var target = this;

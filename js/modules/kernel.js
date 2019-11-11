@@ -2,32 +2,13 @@ const { CodeGenerator } = require(__dirname + '\\..\\modules\\codegenerator.js')
 const { Util } = require(__dirname + '\\..\\modules\\util.js');
 const { ShaderCode } = require(__dirname + '\\..\\modules\\shadercode.js');
 
-/*function getType(argument) {
-  if (Array.isArray(argument)) {
-    return "array";
-  }
-
-  if (Number.isInteger(argument)) {
-    return 'int';
-  }
-
-  if (typeof argument === 'number') {
-    if (argument.toString().includes('.')) {
-      return 'float';
-    }
-  }
-
-  if (typeof argument === 'boolean') {
-    return 'bool';
-  }
-}*/
 
 function check(fnct) {
   if (typeof fnct.dimensions === 'undefined')
     throw 'kernel has no dimensions specified. Use setOutput([x,y]) to specify kernel output dimensions';
 }
 
-function createOptions(parameters) {
+function createOptions(parameters,code) {
   let options = {};
   options.samplers = [];
   options.integers = [];
@@ -52,18 +33,20 @@ function createOptions(parameters) {
     }
     
   });
+  options.main = code;
   return options;
 }
 
 class FunctionBuilder {
   static buildFunction(codeGen, templateCode) {
 
-    let options = createOptions(codeGen.function.parameters);
+    let options = createOptions(codeGen.function.parameters,templateCode);
     let shader = ShaderCode.generateFragmentShader(options);
 
     function implementation(...args) {
       check(implementation);
       console.log(templateCode);
+      console.log(ShaderCode.generateVertexShaderCode());
       console.log(shader);
     }
 
@@ -72,7 +55,6 @@ class FunctionBuilder {
       return implementation;
     }
 
-
     implementation.functionName = codeGen.function.id.name;
     implementation.code = codeGen.function.code;
     return implementation;
@@ -80,9 +62,8 @@ class FunctionBuilder {
 }
 
 class Kernel {
-  constructor() {
-
-  }
+  constructor() {}
+  
   static create(...fncts) {
     let results = [];
     for (let i = 0; i < fncts.length; ++i) {
