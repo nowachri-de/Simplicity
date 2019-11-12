@@ -3,6 +3,7 @@ const { Util } = require(__dirname + '\\..\\modules\\util.js');
 const { ShaderCode } = require(__dirname + '\\..\\modules\\shadercode.js');
 const { Program } = require(__dirname + '\\..\\modules\\program.js');
 const { ShaderFactory } = require(__dirname + '\\..\\modules\\shader.js');
+const { TextureFactory } = require(__dirname + '\\..\\modules\\texturefactory.js');
 
 function check(impl,args,options) {
   if (typeof impl.dimensions === 'undefined')
@@ -33,11 +34,52 @@ function check(impl,args,options) {
   });
 }
 
+function getUniformLocation(program,id){
+  let location = program.gl.getUniformLocation(program.glProgram, id);
+
+  if (location === null){
+    throw 'could not find unifrom ' + id;
+  }
+
+  return location;
+}
+
 function setUniforms(program,width,height, args, options) {
   let gl = program.gl;
 
-  gl.uniform1f(gl.getUniformLocation(program.glProgram, "uTextureWidth"), width);
-  gl.uniform1f(gl.getUniformLocation(program.glProgram, "uTextureHeight"), height);
+  gl.uniform1f(getUniformLocation(program,"uTextureWidth"), width);
+  gl.uniform1f(getUniformLocation(program,"uTextureHeight"), height);
+
+  let i = 0;
+  args.forEach(arg => {
+    let type = options.parameterMap.get(i).type;
+    let name = options.parameterMap.get(i).name;
+
+    if (Util.isArray(type)) {
+      let width = arg.length;
+      let texture = Util.createTexture(gl,width,1,arg);
+      gl.uniform1i(gl.getUniformLocation(program.glProgram, "uSampler_"+ name), inputTexture.index);
+    }
+
+    if (Util.is2DArray(type)) {
+      let width = arg.length;
+      let height = arg[0].length;
+      let texture = Util.createTexture(gl,"texture_"+"uSampler_"+ name,width,1,arg);
+      gl.uniform1i(gl.getUniformLocation(program.glProgram, "uSampler_"+ name), texture.index);
+    }
+
+    if (Util.isInteger(type)) {
+     
+    }
+
+    if (Util.isFloat(type)) {
+    
+    }
+
+
+  
+    i++;
+  });
 }
 
 function createOptions(parameters, code) {
