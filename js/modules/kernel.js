@@ -3,7 +3,7 @@ const { Util } = require(__dirname + '\\..\\modules\\util.js');
 const { ShaderCode } = require(__dirname + '\\..\\modules\\shadercode.js');
 const { Program } = require(__dirname + '\\..\\modules\\program.js');
 const { ShaderFactory } = require(__dirname + '\\..\\modules\\shader.js');
-const { TextureFactory } = require(__dirname + '\\..\\modules\\texturefactory.js');
+
 
 function check(impl,args,options) {
   if (typeof impl.dimensions === 'undefined')
@@ -44,11 +44,21 @@ function getUniformLocation(program,id){
   return location;
 }
 
+function setUniformLocationFloat(program,id,value){
+  let gl = program.gl;
+  gl.uniform1f(getUniformLocation(program,id), value);
+}
+
+function setUniformLocationInt(program,id,value){
+  let gl = program.gl;
+  gl.uniform1i(getUniformLocation(program,id), value);
+}
+
 function setUniforms(program,width,height, args, options) {
   let gl = program.gl;
 
-  gl.uniform1f(getUniformLocation(program,"uTextureWidth"), width);
-  gl.uniform1f(getUniformLocation(program,"uTextureHeight"), height);
+  setUniformLocationFloat(program,"uTextureWidth",width);
+  setUniformLocationFloat(program,"uTextureHeight",width);
 
   let i = 0;
   args.forEach(arg => {
@@ -57,15 +67,15 @@ function setUniforms(program,width,height, args, options) {
 
     if (Util.isArray(type)) {
       let width = arg.length;
-      let texture = Util.createTexture(gl,width,1,arg);
-      gl.uniform1i(gl.getUniformLocation(program.glProgram, "uSampler_"+ name), inputTexture.index);
+      let texture = Util.createTexture(gl,width,1.0,arg);
+      setUniformLocationInt(program, "uSampler_"+ name,texture.index);
     }
 
     if (Util.is2DArray(type)) {
       let width = arg.length;
       let height = arg[0].length;
-      let texture = Util.createTexture(gl,"texture_"+"uSampler_"+ name,width,1,arg);
-      gl.uniform1i(gl.getUniformLocation(program.glProgram, "uSampler_"+ name), texture.index);
+      let texture = Util.createTexture(gl,"texture_"+"uSampler_"+ name,width,height,arg);
+      setUniformLocationInt(program, "uSampler_"+ name,texture.index);
     }
 
     if (Util.isInteger(type)) {
@@ -75,9 +85,6 @@ function setUniforms(program,width,height, args, options) {
     if (Util.isFloat(type)) {
     
     }
-
-
-  
     i++;
   });
 }
@@ -137,8 +144,13 @@ class FunctionBuilder {
       
       console.log(fragmentShaderCode);
       program.buildProgram(vertexShader, fragmentShader);
-
       setUniforms(program,width,height,args, options);
+      program.gl.useProgram(program.glProgram);
+      program.gl.viewport(0, 0, width, height);
+      
+      gl.bindFramebuffer(gl.FRAMEBUFFER, Util.createFrameBuffer);
+
+      
       //console.log(options);
       //console.log(templateCode);
       //console.log(ShaderCode.generateVertexShaderCode());

@@ -1,4 +1,5 @@
 const {TextureFactory} = require(__dirname + "\\texturefactory.js");
+const {FrameBufferFactory} = require(__dirname + "\\framebufferfactory.js");
 
 class Util {
     static isArray(value) {
@@ -64,5 +65,14 @@ class Util {
     static createTexture(gl,name,width,height,data){
         return TextureFactory.createTextureByDimension(gl, name, height, width, Util.data2Texel(width,height,data,'R'));
     }
+
+    static createReadableTexture(gl,name,width,height){
+        return TextureFactory.createReadableTexture(gl, name, {width:width,height:height});
+    }
+
+    static createFrameBuffer(gl,name,width,height){
+        return FrameBufferFactory.createFrameBuffer(gl, name, {width:width,height:height});
+    }
+    
 }
 module.exports.Util = Util;
