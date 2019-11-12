@@ -20,14 +20,14 @@ class ResultReader{
 		canvas.width = textureB.width;
 		canvas.height = textureB.height;*/
 		
-		gl.useProgram(this.program.program);
+		gl.useProgram(this.program.glProgram);
         gl.viewport(0, 0,textureB.width,textureB.height);
 		gl.scissor(0, 0, textureB.width,textureB.height);
 		var frameBuffer = FrameBufferFactory.createFrameBuffer(gl,textureB);
 		
 		//gl.activeTexture(gl.TEXTURE0 + textureB.index);
         gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.frameBuffer);
-		this.program.doBindings(textureA,textureB,this.program.program,targetIndex);
+		this.program.doBindings(textureA,textureB,this.program.glProgram,targetIndex);
         
 		gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
 		return frameBuffer;

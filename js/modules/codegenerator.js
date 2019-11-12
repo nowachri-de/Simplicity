@@ -18,15 +18,13 @@ function genSpace(space) {
     return s.join('');
 }
 
-
 function handleMemberExpression(sb,data){
-    
     sb.push('read_');
     sb.push(data.name);
     sb.push('(');
     for (let i=0; i < data.properties.length;i++){
-        data.properties[i] = data.properties[i].replaceAll('this.thread.x','kernelX');
-        data.properties[i] = data.properties[i].replaceAll('this.thread.y','kernelY');
+        data.properties[i] = data.properties[i].replaceAll('this.thread.x','vKernelX');
+        data.properties[i] = data.properties[i].replaceAll('this.thread.y','vKernelY');
         sb.push(data.properties[i]);
         if (i+1 < data.properties.length){
             sb.push(',');
@@ -206,7 +204,7 @@ class CodeGenerator {
         this.handleType(node.left,sb);
     }
     genReturnStatement(node, sb) {
-        let replace = 'gl_FragmentColor = vec4({{returnValue}},0.,0.,0.);';
+        let replace = 'gl_FragColor = vec4({{returnValue}},0.,0.,0.);';
         
         if (this.transformationRequests.get('replaceReturnStatement') === true){
             let tmp = [];

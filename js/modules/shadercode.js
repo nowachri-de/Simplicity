@@ -341,11 +341,11 @@ class ShaderCode {
 attribute highp vec3 aPosition; 
 attribute highp vec2 aTexture;
         
-uniform highp float uTextureWidth; // result texture width
-uniform highp float uTextureHeight; // result texture height
-        
-varying   highp float vKernelX; 
-varying   highp float vKernelY; 
+uniform float uTextureWidth; // result texture width
+uniform float uTextureHeight; // result texture height
+
+varying float vKernelX; 
+varying float vKernelY; 
         
 //col = vTexture.s;
 //row = vTexture.t;
@@ -371,10 +371,20 @@ void main(void) {
     precision highp float; 
 #endif
 
+varying   highp float vKernelX; 
+varying   highp float vKernelY; 
+
 {{each(options.samplers)}}
 uniform sampler2D uSampler_{{@this.name}};
 {{/each}}
 {{each(options.samplers)}}
+uniform float uSampler_{{@this.name}}_width;
+{{/each}}
+
+{{each(options.samplers2D)}}
+uniform sampler2D uSampler_{{@this.name}};
+{{/each}}
+{{each(options.samplers2D)}}
 uniform float uSampler_{{@this.name}}_width;
 uniform float uSampler_{{@this.name}}_height;
 {{/each}}
@@ -382,14 +392,34 @@ uniform float uSampler_{{@this.name}}_height;
 {{each(options.integers)}}
 uniform int u_{{@this.name}};
 {{/each}}
+{{if(options.samplers.length > 0)}}
 /*
-*  functions for accessing values of sampler 
+*  functions for accessing values of a 1D array which is represented by a 2D texture
 *  parameter x: pixel coordinate of result texture beeing shaded
-*  parameter y: pixel coordinate of result texture beeing shaded
-*  parameter index: R,G,B,A component
 */
+{{/if}}
 {{each(options.samplers)}}
-float readValue_{{@this.name}}(float x,float y, int index){
+float readValue_{{@this.name}}(float x){
+    int index = 0;
+    //convert pixel coordinates of result texture to texture coordinates of sampler texture
+    float {{@this.name}}_x = (x/uSampler_{{@this.name}}_width)+(1.0/(2.0*uSampler_{{@this.name}}_width));
+
+    if (index == 0) return texture2D(uSampler_{{@this.name}},vec2({{@this.name}}_x,0.0)).x;
+    if (index == 1) return texture2D(uSampler_{{@this.name}},vec2({{@this.name}}_x,0.0)).y;
+    if (index == 2) return texture2D(uSampler_{{@this.name}},vec2({{@this.name}}_x,0.0)).z;
+    if (index == 3) return texture2D(uSampler_{{@this.name}},vec2({{@this.name}}_x,0.0)).w;
+}
+
+{{/each}}
+{{if(options.samplers.length > 0)}}
+/*
+*  functions for accessing values of a 2D array which is represented by a 2D texture
+*  parameter x: pixel coordinate of result texture beeing shaded
+*/
+{{/if}}
+{{each(options.samplers2D)}}
+float read_{{@this.name}}(float x, float y){
+    int index = 0;
     //convert pixel coordinates of result texture to texture coordinates of sampler texture
     float {{@this.name}}_x = (x/uSampler_{{@this.name}}_width)+(1.0/(2.0*uSampler_{{@this.name}}_width));
     float {{@this.name}}_y = (y/uSampler_{{@this.name}}_height)+(1.0/(2.0*uSampler_{{@this.name}}_height));

@@ -1,6 +1,13 @@
 class Util {
     static isArray(value) {
+        if (Util.is2DArray(value)){
+            return false;
+        }
         return value.includes("[]");
+    }
+
+    static is2DArray(value) {
+        return value.includes("[][]");
     }
 
     static isInteger(argument) {

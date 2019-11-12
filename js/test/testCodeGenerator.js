@@ -4,12 +4,20 @@ const { Kernel } = require(__dirname + '\\..\\modules\\kernel.js');
 const { FunctionBuilder } = require(__dirname + '\\..\\modules\\kernel.js');
 
 describe('CodeGenerator', function () {
-  it('test created options using float parameter', function () {
+  
+  it('test created options using 2d array', function () {
+    Kernel.create(function main(y=[[]]) {
+      return y[this.thread.x][this.thread.y];
+    }).setOutput([10, 10])([[1.,2.],[3.,4.]]);
+  });
+
+  /*
+  it('test created options using array', function () {
     Kernel.create(function main(y=[]) {
       return y[this.thread.x][this.thread.y];
-    }).setOutput([1, 1])(1, 1);
+    }).setOutput([1, 1])([1.,2.,3.]);
   });
-  /*
+  
   it('test created options using float parameter', function () {
     Kernel.create(function main(i = 0.) {
     }).setOutput([1, 1])(1, 1);

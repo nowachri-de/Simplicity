@@ -19,7 +19,7 @@ function multiply(gl,inputTexture,program,outputDimensions){
     var frameBuffer = FrameBufferFactory.createFrameBufferMultiAttachement(gl, resultTexture,testTexture);
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.frameBuffer);
-    program.doSingleTextureBindings(inputTexture, outputDimensions, program.program, 0, 1, 0);
+    program.doSingleTextureBindings(inputTexture, outputDimensions, program.glProgram, 0, 1, 0);
 
     gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
     resultTexture.frameBuffer = frameBuffer;
@@ -52,9 +52,8 @@ function test(matrixA, matrixB) {
     program.delete();
 
     console.log(Matrix.texture2matrix(gl,testTexture,0));
-
-   
 }
+
 var matrixA = new Matrix(4, 4).randomInitialize();
 var matrixB = new Matrix(4, 4).randomInitialize();
 test(matrixA, matrixB);

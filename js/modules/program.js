@@ -5,7 +5,7 @@ const {TextureFactory} = require(__dirname + "\\texturefactory.js");
 class Program {
 	
 	constructor(width, height, gl) {
-		this.program = null;
+		this.glProgram = null;
 		this.debug = false;
 		this.vertexBuffer = null;
 		this.texCoords = null;
@@ -93,7 +93,7 @@ class Program {
 		
 		let gl = this.gl;
 		// bind vertices
-		let aPosition = gl.getAttribLocation(this.program, "aPosition");
+		let aPosition = gl.getAttribLocation(this.glProgram, "aPosition");
 		this.vertexBuffer = gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
 
@@ -104,7 +104,7 @@ class Program {
 		gl.enableVertexAttribArray(aPosition);
 
 		// bind texture cords
-		let aTexture = gl.getAttribLocation(this.program, "aTexture");
+		let aTexture = gl.getAttribLocation(this.glProgram, "aTexture");
 		this.texCoords = gl.createBuffer();
 		let textureCoords = [0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0];
 
@@ -128,21 +128,21 @@ class Program {
 		this.fShader = fragmentShader;
 
 		// link into a program
-		this.program = gl.createProgram();
-		gl.attachShader(this.program, vertexShader);
-		gl.attachShader(this.program, fragmentShader);
-		gl.linkProgram(this.program);
-		gl.useProgram(this.program);
-		gl.validateProgram(this.program);
+		this.glProgram = gl.createProgram();
+		gl.attachShader(this.glProgram, vertexShader);
+		gl.attachShader(this.glProgram, fragmentShader);
+		gl.linkProgram(this.glProgram);
+		gl.useProgram(this.glProgram);
+		gl.validateProgram(this.glProgram);
 
-		if (!gl.getProgramParameter(this.program, gl.LINK_STATUS)) {
-			var info = gl.getProgramInfoLog(this.program);
+		if (!gl.getProgramParameter(this.glProgram, gl.LINK_STATUS)) {
+			var info = gl.getProgramInfoLog(this.glProgram);
 			throw 'Could not compile WebGL program. \n\n' + info;
 		}
 
 		this.doVertexBindings();
 
-		return this.program;
+		return this.glProgram;
 	}
 
 	compute(textureA, textureB, textureC, outputDimensions) {
@@ -153,13 +153,13 @@ class Program {
 		canvas.width = outputDimensions.width;
 		canvas.height = outputDimensions.height;
 
-		gl.useProgram(this.program);
+		gl.useProgram(this.glProgram);
 		gl.viewport(0, 0, canvas.width, canvas.height);
 
 		var frameBuffer = FrameBufferFactory.createFrameBuffer(gl,textureC);
 
 		gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.frameBuffer);
-		this.doBindings(textureA, textureB, this.program);
+		this.doBindings(textureA, textureB, this.glProgram);
 
 
 		gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
@@ -171,14 +171,14 @@ class Program {
 	multiplySingleTexture(texture, outputDimensions, componentA, componentB, targetIndex) {
 		let gl = this.gl;
 
-		gl.useProgram(this.program);
+		gl.useProgram(this.glProgram);
 		gl.viewport(0, 0, outputDimensions.width, outputDimensions.height);
 
 		let resultTexture = TextureFactory.createReadableTexture(gl, 'resultTexture', outputDimensions);
 		let frameBuffer =  FrameBufferFactory.createFrameBuffer(gl,resultTexture);
 		
 		gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.frameBuffer);
-		this.doSingleTextureBindings(texture, resultTexture, this.program, componentA, componentB, targetIndex);
+		this.doSingleTextureBindings(texture, resultTexture, this.glProgram, componentA, componentB, targetIndex);
 
 		gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
 
@@ -198,7 +198,7 @@ class Program {
 		this.debugPrint("Deleted vertex shader");
 		gl.deleteShader(this.fShader);
 		this.debugPrint("Deleted fragment shader");
-		gl.deleteProgram(this.program);
+		gl.deleteProgram(this.glProgram);
 		this.debugPrint("Deleted program");
 		gl.deleteBuffer(this.vertexBuffer);
 		this.debugPrint("Deleted vertex buffer");
