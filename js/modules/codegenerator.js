@@ -18,7 +18,17 @@ function genSpace(space) {
     return s.join('');
 }
 
-function handleMemberExpression(sb, data) {
+function handleMemberExpression(codeGen,node,sb) {
+
+    
+    let data = {};
+    data.name = node.object.object.name;
+    data.properties = [];
+
+    codeGen.transformationRequests.set('memberExpression', data);
+    codeGen.handleType(node, []);
+    codeGen.transformationRequests.delete('memberExpression');
+
     sb.push('read_');
     sb.push(data.name);
     sb.push('(');
@@ -209,15 +219,7 @@ class CodeGenerator {
         if (this.transformationRequests.get('replaceReturnStatement') === true) {
             let tmp = [];
             if (node.argument.type === 'MemberExpression') {
-                let data = {};
-                data.name = node.argument.object.object.name;
-                data.properties = [];
-
-                this.transformationRequests.set('memberExpression', data);
-                this.handleType(node.argument, []);
-
-                handleMemberExpression(tmp, data);
-
+                handleMemberExpression(this,node.argument,tmp);
             } else {
                 this.handleType(node.argument, tmp);
             }
@@ -286,6 +288,7 @@ class CodeGenerator {
         this.handleType(node.body, sb);
         node.code = sb.join('');
         this.function = node;
+        this.transformationRequests.delete('replaceReturnStatement');
     }
     getParenthesizedExpression(node, sb) {
         sb.push('(');
@@ -336,14 +339,7 @@ class CodeGenerator {
                 throw formatThrowMessage(node, object.name + ' is of type ' + this.getType(object.name) + ' but must be array type');
             }
 
-
-            let data = {};
-            data.name = object.name;
-            data.properties = [];
-
-            this.transformationRequests.set('memberExpression', data);
-            this.handleType(node.expression, tmp);
-            handleMemberExpression(sb, data);
+            handleMemberExpression(this,node.expression,sb, data);
             sb.push(';');
             this.transformationRequests.delete('memberExpression');
         } else {
@@ -461,15 +457,7 @@ class CodeGenerator {
         sb.push('=');
 
         if (node.init.type === 'MemberExpression') {
-            let tmp = [];
-            let data = {};
-            data.name = node.init.object.object.name;
-            data.properties = [];
-
-            this.transformationRequests.set('memberExpression', data);
-            this.handleType(node.init, tmp);
-
-            handleMemberExpression(sb, data);
+            handleMemberExpression(this,node.init,tmp, data);
             sb.push(';');
             return;
         } else {
@@ -499,6 +487,7 @@ class CodeGenerator {
     }
 
     genBinaryExpression(node, sb) {
+        let intermediate = [];
         let typeLeft = this.type2String(node.left);
         let typeRight = this.type2String(node.right);
 
@@ -506,75 +495,57 @@ class CodeGenerator {
         one of the sides needs to get casted to*/
         let castType = castNeeded(typeLeft, typeRight);
 
-        //check if left side needs to get casted
-        if (castType !== null && typeLeft !== castType) {
-            sb.push(castType + '(')
-            if (node.left.type === 'MemberExpression') {
-                let tmp = [];
-                let data = {};
-                data.name = node.left.object.object.name;
-                data.properties = [];
-
-                this.transformationRequests.set('memberExpression', data);
-                this.handleType(node.left, tmp);
-
-                handleMemberExpression(sb, data);
-            } else {
-                this.handleType(node.left, sb);
-                sb.push(')')
-            }
-        } else {
-            if (node.left.type === 'MemberExpression') {
-                let tmp = [];
-                let data = {};
-                data.name = node.left.object.object.name;
-                data.properties = [];
-
-                this.transformationRequests.set('memberExpression', data);
-                this.handleType(node.left, tmp);
-
-                handleMemberExpression(sb, data);
-            } else {
-                this.handleType(node.left, sb);
-               
-            }
+        
+        let leftSide = "";
+        let tmp = [];
+        if (node.left.type === 'MemberExpression') {
+            handleMemberExpression(this,node.left,tmp);
+            leftSide = tmp.join('');
+        }else{
+            this.handleType(node.left, tmp);
+            leftSide = tmp.join('');
         }
 
-        sb.push(node.operator);
+        let rightSide = "";
+        tmp = [];
+        if (node.right.type === 'MemberExpression') {
+            handleMemberExpression(this,node.right,tmp);
+            rightSide = tmp.join('');
+        }else{
+            this.handleType(node.right, tmp);
+            rightSide = tmp.join('');
+        }
+
+        //check if left side needs to get casted
+        if (castType !== null && typeLeft !== castType) {
+            intermediate.push(castType + '(')
+            intermediate.push(leftSide);
+            intermediate.push(')') 
+        } else {
+            intermediate.push(leftSide);
+        }
+
+        if (node.operator === '%'){
+            intermediate.push(',');
+        }else{
+            intermediate.push(node.operator);
+        }
 
         //check if right side needs to get casted
         if (castType !== null && typeRight !== castType) {
-            sb.push(castType + '(')
-            if (node.right.type === 'MemberExpression') {
-                let tmp = [];
-                let data = {};
-                data.name = node.right.object.object.name;
-                data.properties = [];
-
-                this.transformationRequests.set('memberExpression', data);
-                this.handleType(node.right, tmp);
-
-                handleMemberExpression(sb, data);
-            } else {
-                this.handleType(node.right, sb);
-                sb.push(')')
-            }
-            sb.push(')')
+            intermediate.push(castType + '(');
+            intermediate.push(rightSide);
+            intermediate.push(')');
         } else {
-            if (node.right.type === 'MemberExpression') {
-                let tmp = [];
-                let data = {};
-                data.name = node.right.object.object.name;
-                data.properties = [];
+            intermediate.push(rightSide);
+        }
 
-                this.transformationRequests.set('memberExpression', data);
-                this.handleType(node.right, tmp);
-
-                handleMemberExpression(sb, data);
-            } else {
-                this.handleType(node.right, sb);
-            }
-            
+        if (node.operator === '%'){
+            sb.push('mod(');
+            sb.push(intermediate.join(''));
+            sb.push(')');
+        }else{
+            sb.push(intermediate.join(''));
         }
     }
 

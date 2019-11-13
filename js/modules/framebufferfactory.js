@@ -23,7 +23,7 @@ module.exports.FrameBufferFactory = class FrameBufferFactory {
 		//gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer);
 
 		if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) != gl.FRAMEBUFFER_COMPLETE)
-			console.log("Error: binding of framebuffer failed");
+			throw "Error: binding of framebuffer failed";
 
 		var result = {
 			texture: texture,

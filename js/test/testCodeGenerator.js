@@ -4,15 +4,56 @@ const { Kernel } = require(__dirname + '\\..\\modules\\kernel.js');
 const { FunctionBuilder } = require(__dirname + '\\..\\modules\\kernel.js');
 
 describe('CodeGenerator', function () {
-  it('test created options using 2d array', function () {
+ 
+  
+  /*
+   it('This is a huge bug ?????', function () {
+    //
+    Kernel.create(function main(x=[[]]) {
+      let a =2.0 ;
+      return x[this.thread.x][this.thread.y] + a;
+    }).setOutput([2, 2])([[5,5],[5,5]]);
+  });
+   it('', function () {
     Kernel.create(function main(x=[[]],y=[[]]) {
-      return x[this.thread.x][this.thread.y] +  y[this.thread.x][this.thread.y];
+      return x[this.thread.x][this.thread.y] /  y[this.thread.x][this.thread.y];
+    }).setOutput([2, 2])([[3.,5.],[3.,5.]],[[2.,2.],[2.,2.]]);
+  });
+   it('', function () {
+    Kernel.create(function main(x=[[]],y=[[]]) {
+      return x[this.thread.x][this.thread.y] %  y[this.thread.x][this.thread.y];
+    }).setOutput([2, 2])([[3.,5.],[3.,5.]],[[2.,2.],[2.,2.]]);
+  });
+  it('', function () {
+    Kernel.create(function main(x=[[]]) {
+      return x[this.thread.x][this.thread.y] *  x[this.thread.x][this.thread.y];
     }).setOutput([2, 2])([[1.,2.],[3.,4.]]);
   });
-  
-
-  /*
-
+  it('', function () {
+    Kernel.create(function main(x=[[]]) {
+      return x[this.thread.x][this.thread.y] +  x[this.thread.x][this.thread.y];
+    }).setOutput([2, 2])([[1.,2.],[3.,4.]]);
+  });
+   it('', function () {
+    Kernel.create(function main(x=[[]]) {
+      return x[this.thread.x][this.thread.y] -  x[this.thread.x][this.thread.y];
+    }).setOutput([2, 2])([[1.,2.],[3.,4.]]);
+  });
+  it('', function () {
+    Kernel.create(function main(x=[[]],y=[[]]) {
+      return x[this.thread.x][this.thread.y] -  y[this.thread.x][this.thread.y];
+    }).setOutput([2, 2])([[1.,2.],[3.,4.]],[[4.,5.],[6.,7.]]);
+  });
+  it('', function () {
+    Kernel.create(function main(x=[[]],y=[[]]) {
+      return x[this.thread.x][this.thread.y] -  y[this.thread.x][this.thread.y];
+    }).setOutput([2, 2])([[1.,2.],[3.,4.]],[[1.,2.],[3.,4.]]);
+  });
+it('', function () {
+    Kernel.create(function main(x=[[]],y=[[]]) {
+      return x[this.thread.x][this.thread.y] +  y[this.thread.x][this.thread.y];
+    }).setOutput([2, 2])([[1.,2.],[3.,4.]],[[1.,2.],[3.,4.]]);
+  });
   it('test created options using 2d array', function () {
     Kernel.create(function main(y=[[]]) {
       return y[this.thread.x][this.thread.y];
