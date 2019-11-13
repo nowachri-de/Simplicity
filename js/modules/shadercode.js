@@ -341,8 +341,8 @@ class ShaderCode {
 attribute highp vec3 aPosition; 
 attribute highp vec2 aTexture;
         
-uniform float uTextureWidth; // result texture width
-uniform float uTextureHeight; // result texture height
+uniform float uResultTextureWidth; // result texture width
+uniform float uResultTextureHeight; // result texture height
 
 varying float vKernelX; 
 varying float vKernelY; 
@@ -355,8 +355,8 @@ void main(void) {
     gl_Position = vec4(aPosition, 1.0); 
             
     //convert texture coordinates to pixel coordinates
-    vKernelX = (aTexture.s-(1.0/(2.0*uTextureWidth)))*uTextureWidth;
-    vKernelY = (aTexture.t-(1.0/(2.0*uTextureHeight)))*uTextureHeight;
+    vKernelX = (aTexture.s-(1.0/(2.0*uResultTextureWidth)))*uResultTextureWidth;
+    vKernelY = (aTexture.t-(1.0/(2.0*uResultTextureHeight)))*uResultTextureHeight;
 }`;
         return code;
     }

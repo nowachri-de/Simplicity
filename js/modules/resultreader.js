@@ -5,12 +5,9 @@ class ResultReader{
 		this.build(width,height);
 	}
 
-	build(width,height){
-		this.vertexShader 	= ShaderFactory.createVertexShader(this.gl,ShaderCode.getCode("VERTEX"));
-		this.fragmentShader = ShaderFactory.getFragmentShader(this.gl,ShaderCode.getCode("READABLE"));
-		
+	build(width,height){		
 		this.program  = new Program(width,height,this.gl);
-		this.program.buildProgram(this.vertexShader,this.fragmentShader);
+		this.program.buildProgram(ShaderCode.getCode("VERTEX"),ShaderCode.getCode("READABLE"));
 	}
 
 	runShaders(textureA,textureB,targetIndex) {

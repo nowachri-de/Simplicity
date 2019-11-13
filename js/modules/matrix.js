@@ -394,16 +394,11 @@ module.exports.Matrix = class Matrix {
         //width input texture = maxwidth(matrixA,matrixB,...), height of input texture = maxheight(matrixA,matrixB,...)
         let inputTexture = TextureFactory.createTextureByDimension(gl, "inputTexture", matrixStorage.maxRows, matrixStorage.maxColumns, matrixStorage.getTexels());
 
-        let vertexShader = ShaderFactory.createVertexShader(gl, ShaderCode.getCode("VERTEX"));
-        let fragmentShader = ShaderFactory.getFragmentShader(gl, ShaderCode.getCode("SINGLE"));
-        program.buildProgram(vertexShader, fragmentShader);
+        program.buildProgram(ShaderCode.getCode("VERTEX"),ShaderCode.getCode("SINGLE"));
 
         let result = program.multiplySingleTexture(inputTexture, matrixA.getResultMatrixDimensions(matrixB), 0, 1, 0);
 
         inputTexture.delete();
-        program.delete();
-        ShaderFactory.delete(gl,vertexShader);
-        ShaderFactory.delete(gl,fragmentShader);
         program.delete();
 
         result.gl = gl;

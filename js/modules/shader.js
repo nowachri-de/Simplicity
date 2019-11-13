@@ -10,7 +10,7 @@ class ShaderFactory{
         return shader;
     }
 	
-	static getFragmentShader(gl,fragmentShaderCode) {
+	static createFragmentShader(gl,fragmentShaderCode) {
         var shader = gl.createShader(gl.FRAGMENT_SHADER);
         gl.shaderSource(shader, fragmentShaderCode);
         gl.compileShader(shader);

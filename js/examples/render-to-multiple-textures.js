@@ -39,16 +39,13 @@ function test(matrixA, matrixB) {
     //width input texture = maxwidth(matrixA,matrixB,...), height of input texture = maxheight(matrixA,matrixB,...)
     let inputTexture = TextureFactory.createTextureByDimension(gl, "inputTexture", matrixStorage.maxRows, matrixStorage.maxColumns, matrixStorage.getTexels());
     let outputDimensions = matrixA.getResultMatrixDimensions(matrixB);
-    let vertexShader = ShaderFactory.createVertexShader(gl, ShaderCode.getCode("VERTEX"));
-    let fragmentShader = ShaderFactory.getFragmentShader(gl, ShaderCode.getCode("SINGLE"));
-    program.buildProgram(vertexShader, fragmentShader);
+
+    program.buildProgram(ShaderCode.getCode("VERTEX"), ShaderCode.getCode("SINGLE"));
 
     //let computationResult = program.multiplySingleTexture(inputTexture, outputDimensions, 0, 1);
     multiply(gl,inputTexture,program,outputDimensions);
 
     inputTexture.delete();
-    gl.deleteShader(vertexShader);
-    gl.deleteShader(fragmentShader);
     program.delete();
 
     console.log(Matrix.texture2matrix(gl,testTexture,0));

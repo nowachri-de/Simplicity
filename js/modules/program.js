@@ -1,6 +1,7 @@
 var headlessGL = require('gl');
 const {FrameBufferFactory} = require(__dirname + "\\framebufferfactory.js");
 const {TextureFactory} = require(__dirname + "\\texturefactory.js");
+const {ShaderFactory} = require(__dirname + "\\shader.js");
 
 class Program {
 	
@@ -9,6 +10,8 @@ class Program {
 		this.debug = false;
 		this.vertexBuffer = null;
 		this.texCoords = null;
+		this.width = width;
+		this.height = height;
 
 		if (typeof gl === 'undefined' && typeof this.gl === 'undefined') {
 			this.gl = Program.createGl(width, height);
@@ -120,17 +123,28 @@ class Program {
 		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(vertexIndices), gl.STATIC_DRAW);
 	}
 
-
-	buildProgram(vertexShader, fragmentShader) {
+	execute(){
 		let gl = this.gl;
+		gl.useProgram(this.glProgram);
+		gl.viewport(0, 0, this.width, this.height);
+		let resultTexture = TextureFactory.createReadableTexture(gl, 'resultTexture', {width:this.width,height:this.height});
+		gl.bindFramebuffer(gl.FRAMEBUFFER, FrameBufferFactory.createFrameBuffer(gl,resultTexture));
+		gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
 
-		this.vShader = vertexShader;
-		this.fShader = fragmentShader;
+		return resultTexture;
+	}
 
+	buildProgram(vertexShaderCode, fragmentShaderCode) {
+		let gl = this.gl;
 		// link into a program
 		this.glProgram = gl.createProgram();
-		gl.attachShader(this.glProgram, vertexShader);
-		gl.attachShader(this.glProgram, fragmentShader);
+		
+		this.vShader = ShaderFactory.createVertexShader(gl, vertexShaderCode);
+		this.fShader = ShaderFactory.createFragmentShader(gl, fragmentShaderCode);
+
+		
+		gl.attachShader(this.glProgram, this.vShader);
+		gl.attachShader(this.glProgram, this.fShader);
 		gl.linkProgram(this.glProgram);
 		gl.useProgram(this.glProgram);
 		gl.validateProgram(this.glProgram);

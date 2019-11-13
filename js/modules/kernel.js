@@ -59,8 +59,8 @@ function setUniforms(program,width,height, args, options) {
   let textures = [];
   let gl = program.gl;
 
-  setUniformLocationFloat(program,"uTextureWidth",width);
-  setUniformLocationFloat(program,"uTextureHeight",height);
+  setUniformLocationFloat(program,"uResultTextureWidth",width);
+  setUniformLocationFloat(program,"uResultTextureHeight",height);
 
   let i = 0;
   args.forEach(arg => {
@@ -68,19 +68,20 @@ function setUniforms(program,width,height, args, options) {
     let name = options.parameterMap.get(i).name;
 
     if (Util.isArray(type) || Util.is2DArray(type)) {
-
+      //width and height of inputTexture not required to be same dimensions as resultTexture
       let width = arg.length;
       let height = 1.0;
 
+      //set propper height
       if (Util.is2DArray(type)){
         height = arg[0].length;
       }
-      let texture = Util.createTexture(gl,"",width,height,arg);
-      textures.push(texture);
-      setUniformLocationInt(program, "uSampler_"+ name,texture.index);
+
+      let inputTexture = Util.createTexture(gl,"texture_uSampler_"+name,width,height,arg);
+      textures.push(inputTexture);
+      setUniformLocationInt(program, "uSampler_"+ name,inputTexture.index);
       setUniformLocationFloat(program, "uSampler_"+ name+"_width",width);
       setUniformLocationFloat(program, "uSampler_"+ name+"_height",height);
-    
     }  
 
     if (Util.isInteger(type)) {
@@ -172,21 +173,14 @@ void main(void) {
       let width = implementation.dimensions[0];
       let height = implementation.dimensions[1];
       let program = new Program(width,height);
-      let vertexShader = ShaderFactory.createVertexShader(program.gl, vertexShaderCode);
-      let fragmentShader = ShaderFactory.getFragmentShader(program.gl, fragmentShaderCode);
+     
       console.log(vertexShaderCode);
       console.log(fragmentShaderCode);
 
+      program.buildProgram(vertexShaderCode,fragmentShaderCode);
+      setUniforms(program,width,height,args, options);
 
-      program.buildProgram(vertexShader, fragmentShader);
-      let inputTextures = setUniforms(program,width,height,args, options);
-      program.gl.useProgram(program.glProgram);
-      program.gl.viewport(0, 0, width, height);
-      
-      let resultTexture = Util.createReadableTexture(program.gl, 'resultTexture',width,height);
-      program.gl.bindFramebuffer(program.gl.FRAMEBUFFER, Util.createFrameBuffer(program.gl,resultTexture));
-      program.gl.drawElements(program.gl.TRIANGLES, /*num items*/ 6, program.gl.UNSIGNED_SHORT, 0);
-      console.log(Matrix.texture2matrix(program.gl,resultTexture,0));
+      console.log(Matrix.texture2matrix(program.gl,program.execute(),0));
       //console.log(options);
       console.log(templateCode);
       //console.log(ShaderCode.generateVertexShaderCode());
