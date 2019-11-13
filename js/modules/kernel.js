@@ -3,6 +3,7 @@ const { Util } = require(__dirname + '\\..\\modules\\util.js');
 const { ShaderCode } = require(__dirname + '\\..\\modules\\shadercode.js');
 const { Program } = require(__dirname + '\\..\\modules\\program.js');
 const { ShaderFactory } = require(__dirname + '\\..\\modules\\shader.js');
+const { Matrix } = require(__dirname + '\\..\\modules\\matrix.js');
 
 
 function check(impl,args,options) {
@@ -55,28 +56,32 @@ function setUniformLocationInt(program,id,value){
 }
 
 function setUniforms(program,width,height, args, options) {
+  let textures = [];
   let gl = program.gl;
 
   setUniformLocationFloat(program,"uTextureWidth",width);
-  setUniformLocationFloat(program,"uTextureHeight",width);
+  setUniformLocationFloat(program,"uTextureHeight",height);
 
   let i = 0;
   args.forEach(arg => {
     let type = options.parameterMap.get(i).type;
     let name = options.parameterMap.get(i).name;
 
-    if (Util.isArray(type)) {
-      let width = arg.length;
-      let texture = Util.createTexture(gl,width,1.0,arg);
-      setUniformLocationInt(program, "uSampler_"+ name,texture.index);
-    }
+    if (Util.isArray(type) || Util.is2DArray(type)) {
 
-    if (Util.is2DArray(type)) {
       let width = arg.length;
-      let height = arg[0].length;
-      let texture = Util.createTexture(gl,"texture_"+"uSampler_"+ name,width,height,arg);
+      let height = 1.0;
+
+      if (Util.is2DArray(type)){
+        height = arg[0].length;
+      }
+      let texture = Util.createTexture(gl,"",width,height,arg);
+      textures.push(texture);
       setUniformLocationInt(program, "uSampler_"+ name,texture.index);
-    }
+      setUniformLocationFloat(program, "uSampler_"+ name+"_width",width);
+      setUniformLocationFloat(program, "uSampler_"+ name+"_height",height);
+    
+    }  
 
     if (Util.isInteger(type)) {
      
@@ -87,6 +92,7 @@ function setUniforms(program,width,height, args, options) {
     }
     i++;
   });
+  return textures;
 }
 
 function createOptions(parameters, code) {
@@ -132,6 +138,33 @@ class FunctionBuilder {
 
     let options = createOptions(codeGen.function.parameters, templateCode);
     let fragmentShaderCode = ShaderCode.generateFragmentShader(options);
+
+ /*   fragmentShaderCode =       `#ifdef GL_ES
+    precision highp float;
+#endif
+
+varying   highp float vKernelX;
+varying   highp float vKernelY;
+
+
+uniform sampler2D uSampler_y;
+uniform float uSampler_y_width;
+uniform float uSampler_y_height;
+
+float read_y(float x, float y){
+    int index = 0;
+    //convert pixel coordinates of result texture to texture coordinates of sampler texture
+    float y_x = (x/uSampler_y_width)+(1.0/(2.0*uSampler_y_width));
+    float y_y = (y/uSampler_y_height)+(1.0/(2.0*uSampler_y_height));
+
+    return texture2D(uSampler_y,vec2(y_x,y_y)).x;
+    //return uSampler_y_height;
+  }
+
+void main(void) {
+  ;
+  gl_FragColor = vec4(read_y(vKernelX,vKernelY), 0., 0., 0.);
+}`*/
     let vertexShaderCode   = ShaderCode.generateVertexShaderCode();
 
     function implementation(...args) {
@@ -141,18 +174,21 @@ class FunctionBuilder {
       let program = new Program(width,height);
       let vertexShader = ShaderFactory.createVertexShader(program.gl, vertexShaderCode);
       let fragmentShader = ShaderFactory.getFragmentShader(program.gl, fragmentShaderCode);
-      
+      console.log(vertexShaderCode);
       console.log(fragmentShaderCode);
+
+
       program.buildProgram(vertexShader, fragmentShader);
-      setUniforms(program,width,height,args, options);
+      let inputTextures = setUniforms(program,width,height,args, options);
       program.gl.useProgram(program.glProgram);
       program.gl.viewport(0, 0, width, height);
       
-      gl.bindFramebuffer(gl.FRAMEBUFFER, Util.createFrameBuffer);
-
-      
+      let resultTexture = Util.createReadableTexture(program.gl, 'resultTexture',width,height);
+      program.gl.bindFramebuffer(program.gl.FRAMEBUFFER, Util.createFrameBuffer(program.gl,resultTexture));
+      program.gl.drawElements(program.gl.TRIANGLES, /*num items*/ 6, program.gl.UNSIGNED_SHORT, 0);
+      console.log(Matrix.texture2matrix(program.gl,resultTexture,0));
       //console.log(options);
-      //console.log(templateCode);
+      console.log(templateCode);
       //console.log(ShaderCode.generateVertexShaderCode());
       
     }

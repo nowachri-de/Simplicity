@@ -70,8 +70,8 @@ class Util {
         return TextureFactory.createReadableTexture(gl, name, {width:width,height:height});
     }
 
-    static createFrameBuffer(gl,name,width,height){
-        return FrameBufferFactory.createFrameBuffer(gl, name, {width:width,height:height});
+    static createFrameBuffer(gl,texture){
+        return FrameBufferFactory.createFrameBuffer(gl,texture);
     }
     
 }

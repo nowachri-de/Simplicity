@@ -8,7 +8,7 @@ describe('CodeGenerator', function () {
   it('test created options using 2d array', function () {
     Kernel.create(function main(y=[[]]) {
       return y[this.thread.x][this.thread.y];
-    }).setOutput([10, 10])([[1.,2.],[3.,4.]]);
+    }).setOutput([2, 2])([[1.,2.],[3.,4.]]);
   });
 
   /*
