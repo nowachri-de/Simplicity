@@ -16,12 +16,10 @@ function check(impl, args, options) {
   let i = 0;
   args.forEach(arg => {
 
-
     if (Util.isArray(options.parameterMap.get(i).type)) {
       if (!Array.isArray(arg)) {
         throw 'expected function argument ' + i + ' to be of type array';
       }
-
     }
 
     if (Util.is2DArray(options.parameterMap.get(i).type)) {
@@ -32,7 +30,6 @@ function check(impl, args, options) {
       if (!Array.isArray(arg[0])) {
         throw 'expected function argument ' + i + ' to be of type two dimensional array';
       }
-
     }
     i++;
   });
@@ -40,7 +37,7 @@ function check(impl, args, options) {
 
 function getUniformLocation(program, id) {
   let location = program.gl.getUniformLocation(program.glProgram, id);
-
+  
   if (location === null) {
     throw 'could not find unifrom ' + id;
   }
@@ -82,9 +79,9 @@ function setUniforms(program, width, height, args, options) {
 
       let inputTexture = Util.createTexture(gl, "texture_uSampler_" + name, width, height, arg);
       textures.push(inputTexture);
-      setUniformLocationInt(program, "uSampler_" + name, inputTexture.index);
-      setUniformLocationFloat(program, "uSampler_" + name + "_width", width);
-      setUniformLocationFloat(program, "uSampler_" + name + "_height", height);
+      setUniformLocationInt(program, "uSampler_" + name , inputTexture.index);
+      setUniformLocationFloat(program, "uSampler_" + name, width);
+      setUniformLocationFloat(program, "uSampler_" + name, height);
     }
 
     if (Util.isInteger(type)) {
@@ -178,16 +175,10 @@ class FunctionBuilder {
       textures.forEach(texture => {
         texture.delete();
       });
-
     }
 
    implementation.options = functionsDescriptor.functionMap.get('main').options;
    
-    let implementationContext = {
-      
-    };
-
-    implementation.bind(implementationContext);
     implementation.setOutput = function (a) {
       this.dimensions = a;
       return implementation;

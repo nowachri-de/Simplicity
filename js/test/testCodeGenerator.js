@@ -278,14 +278,10 @@ it('', function () {
   });
 */
   it('test multiple functions', function () {
-    Kernel.create(function main(a=[]) {
-      test(a[this.thread.x]);
-      return a[this.thread.x];
-    },
-    function test(a=0.){
-      return 3.0;
-    } 
-    ).setOutput([3,1])([1,2,3]);
+    Kernel.create(function main(a=[[]]) {
+      return  a[this.thread.x][this.thread.y];
+    }
+    ).setOutput([2,2])([[1,2],[1,2]]);
   });
 
 

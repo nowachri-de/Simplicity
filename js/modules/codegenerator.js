@@ -36,9 +36,7 @@ function handleMemberExpression(codeGen, node, sb) {
 
     //set name of glsl function
     sb.push('read_');
-    sb.push(codeGen.function.id.name);
-    sb.push('_');
-    sb.push(data.name);
+    sb.push(codeGen.function.id.name +"_"+ data.name);
     sb.push('(');
 
     //set parameters of function
@@ -50,6 +48,11 @@ function handleMemberExpression(codeGen, node, sb) {
             sb.push(',');
         }
     }
+
+    /*if (data.properties.length >0){
+        sb.push(',');
+        sb.push('uSampler_' + codeGen.function.id.name +"_"+ data.name);
+    }*/
     sb.push(')');
 }
 class Visitor {
@@ -216,22 +219,20 @@ class CodeGenerator {
         this.handleType(node.left, sb);
     }
     genReturnStatement(node, sb) {
-        let replace = 'gl_FragColor = vec4({{returnValue}},0.,0.,0.);';
+       
+        let tmp = [];
+        if (node.argument.type === 'MemberExpression') {
+            handleMemberExpression(this, node.argument, tmp);
+        } else {
+            this.handleType(node.argument, tmp);
+        }
 
         if (this.transformationRequests.get('replaceReturnStatement') === true) {
-            let tmp = [];
-            if (node.argument.type === 'MemberExpression') {
-                handleMemberExpression(this, node.argument, tmp);
-            } else {
-                this.handleType(node.argument, tmp);
-            }
-
-            replace = Sqrl.Render(replace, { returnValue: tmp.join('') });
-            sb.push(replace);
+            sb.push(Sqrl.Render('gl_FragColor = vec4({{returnValue}},0.,0.,0.);', { returnValue: tmp.join('') }));
             this.transformationRequests.delete('replaceReturnStatement');
         } else {
             sb.push('return ');
-            this.handleType(node.argument, sb);
+            sb.push(tmp.join(''));
             sb.push(';');
         }
     }
@@ -275,9 +276,11 @@ class CodeGenerator {
                 throw formatThrowMessage(node, 'variable ' + name + ' already has been declared in this scope')
             }
 
-            self.getScope().variables.set(name, self.type2String(node));
-            self.parameters.set(name, self.type2String(node));
-            functionNode.parameters.push({ node: functionNode, name: self.function.id.name + '_' + name, type: self.type2String(node) });
+            let type = self.type2String(node);
+            self.getScope().variables.set(name, type);
+            self.parameters.set(name,type);
+        
+            functionNode.parameters.push({ node: functionNode, name:  self.function.id.name + '_' + name, type: type });
 
             self.handleType(node, sb);
             if ((index + 1) < nodes.length) {

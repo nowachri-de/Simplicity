@@ -543,5 +543,73 @@ float read_{{@this.name}}(float x, float y){
         return Sqrl.Render(shaderTemplate, options);
         //return extendedRender(shaderTemplate, options);
     }
+
+    static generateFragmentShader2(functionsDescriptor) {
+      
+        var shaderTemplate = `
+/**
+* This is a generated shader.
+*/
+
+#ifdef GL_ES 
+    precision highp float; 
+#endif
+
+varying highp float vKernelX; 
+varying highp float vKernelY; 
+varying highp vec2 vTexture;
+
+struct LightInfo{
+    sampler2D sampler;
+    float width;
+    float height;
+};
+uniform LightInfo aaa;
+{{each(options.samplers)}}
+
+{{/each}}
+{{each(options.integers)}}
+uniform int u_{{@this.name}};
+{{/each}}
+{{each(options.floats)}}
+uniform float u_{{@this.name}};
+{{/each}}
+
+float readTexture(float x, float y, SamplerWrapper wrapper){
+   return 0.0;
+}
+
+{{each(options.functions)}}
+{{@this}}
+{{/each}}
+
+{{main}}
+`;
+        String.prototype.replaceAll = function (search, replacement) {
+            var target = this;
+            return target.split(search).join(replacement);
+        };
+
+        let oldRender = Sqrl.Render;
+        Sqrl.Render = function(...args){
+            let result = oldRender.apply(this, arguments);
+            return result.replaceAll('&lt;', '<');
+        }
+
+        let main = functionsDescriptor.functionMap.get('main');
+        let options = main.options;
+        options.main = (new Formatter()).format(main.glslCode); 
+        options.functions = [];
+
+        let functions = functionsDescriptor.functionMap.getFunctionsExclusiveMain();
+        functions.forEach(element => {
+            console.log(element.glslCode);
+            options.functions.push((new Formatter()).format(element.glslCode));
+        });
+        
+        
+        return Sqrl.Render(shaderTemplate, options);
+        //return extendedRender(shaderTemplate, options);
+    }
 }
 module.exports.ShaderCode = ShaderCode
