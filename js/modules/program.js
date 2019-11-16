@@ -175,8 +175,8 @@ class Program {
 		gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.frameBuffer);
 		this.doBindings(textureA, textureB, this.glProgram);
 
-
 		gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
+		gl.deleteFramebuffer(frameBuffer);
 		var t1 = Date.now();
 		textureC.duration = t1 - t0;
 		return textureC;
@@ -193,9 +193,10 @@ class Program {
 		
 		gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.frameBuffer);
 		this.doSingleTextureBindings(texture, resultTexture, this.glProgram, componentA, componentB, targetIndex);
-
+		
 		gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
-
+		gl.deleteFramebuffer(frameBuffer);
+		
 		return resultTexture;
 	}
 

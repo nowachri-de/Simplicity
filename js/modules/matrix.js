@@ -1,5 +1,4 @@
 const { Program } = require(__dirname + "\\program.js");
-const { ShaderFactory } = require(__dirname + "\\shader.js");
 const { ShaderCode } = require(__dirname + "\\shadercode.js");
 const { ResultReader } = require(__dirname + "\\resultreader.js");
 const { MatrixStorage } = require(__dirname + "\\matrixstorage.js");
@@ -9,7 +8,6 @@ module.exports.Matrix = class Matrix {
     constructor(width, height) {
         this.width = width;
         this.height = height;
-        this.resultTexture = null;
         this.data = new Array();
         for (var row = 0; row < this.height; row++) {
             this.data.push(new Float32Array(width));
@@ -391,9 +389,7 @@ module.exports.Matrix = class Matrix {
         let program = new Program( matrixStorage.maxRows, matrixStorage.maxColumns);
         let gl = program.gl;
 
-        //width input texture = maxwidth(matrixA,matrixB,...), height of input texture = maxheight(matrixA,matrixB,...)
         let inputTexture = TextureFactory.createTextureByDimension(gl, "inputTexture", matrixStorage.maxRows, matrixStorage.maxColumns, matrixStorage.getTexels());
-
         program.buildProgram(ShaderCode.getCode("VERTEX"),ShaderCode.getCode("SINGLE"));
 
         let result = program.multiplySingleTexture(inputTexture, matrixA.getResultMatrixDimensions(matrixB), 0, 1, 0);
@@ -411,8 +407,7 @@ module.exports.Matrix = class Matrix {
      * @param {Texture} texture -   Texture to read matrix values from
      * @return {Integer} sourceIndex - The component index (R,G,B,A) to read the values from
     */
-    static texture2matrix(gl,texture, sourceIndex) {
-        
+    static texture2matrix(gl,texture, sourceIndex) {   
         let dimension = { width: texture.width, height: texture.height };
         let readableTexture = TextureFactory.createReadableTexture(gl, 'readableTexture', dimension);
         let resultReader = new ResultReader(gl, texture.width, texture.height);
@@ -431,7 +426,7 @@ module.exports.Matrix = class Matrix {
     multiply(matrixB) {
         let resultTexture = Matrix.multiply2Texture(this,matrixB);
         let result = Matrix.texture2matrix(resultTexture.gl,resultTexture, 0); //0 stands for index of component 'R'
-
+        resultTexture.delete();
         return result;
     }
 }

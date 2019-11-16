@@ -203,7 +203,7 @@ describe('Matrix', function () {
       result.delete();
     });
   });
-  /*describe('#multiply(Matrix)', function () {
+  describe('#multiply(Matrix)', function () {
     it('should multiply matrix a (200x200) with matrix b (200x200) 10 times.', function () {
       this.timeout(0);//disable timeout
       var matrixA = new Matrix(200, 200);//rows, columns
@@ -227,7 +227,7 @@ describe('Matrix', function () {
 
       validateMultiplicationResult(matrixA, matrixB, matrixA.multiply(matrixB));
     });
-  });*/
+  });
 
  
 });

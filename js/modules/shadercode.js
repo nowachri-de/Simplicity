@@ -1,5 +1,5 @@
 var Sqrl = require('squirrelly');
-
+const { Formatter } = require(__dirname + "\\formatter.js");
 
 class ShaderCode {
 
@@ -35,7 +35,7 @@ class ShaderCode {
         }`;
         return code;
     }
-    static getReadableShaderCode() {
+    static getReadableShaderCode2() {
         var code = ` 
             /*ShaderFactory that creates a texture that can be converted to byte.
              *This is needed when reading a texture from javascript.*/
@@ -74,8 +74,13 @@ class ShaderCode {
                 // http://learnwebgl.brown37.net/10_surface_properties/texture_mapping_images.html
                 highp float  row = vTexture.t;
                 highp float  col = vTexture.s;
-        
+                
                 highp float v = readValue(col,row,uTargetIndex);				
+                if (v==0.) { 
+                    gl_FragColor = vec4(0.,0.,0.,0.); 
+                    return; 
+                } 
+               
                 highp float a = abs(v);                   			// encode absolute value + sign
                 highp float exp = floor(log2(a));         			// number of powers of 2
                 highp float mant = (a * pow(2.,23.-exp)); 			// multiply to fill 24 bits (implied leading 1) 
@@ -89,7 +94,74 @@ class ShaderCode {
                 highp float m2 = (mant2)/255.;						// middle part 
                 highp float m3 = (mant3+.5)/255.;					// scale to 0 - 255 
                 gl_FragColor = vec4(m3,m2,m1,e);					// output an IEEE754 32-bit floating point number 
-                //gl_FragData[1] = vec4(m3,m2,m1,e);					// output an IEEE754 32-bit floating point number
+            }
+        `;
+        return code;
+    }
+
+    static getReadableShaderCode() {
+        var code = ` 
+            /*ShaderFactory that creates a texture that can be converted to byte.
+             *This is needed when reading a texture from javascript.*/
+
+            #ifdef GL_ES 
+                precision highp float; 
+            #endif 
+          
+            varying highp vec2	   		vTexture;		    // row, column to calculate 
+            uniform highp sampler2D     usamplerA;			// matrixA
+            uniform highp sampler2D     usamplerB;			// matrixB
+            uniform highp int 			uNumInputColumns;	//
+            uniform highp float	  		uStepInCol; 		// increment across source texture
+            uniform int					uTargetIndex;       // index where to read result;
+
+            highp float readValue(highp float col,highp float row,int targetIndex){
+                
+                highp vec4 result = texture2D(usamplerA, vec2(col,row));
+                
+                if (targetIndex == 0) return result.r;
+                if (targetIndex == 1) return result.g;
+                if (targetIndex == 2) return result.b;
+                if (targetIndex == 3) return result.a;
+                
+                //This return statement should not be reached
+                return -1.0;
+            }
+            void main(void) { 
+
+                highp float  row = vTexture.t;
+                highp float  col = vTexture.s;
+                
+                highp float value = readValue(col,row,uTargetIndex);				
+
+             
+                if (value == 0.0) {
+                    gl_FragColor = vec4(0.,0.,0.,0.);
+                    return;
+                }
+                
+                
+                float exponent;
+                float mantissa;
+                vec4  result;
+                float sgn;
+                
+                sgn = step(0.0, -value);
+                value = abs(value);
+                exponent = floor(log2(value));
+                mantissa = value*pow(2.0, -exponent)-1.0;
+                exponent = exponent+127.0;
+                result   = vec4(0,0,0,0);
+                result.a = floor(exponent/2.0);
+                exponent = exponent - result.a*2.0;
+                result.a = result.a + 128.0*sgn;
+                result.b = floor(mantissa * 128.0);
+                mantissa = mantissa - result.b / 128.0;
+                result.b = result.b + exponent*128.0;
+                result.g = floor(mantissa*32768.0);
+                mantissa = mantissa - result.g/32768.0;
+                result.r = floor(mantissa*8388608.0);
+                gl_FragColor = result/255.0;					// output an IEEE754 32-bit floating point number 
             }
         `;
         return code;
@@ -346,9 +418,10 @@ uniform float uResultTextureHeight; // result texture height
 
 varying float vKernelX; 
 varying float vKernelY; 
-        
-//col = vTexture.s;
-//row = vTexture.t;
+varying highp vec2 vTexture;
+
+//U = S = x dimension
+//V = T = y dimension
 
 void main(void) { 
     // just pass the position and texture coords 
@@ -357,11 +430,13 @@ void main(void) {
     //convert texture coordinates to pixel coordinates
     vKernelX = (aTexture.s-(1.0/(2.0*uResultTextureWidth)))*uResultTextureWidth;
     vKernelY = (aTexture.t-(1.0/(2.0*uResultTextureHeight)))*uResultTextureHeight;
+    vTexture = aTexture;
 }`;
         return code;
     }
 
-    static generateFragmentShader(options) {
+    static generateFragmentShader(functionsDescriptor) {
+      
         var shaderTemplate = `
 /**
 * This is a generated shader.
@@ -371,14 +446,15 @@ void main(void) {
     precision highp float; 
 #endif
 
-varying   highp float vKernelX; 
-varying   highp float vKernelY; 
-
+varying highp float vKernelX; 
+varying highp float vKernelY; 
+varying highp vec2 vTexture;
 {{each(options.samplers)}}
 uniform sampler2D uSampler_{{@this.name}};
 {{/each}}
 {{each(options.samplers)}}
 uniform float uSampler_{{@this.name}}_width;
+uniform float uSampler_{{@this.name}}_height;
 {{/each}}
 
 {{each(options.samplers2D)}}
@@ -392,6 +468,9 @@ uniform float uSampler_{{@this.name}}_height;
 {{each(options.integers)}}
 uniform int u_{{@this.name}};
 {{/each}}
+{{each(options.floats)}}
+uniform float u_{{@this.name}};
+{{/each}}
 {{if(options.samplers.length > 0)}}
 /*
 *  functions for accessing values of a 1D array which is represented by a 2D texture
@@ -399,15 +478,16 @@ uniform int u_{{@this.name}};
 */
 {{/if}}
 {{each(options.samplers)}}
-float readValue_{{@this.name}}(float x){
+float read_{{@this.name}}(float x){
     int index = 0;
     //convert pixel coordinates of result texture to texture coordinates of sampler texture
     float {{@this.name}}_x = (x/uSampler_{{@this.name}}_width)+(1.0/(2.0*uSampler_{{@this.name}}_width));
+    float {{@this.name}}_y = (0.0/uSampler_{{@this.name}}_height)+(1.0/(2.0*uSampler_{{@this.name}}_height));
 
-    if (index == 0) return texture2D(uSampler_{{@this.name}},vec2({{@this.name}}_x,0.0)).x;
-    if (index == 1) return texture2D(uSampler_{{@this.name}},vec2({{@this.name}}_x,0.0)).y;
-    if (index == 2) return texture2D(uSampler_{{@this.name}},vec2({{@this.name}}_x,0.0)).z;
-    if (index == 3) return texture2D(uSampler_{{@this.name}},vec2({{@this.name}}_x,0.0)).w;
+    if (index == 0) return texture2D(uSampler_{{@this.name}},vec2(0.0,{{@this.name}}_x)).x;
+    if (index == 1) return texture2D(uSampler_{{@this.name}},vec2(0.0,{{@this.name}}_x)).y;
+    if (index == 2) return texture2D(uSampler_{{@this.name}},vec2(0.0,{{@this.name}}_x)).z;
+    if (index == 3) return texture2D(uSampler_{{@this.name}},vec2(0.0,{{@this.name}}_x)).w;
 }
 
 {{/each}}
@@ -432,8 +512,9 @@ float read_{{@this.name}}(float x, float y){
 
 {{/each}}
 {{each(options.functions)}}
-{{@this.code}}
+{{@this}}
 {{/each}}
+
 {{main}}
 `;
         String.prototype.replaceAll = function (search, replacement) {
@@ -446,6 +527,18 @@ float read_{{@this.name}}(float x, float y){
             let result = oldRender.apply(this, arguments);
             return result.replaceAll('&lt;', '<');
         }
+
+        let main = functionsDescriptor.functionMap.get('main');
+        let options = main.options;
+        options.main = (new Formatter()).format(main.glslCode); 
+        options.functions = [];
+
+        let functions = functionsDescriptor.functionMap.getFunctionsExclusiveMain();
+        functions.forEach(element => {
+            console.log(element.glslCode);
+            options.functions.push((new Formatter()).format(element.glslCode));
+        });
+        
         
         return Sqrl.Render(shaderTemplate, options);
         //return extendedRender(shaderTemplate, options);

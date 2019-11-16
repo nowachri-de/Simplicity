@@ -1,5 +1,3 @@
-
-
 module.exports.FrameBufferFactory = class FrameBufferFactory {
 	//http://www.songho.ca/opengl/gl_fbo.html
 	//https://github.com/tsherif/webgl2examples/blob/master/deferred.html
@@ -7,20 +5,10 @@ module.exports.FrameBufferFactory = class FrameBufferFactory {
 	//https://stackoverflow.com/questions/34154300/readpixels-on-multiple-draw-buffers-in-webgl
 	//https://www.cs.cornell.edu/courses/cs4620/2017sp/cs4621/lecture08/exhibit03.html
 	static createFrameBuffer(gl, texture) {
-		// create and bind renderbuffer
-		//var renderBuffer = gl.createRenderbuffer();
-		//gl.bindRenderbuffer(gl.RENDERBUFFER, null);
-		//gl.bindRenderbuffer(gl.RENDERBUFFER, renderBuffer);
-		//gl.renderbufferStorage(gl.RENDERBUFFER, gl.UNSIGNED_BYTE, texture.width, texture.height);
-
 		// create and bind framebuffer
 		var frameBuffer = gl.createFramebuffer();
 		gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer);
-		//gl.framebufferTexture2D(gl.FRAMEBUFFER, ext.COLOR_ATTACHMENT0_WEBGL, gl.TEXTURE_2D, texture.texture, /*level*/ 0);
 		gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture.texture, /*level*/ 0);
-		//gl.framebufferRenderbuffer(gl.FRAMEBUFFER, ext.COLOR_ATTACHMENT1_WEBGL, gl.RENDERBUFFER, renderBuffer);
-
-		//gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer);
 
 		if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) != gl.FRAMEBUFFER_COMPLETE)
 			throw "Error: binding of framebuffer failed";
@@ -28,8 +16,6 @@ module.exports.FrameBufferFactory = class FrameBufferFactory {
 		var result = {
 			texture: texture,
 			frameBuffer: frameBuffer,
-			//renderBuffer: renderBuffer,
-			//name: name,
 			width: texture.width,
 			height: texture.height
 		}
@@ -47,7 +33,6 @@ module.exports.FrameBufferFactory = class FrameBufferFactory {
 			buffers.push(offset + i);
 			i++;
 		});
-		
 
 		var frameBuffer = gl.createFramebuffer();
 		gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer);

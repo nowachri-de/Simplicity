@@ -17,21 +17,31 @@ function genSpace(space) {
     }
     return s.join('');
 }
-
-function handleMemberExpression(codeGen,node,sb) {
-
-    
+/**
+ * Translate the access of an array into a glsl function
+ */
+function handleMemberExpression(codeGen, node, sb) {
     let data = {};
-    data.name = node.object.object.name;
+    let object = node;
+    while (object.type !== 'Identifier') {
+        object = object.object;
+    }
+    data.name = object.name;
     data.properties = [];
 
+    //due to setting a transformation request, data will contain all properties after handling type
     codeGen.transformationRequests.set('memberExpression', data);
     codeGen.handleType(node, []);
-    codeGen.transformationRequests.delete('memberExpression');
+    codeGen.transformationRequests.delete('memberExpression');//remove transformation request
 
+    //set name of glsl function
     sb.push('read_');
+    sb.push(codeGen.function.id.name);
+    sb.push('_');
     sb.push(data.name);
     sb.push('(');
+
+    //set parameters of function
     for (let i = 0; i < data.properties.length; i++) {
         data.properties[i] = data.properties[i].replaceAll('this.thread.x', 'vKernelX');
         data.properties[i] = data.properties[i].replaceAll('this.thread.y', 'vKernelY');
@@ -114,11 +124,10 @@ class CodeGenerator {
     constructor() {
         this.scopes = [];
         this.code = "";
-        this.postProcessNodes = [];
-        this.eventListeners = new Map();
         this.function = null;
         this.sequenceID = 0;
         this.scopeIndex = -1;
+        this.parameters = new Map();
         this.transformationRequests = new Map();
     }
 
@@ -127,20 +136,13 @@ class CodeGenerator {
         this.body = acorn.parse(source, { preserveParens: true }).body;
         this.codenodes = this.interpreter.interpret(this.body);
         this.pushScope();
+
         let sb = [];
         this.iterate(this.codenodes, sb);
-        this.code = this.postProcess(this.postProcessNodes, sb);
+        this.code = sb.join('');
         return this.code;
-
     }
-    postProcess(codenodes, sb) {
 
-        let options = {};
-        codenodes.forEach(function (node) {
-            options[node.tagID] = node.translatedCode;
-        })
-        return (new Formatter()).format(Sqrl.Render(sb.join(''), options));
-    }
 
     pushScope() {
         if (this.scopeIndex <= (this.scopes.length - 1)) {
@@ -219,7 +221,7 @@ class CodeGenerator {
         if (this.transformationRequests.get('replaceReturnStatement') === true) {
             let tmp = [];
             if (node.argument.type === 'MemberExpression') {
-                handleMemberExpression(this,node.argument,tmp);
+                handleMemberExpression(this, node.argument, tmp);
             } else {
                 this.handleType(node.argument, tmp);
             }
@@ -240,6 +242,8 @@ class CodeGenerator {
         sb.push('this');
     }
     genFunctionDeclaration(node, sb) {
+        this.function = node;
+
         let tmp = [];
         this.handleType(node.id, tmp);
         let name = tmp.join('');
@@ -248,6 +252,8 @@ class CodeGenerator {
         if (name === 'main') {
             sb.push('void ');
             this.transformationRequests.set('replaceReturnStatement', true);
+        } else {
+            sb.push('float ');
         }
         sb.push(name);
         sb.push('(');
@@ -270,7 +276,8 @@ class CodeGenerator {
             }
 
             self.getScope().variables.set(name, self.type2String(node));
-            functionNode.parameters.push({ node: functionNode, name: name, type: self.type2String(node) });
+            self.parameters.set(name, self.type2String(node));
+            functionNode.parameters.push({ node: functionNode, name: self.function.id.name + '_' + name, type: self.type2String(node) });
 
             self.handleType(node, sb);
             if ((index + 1) < nodes.length) {
@@ -286,9 +293,11 @@ class CodeGenerator {
 
         sb.push(')');
         this.handleType(node.body, sb);
-        node.code = sb.join('');
-        this.function = node;
         this.transformationRequests.delete('replaceReturnStatement');
+
+        node.code = sb.join('');
+
+
     }
     getParenthesizedExpression(node, sb) {
         sb.push('(');
@@ -339,7 +348,7 @@ class CodeGenerator {
                 throw formatThrowMessage(node, object.name + ' is of type ' + this.getType(object.name) + ' but must be array type');
             }
 
-            handleMemberExpression(this,node.expression,sb, data);
+            handleMemberExpression(this, node.expression, sb);
             sb.push(';');
             this.transformationRequests.delete('memberExpression');
         } else {
@@ -353,15 +362,23 @@ class CodeGenerator {
         sb.push('(');
         let self = this;
         this.iteratePlus(node.arguments, sb, function (nodes, node, index, sb) {
-            let tmp = []
-            self.handleType(node, tmp);
-            if (node.type === 'Identifier' && self.getType(tmp.join('')) === null) {
-                throw formatThrowMessage(node, tmp.join('') + " unknown identifier");
+            let tmp = [];
+            if (node.type === 'MemberExpression') {
+                handleMemberExpression(self, node, sb);
+            } else {
+                self.handleType(node, tmp);
+                //make sure that identifier has been declared
+                if (node.type === 'Identifier' && self.getType(tmp.join('')) === null) {
+                    throw formatThrowMessage(node, tmp.join('') + " unknown identifier");
+                }
+                sb.push(tmp.join(''));
+                
+                //be ready for next argument
+                if ((index + 1) < nodes.length) {
+                    sb.push(',');
+                }
             }
-            sb.push(tmp.join(''));
-            if ((index + 1) < nodes.length) {
-                sb.push(',');
-            }
+
         })
         sb.push(')');
     }
@@ -417,7 +434,10 @@ class CodeGenerator {
 
         if (node.type === 'BinaryExpression') {
             switch (node.operator) {
-                case '%': return 'int'; break
+
+                case '%': ;//we do not put a break here since we want + logic to be executed
+                case '/': ;//we do not put a break here since we want + logic to be executed
+                case '*': ; //we do not put a break here since we want + logic to be executed
                 case '+': {
                     let left = this.type2String(node.left);
                     let right = this.type2String(node.right);
@@ -457,7 +477,9 @@ class CodeGenerator {
         sb.push('=');
 
         if (node.init.type === 'MemberExpression') {
-            handleMemberExpression(this,node.init,tmp, data);
+            let tmp = []
+            handleMemberExpression(this, node.init, tmp);
+            sb.push(tmp.join(''));
             sb.push(';');
             return;
         } else {
@@ -495,13 +517,13 @@ class CodeGenerator {
         one of the sides needs to get casted to*/
         let castType = castNeeded(typeLeft, typeRight);
 
-        
+
         let leftSide = "";
         let tmp = [];
         if (node.left.type === 'MemberExpression') {
-            handleMemberExpression(this,node.left,tmp);
+            handleMemberExpression(this, node.left, tmp);
             leftSide = tmp.join('');
-        }else{
+        } else {
             this.handleType(node.left, tmp);
             leftSide = tmp.join('');
         }
@@ -509,9 +531,9 @@ class CodeGenerator {
         let rightSide = "";
         tmp = [];
         if (node.right.type === 'MemberExpression') {
-            handleMemberExpression(this,node.right,tmp);
+            handleMemberExpression(this, node.right, tmp);
             rightSide = tmp.join('');
-        }else{
+        } else {
             this.handleType(node.right, tmp);
             rightSide = tmp.join('');
         }
@@ -520,14 +542,14 @@ class CodeGenerator {
         if (castType !== null && typeLeft !== castType) {
             intermediate.push(castType + '(')
             intermediate.push(leftSide);
-            intermediate.push(')') 
+            intermediate.push(')')
         } else {
             intermediate.push(leftSide);
         }
 
-        if (node.operator === '%'){
+        if (node.operator === '%') {
             intermediate.push(',');
-        }else{
+        } else {
             intermediate.push(node.operator);
         }
 
@@ -540,17 +562,23 @@ class CodeGenerator {
             intermediate.push(rightSide);
         }
 
-        if (node.operator === '%'){
+        if (node.operator === '%') {
             sb.push('mod(');
             sb.push(intermediate.join(''));
             sb.push(')');
-        }else{
+        } else {
             sb.push(intermediate.join(''));
         }
     }
 
     genIdentifier(node, sb) {
-        sb.push(node.name);
+        let type = this.parameters.get(node.name);
+        if (type && !(Util.isArray(type) || Util.is2DArray(type))) {
+            sb.push("u_" + node.name);
+        } else {
+            sb.push(node.name);
+        }
+
     }
     genLiteral(node, sb) {
         sb.push(node.raw);

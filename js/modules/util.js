@@ -29,6 +29,7 @@ class Util {
             component = "R";
         }
 
+        
         for (let row = 0; row < height; row++) {
             for (let col = 0; col < width; col++) {
                 result[cnt++] = 0.;
@@ -39,19 +40,19 @@ class Util {
                 switch (component) {
                     //R component of RGBA color
                     case 'R':
-                        result[cnt - 4] = data[row][col];
+                        result[cnt - 4] = (height > 1) ? data[row][col] : data[col];
                         break;
                     //G component of RGBA color
                     case 'G':
-                        result[cnt - 3] = data[row][col];
+                        result[cnt - 3] = (height > 1) ? data[row][col] : data[col];
                         break;
                     //B component of RGBA color
                     case 'B':
-                        result[cnt - 2] = data[row][col];
+                        result[cnt - 2] = (height > 1) ? data[row][col] : data[col];
                         break;
                     //A component of RGBA color
                     case 'A':
-                        result[cnt - 1] = data[row][col];
+                        result[cnt - 1] = (height > 1) ? data[row][col] : data[col];
                         break;
                     default:
                         throw "getTexels: component " + component + " unknown";
