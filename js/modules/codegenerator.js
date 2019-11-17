@@ -9,7 +9,9 @@ String.prototype.replaceAll = function (search, replacement) {
     var target = this;
     return target.split(search).join(replacement);
 };
-
+function hasBeenDeclared(codeGen, name) {
+    return codeGen.getType(name) !== null;
+}
 function genSpace(space) {
     let s = [];
     for (let i = 0; i < space; ++i) {
@@ -17,14 +19,98 @@ function genSpace(space) {
     }
     return s.join('');
 }
+function isMainFunction(codeGen) {
+    return getFunctionName(codeGen) === 'main';
+}
+
+function getFunctionName(codeGen) {
+    return codeGen.function.id.name;
+}
+
+function checkAndReturnParameter(codeGen, node) {
+    let name;
+    if (node.type === 'AssignmentPattern') {
+        name = node.left.name;
+    } else {
+        throw formatThrowMessage(node, 'function parameters need to have default values assigned')
+    };
+
+    if (codeGen.getScope().variables.get(name)) {
+        throw formatThrowMessage(node, 'variable ' + name + ' already has been declared in this scope')
+    }
+    return name;
+}
+
+function storeParameter(codeGen, node, functionNode, name) {
+    //store name and type of parameter, needed for later assertion
+    let type = codeGen.type2String(node);
+    codeGen.getScope().variables.set(name, type);
+    codeGen.parameters.set(name, type);
+
+    //store parameter in processed node, needed for later processing
+    functionNode.parameters.push({ node: functionNode, name: getFunctionName(codeGen) + '_' + name, type: type });
+    return type;
+}
+
+function processMainFunctionParameters(nodes, node, index, sb) {
+    let name = checkAndReturnParameter(this.codeGen, node);
+    storeParameter(this.codeGen, node, this.functionNode, name);
+
+    this.codeGen.handleType(node, sb);
+
+    //check if there are more parameters to come
+    if ((index + 1) < nodes.length) {
+        sb.push(',');
+    }
+}
+function processAnyFunctionParameters(nodes, node, index, sb) {
+    let name = checkAndReturnParameter(this.codeGen, node);
+    storeParameter(this.codeGen, node, this.functionNode, name);
+
+    let tmp = [];
+    this.codeGen.handleType(node, tmp);
+
+    if (Util.isArray(tmp.join('')) ) {
+        sb.push('in sampler2D sampler_' + name);
+        sb.push(',');
+        sb.push('float sampler_' + name + '_width');
+    } else if (Util.is2DArray(tmp.join(''))) {
+        sb.push('in sampler2D sampler_' + name);
+        sb.push(',');
+        sb.push('float sampler_' + name + '_width');
+        sb.push(',');
+        sb.push('float sampler_' + name + '_height');
+    }else{
+        sb.push(tmp.join(''));
+    }
+
+    //check if there are more parameters to come
+    if ((index + 1) < nodes.length) {
+        sb.push(',');
+    }
+}
 /**
  * Translate the access of an array into a glsl function
  */
 function handleMemberExpression(codeGen, node, sb) {
     let data = {};
     let object = node;
-    while (object.type !== 'Identifier') {
+
+    while (typeof object !== 'undefined' && object.type !== 'Identifier') {
         object = object.object;
+    }
+
+    if (typeof object === 'undefined') {
+        let tmp = [];
+        codeGen.handleType(node, tmp);
+        let result = tmp.join('').replaceAll('this.thread.x', 'vKernelX');
+        result = result.replaceAll('this.thread.y', 'vKernelY');
+        return sb.push(result);
+    }
+
+    //check if variable has been defined
+    if (!hasBeenDeclared(codeGen, object.name)) {
+        throw formatThrowMessage(object, object.name + " has not been declared");
     }
     data.name = object.name;
     data.properties = [];
@@ -36,7 +122,6 @@ function handleMemberExpression(codeGen, node, sb) {
 
     //set name of glsl function
     sb.push('readTexture');
-    //sb.push(codeGen.function.id.name +"_"+ data.name);
     sb.push('(');
 
     //set parameters of function
@@ -49,17 +134,31 @@ function handleMemberExpression(codeGen, node, sb) {
         }
     }
 
-    if (data.properties.length > 0){
+    if (data.properties.length > 0) {
         sb.push(',');
-        sb.push('uSampler_' + codeGen.function.id.name +"_"+ data.name +"_width");
+        if (isMainFunction(codeGen)) {
+            sb.push('uSampler_' + getFunctionName(codeGen) + "_" + data.name + "_width");
+        } else {
+            sb.push('sampler_' + data.name + "_width");
+        }
+
     }
-    if (data.properties.length > 1){
+    if (data.properties.length > 1) {
         sb.push(',');
-        sb.push('uSampler_' + codeGen.function.id.name +"_"+ data.name +"_height");
+        if (isMainFunction(codeGen)) {
+            sb.push('uSampler_' + getFunctionName(codeGen) + "_" + data.name + "_height");
+        } else {
+            sb.push('sampler_' + data.name + "_height");
+        }
     }
-    if (data.properties.length > 0){
+    if (data.properties.length > 0) {
         sb.push(',');
-        sb.push('uSampler_' + codeGen.function.id.name +"_"+ data.name );
+        if (isMainFunction(codeGen)) {
+            sb.push('uSampler_' + getFunctionName(codeGen) + "_" + data.name);
+        } else {
+            sb.push('sampler_' + data.name);
+        }
+
     }
     sb.push(')');
 }
@@ -230,7 +329,7 @@ class CodeGenerator {
         this.handleType(node.left, sb);
     }
     genReturnStatement(node, sb) {
-       
+
         let tmp = [];
         if (node.argument.type === 'MemberExpression') {
             handleMemberExpression(this, node.argument, tmp);
@@ -260,7 +359,7 @@ class CodeGenerator {
         this.handleType(node.id, tmp);
         let name = tmp.join('');
 
-        //if the function has the name main it needs to be handled specially
+        //if the function has the name 'main' it needs to be handled specially
         if (name === 'main') {
             sb.push('void ');
             this.transformationRequests.set('replaceReturnStatement', true);
@@ -271,33 +370,19 @@ class CodeGenerator {
         sb.push('(');
         let self = this;
 
+        //process function parameters 
         tmp = [];
         node.parameters = [];
-        let functionNode = node;
-        //process function parameters and store in tmp stringbuilder
-        this.iteratePlus(node.params, tmp, function (nodes, node, index, sb) {
-            let name = '';
-            if (node.type === 'AssignmentPattern') {
-                name = node.left.name;
-            } else {
-                throw formatThrowMessage(node, 'function parameters need to have default values assigned')
-            };
+        const scope = {
+            codeGen: this,
+            functionNode: node
+        }
+        if (isMainFunction(this)) {
+            this.iteratePlus(node.params, tmp, processMainFunctionParameters.bind(scope));
+        } else {
+            this.iteratePlus(node.params, tmp, processAnyFunctionParameters.bind(scope));
+        }
 
-            if (self.getScope().variables.get(name)) {
-                throw formatThrowMessage(node, 'variable ' + name + ' already has been declared in this scope')
-            }
-
-            let type = self.type2String(node);
-            self.getScope().variables.set(name, type);
-            self.parameters.set(name,type);
-        
-            functionNode.parameters.push({ node: functionNode, name:  self.function.id.name + '_' + name, type: type });
-
-            self.handleType(node, sb);
-            if ((index + 1) < nodes.length) {
-                sb.push(',');
-            }
-        })
 
         if (name === 'main') {
             sb.push('void');
@@ -355,7 +440,7 @@ class CodeGenerator {
             while (object.type !== "Identifier") {
                 object = object["object"];
             }
-            if (this.getType(object.name) === null) {
+            if (!hasBeenDeclared(this, object.name)) {
                 throw formatThrowMessage(node, node.expression.object.name + ' undefined');
             }
             if (!Util.isArray(this.getType(object.name))) {
@@ -382,11 +467,41 @@ class CodeGenerator {
             } else {
                 self.handleType(node, tmp);
                 //make sure that identifier has been declared
-                if (node.type === 'Identifier' && self.getType(tmp.join('')) === null) {
+                if (node.type === 'Identifier' && !hasBeenDeclared(self, tmp.join(''))) {
                     throw formatThrowMessage(node, tmp.join('') + " unknown identifier");
                 }
-                sb.push(tmp.join(''));
+                /*  Check if functioan call argument is an array.
+                    If this is the case, replace the argument by the sampler, texture-width and texture-height
+                */
+                let type = self.getType(tmp.join(''));
                 
+                //This is required if argument is a constant like 1.0 or if argument is a function call
+                if (type === null){
+                    type = tmp.join('');
+                }
+
+                if (Util.isArray(type)) {
+                    if (isMainFunction(self)) {
+                        sb.push('uSampler_' + getFunctionName(self) + "_" + tmp.join(''));
+                        sb.push(',');
+                        sb.push('uSampler_' + getFunctionName(self) + "_" + tmp.join('') + '_width');
+                    }else{
+                        throw 'not yet implemented';
+                    }
+                } else if (Util.is2DArray(type)) {
+                    if (isMainFunction(self)) {
+                        sb.push('uSampler_' + getFunctionName(self) + "_" + tmp.join(''));
+                        sb.push(',');
+                        sb.push('uSampler_' + getFunctionName(self) + "_" + tmp.join('') + '_width');
+                        sb.push(',');
+                        sb.push('uSampler_' + getFunctionName(self) + "_" + tmp.join('') + '_height');
+                    }else{
+                        throw 'not yet implemented';
+                    }
+                } else {
+                    sb.push(tmp.join(''));
+                }
+
                 //be ready for next argument
                 if ((index + 1) < nodes.length) {
                     sb.push(',');
@@ -403,7 +518,7 @@ class CodeGenerator {
 
         if (node.computed) {
             //check that property (variable) has been defined.
-            if (node.property.type === 'Identifier' && this.getType(node.property.name) === null) {
+            if (node.property.type === 'Identifier' && !hasBeenDeclared(node.property.name)) {
                 throw formatThrowMessage(node, node.property.name + ' undefined')
             }
             if (typeof this.transformationRequests.get('memberExpression') != 'undefined') {
@@ -475,7 +590,7 @@ class CodeGenerator {
     }
 
     genVariableDeclarator(node, sb) {
-        if (node.init === null && this.getType(node.id.name) === null) {
+        if (node.init === null && !hasBeenDeclared(node.id.name)) {
             throw formatThrowMessage(node, "Variable declarator must be initialized");
         }
         let type;
@@ -588,9 +703,9 @@ class CodeGenerator {
     genIdentifier(node, sb) {
         let type = this.parameters.get(node.name);
 
-        //if its not an array type it is a uniform ???? I think that´s not that simple
-        if (type && !(Util.isArray(type) || Util.is2DArray(type))) {
-            sb.push("u_" + this.function.id.name + "_"+node.name);
+        //if its not an array type and main function is processed it is a uniform 
+        if (type && !(Util.isArray(type) || Util.is2DArray(type)) && isMainFunction(this)) {
+            sb.push("u_" + getFunctionName(this) + "_" + node.name);
         } else {
             sb.push(node.name);
         }
@@ -600,8 +715,8 @@ class CodeGenerator {
         sb.push(node.raw);
     }
     genUpdateExpression(node, sb) {
-        if (node.argument.type === 'MemberExpression'){
-            throw formatThrowMessage (node.argument,'Update operation not allowed on array member');
+        if (node.argument.type === 'MemberExpression') {
+            throw formatThrowMessage(node.argument, 'Update operation not allowed on array member');
         }
         (node.prefix === true) ? sb.push(node.operator) : "";
         this.handleType(node.argument, sb);

@@ -158,6 +158,22 @@ describe('CodeGenerator', function () {
       return x[this.thread.x][this.thread.y] - x[this.thread.x][this.thread.y];
     }).setOutput([2, 2])([[1., 2.], [3., 4.]]);
   });
+  it('Test multiple functions', function () {
+    Kernel.create(function main() {
+      return test(this.thread.x);
+    },function test(a = 0.0){
+      return a;
+    }
+    ).setOutput([2, 2])();
+  });
+  it('Test multiple functions', function () {
+    Kernel.create(function main(a = 0.) {
+      return test(this.thread.x + a);
+    },function test(a = 0.0){
+      return a;
+    }
+    ).setOutput([2, 2])(5.);
+  });
   it('Test self substraction 1D array', function () {
     Kernel.create(function main(x = []) {
       return x[this.thread.x]- x[this.thread.x];
@@ -259,14 +275,30 @@ describe('CodeGenerator', function () {
     }
   });
 
-  it('test multiple functions', function () {
+  it('', function () {
     Kernel.create(function main(a = [[]]) {
       return a[this.thread.x][this.thread.y];
     }).setOutput([2, 2])([[1, 5], [1, 5]]);
   });
-  it('test multiple functions', function () {
+  it('', function () {
     Kernel.create(function main(a = []) {
       return a[this.thread.x];
     }).setOutput([2, 2])([1, 5]);
+  });
+  it('', function () {
+    Kernel.create(function main() {
+      return test(this.thread.x);
+    },function test(a = 0.0){
+      return a;
+    }
+    ).setOutput([2, 2])();
+  });
+  it('', function () {
+    Kernel.create(function main(a = 0.) {
+      return test(this.thread.x + a);
+    },function test(a = 0.0){
+      return a;
+    }
+    ).setOutput([2, 2])(5.);
   });
 });
