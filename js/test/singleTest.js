@@ -1,30 +1,16 @@
 var assert = require('assert');
 const { Kernel } = require(__dirname + '\\..\\modules\\kernel.js');
 describe('CodeGenerator', function () {
-    it('', function () {
-        Kernel.create(function main(a =[]) {
-          return test(a);
-        },function test(b = []){
-          return b[this.thread.x];
-        }
-        ).setOutput([2, 2])([1,2]);
-    });
+  it('should throw an exception since variable is not initialized', function () {
 
-    it('', function () {
-      Kernel.create(function main(a =[[]]) {
-        return test(a);
-      },function test(b = [[]]){
-        return b[this.thread.x][this.thread.y];
-      }
-      ).setOutput([2, 2])([[1,2],[1,2]]);
-  });
-
-  it('', function () {
-    Kernel.create(function main(a =[[]]) {
-      return test(a,a,1.0);
-    },function test(b = [[]],c=[[]],x=0.){
-      return b[this.thread.x][this.thread.y] + c[this.thread.x][this.thread.y];
+    try {
+      Kernel.create(function main() {
+        let x;
+      }).setOutput([1, 1])([1.0, 2.0], 2);
+      assert.fail('expected exception not thrown'); // this throws an AssertionError
+    } catch (e) {
+      assert.equal(true, e.includes(':Variable declarator must be initialized'));
     }
-    ).setOutput([2, 2])([[1,2],[1,2]]);
-});
+  });
+ 
 });

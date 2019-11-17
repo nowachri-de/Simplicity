@@ -150,7 +150,7 @@ describe('CodeGenerator', function () {
   });
   it('Test self summation using 1D array', function () {
     Kernel.create(function main(x = []) {
-      return x[this.thread.x]+ x[this.thread.x];
+      return x[this.thread.x] + x[this.thread.x];
     }).setOutput([2, 2])([1., 2.]);
   });
   it('Test self substraction 2D array', function () {
@@ -161,7 +161,7 @@ describe('CodeGenerator', function () {
   it('Test multiple functions', function () {
     Kernel.create(function main() {
       return test(this.thread.x);
-    },function test(a = 0.0){
+    }, function test(a = 0.0) {
       return a;
     }
     ).setOutput([2, 2])();
@@ -169,14 +169,14 @@ describe('CodeGenerator', function () {
   it('Test multiple functions', function () {
     Kernel.create(function main(a = 0.) {
       return test(this.thread.x + a);
-    },function test(a = 0.0){
+    }, function test(a = 0.0) {
       return a;
     }
     ).setOutput([2, 2])(5.);
   });
   it('Test self substraction 1D array', function () {
     Kernel.create(function main(x = []) {
-      return x[this.thread.x]- x[this.thread.x];
+      return x[this.thread.x] - x[this.thread.x];
     }).setOutput([2, 1])([[1., 2.]]);
   });
 
@@ -186,7 +186,7 @@ describe('CodeGenerator', function () {
       return ++b;
     }).setOutput([2, 2])(1);
   });
- 
+
   it('test created options using 2d array', function () {
     Kernel.create(function main(y = [[]]) {
       return y[this.thread.x][this.thread.y];
@@ -219,27 +219,7 @@ describe('CodeGenerator', function () {
     }).setOutput([1, 1])([1, 1]);
   });
 
-  it('should throw an exception since x is used but not declared', function () {
-    try {
-      Kernel.create(function main(y = []) {
-        y[x];
-      }).setOutput([1, 1])(1, 1);
-      assert.fail('expected exception not thrown'); // this throws an AssertionError
-    } catch (e) {
-      assert.equal(true, e.includes(":x undefined"));
-    }
-  });
-
-  it('should throw an exception since x is used but not declared', function () {
-    try {
-      Kernel.create(function main(y = []) {
-        y[x];
-      }).setOutput([1, 1])(1, 1);
-      assert.fail('expected exception not thrown'); // this throws an AssertionError
-    } catch (e) {
-      assert.equal(true, e.includes(":x undefined"));
-    }
-  });
+ 
 
   it('should throw an exception since y is used but not declared', function () {
     try {
@@ -263,17 +243,7 @@ describe('CodeGenerator', function () {
     }
   });
 
-  it('should throw an exception since variable is not initialized', function () {
-
-    try {
-      Kernel.create(function main() {
-        let x;
-      }).setOutput([1, 1])([1.0, 2.0], 2);
-      assert.fail('expected exception not thrown'); // this throws an AssertionError
-    } catch (e) {
-      assert.equal(true, e.includes(':Variable declarator must be initialized'));
-    }
-  });
+ 
 
   it('', function () {
     Kernel.create(function main(a = [[]]) {
@@ -288,7 +258,7 @@ describe('CodeGenerator', function () {
   it('', function () {
     Kernel.create(function main() {
       return test(this.thread.x);
-    },function test(a = 0.0){
+    }, function test(a = 0.0) {
       return a;
     }
     ).setOutput([2, 2])();
@@ -296,9 +266,35 @@ describe('CodeGenerator', function () {
   it('', function () {
     Kernel.create(function main(a = 0.) {
       return test(this.thread.x + a);
-    },function test(a = 0.0){
+    }, function test(a = 0.0) {
       return a;
     }
     ).setOutput([2, 2])(5.);
+  });
+  it('', function () {
+    Kernel.create(function main(a = []) {
+      return test(a);
+    }, function test(b = []) {
+      return b[this.thread.x];
+    }
+    ).setOutput([2, 2])([1, 2]);
+  });
+
+  it('', function () {
+    Kernel.create(function main(a = [[]]) {
+      return test(a);
+    }, function test(b = [[]]) {
+      return b[this.thread.x][this.thread.y];
+    }
+    ).setOutput([2, 2])([[1, 2], [1, 2]]);
+  });
+
+  it('', function () {
+    Kernel.create(function main(a = [[]]) {
+      return test(a, a, 1.0);
+    }, function test(b = [[]], c = [[]], x = 0.) {
+      return b[this.thread.x][this.thread.y] + c[this.thread.x][this.thread.y];
+    }
+    ).setOutput([2, 2])([[1, 2], [1, 2]]);
   });
 });
