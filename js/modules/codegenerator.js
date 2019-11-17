@@ -35,8 +35,8 @@ function handleMemberExpression(codeGen, node, sb) {
     codeGen.transformationRequests.delete('memberExpression');//remove transformation request
 
     //set name of glsl function
-    sb.push('read_');
-    sb.push(codeGen.function.id.name +"_"+ data.name);
+    sb.push('readTexture');
+    //sb.push(codeGen.function.id.name +"_"+ data.name);
     sb.push('(');
 
     //set parameters of function
@@ -49,10 +49,18 @@ function handleMemberExpression(codeGen, node, sb) {
         }
     }
 
-    /*if (data.properties.length >0){
+    if (data.properties.length > 0){
         sb.push(',');
-        sb.push('uSampler_' + codeGen.function.id.name +"_"+ data.name);
-    }*/
+        sb.push('uSampler_' + codeGen.function.id.name +"_"+ data.name +"_width");
+    }
+    if (data.properties.length > 1){
+        sb.push(',');
+        sb.push('uSampler_' + codeGen.function.id.name +"_"+ data.name +"_height");
+    }
+    if (data.properties.length > 0){
+        sb.push(',');
+        sb.push('uSampler_' + codeGen.function.id.name +"_"+ data.name );
+    }
     sb.push(')');
 }
 class Visitor {
@@ -188,7 +196,7 @@ class CodeGenerator {
     }
 
     handleType(node, sb) {
-        console.log(node.type);
+        //console.log(node.type);
         switch (node.type) {
             case 'VariableDeclarator': return this.genVariableDeclarator(node, sb);
             case 'VariableDeclaration': return this.genVariableDeclaration(node, sb);
@@ -212,9 +220,12 @@ class CodeGenerator {
             case 'ParenthesizedExpression': return this.getParenthesizedExpression(node, sb);
         }
     }
-
-
     genAssignmentPattern(node, sb) {
+        //let b = a; and a = [] or a = [[]] => This is not yet supported so throw an exception
+        /*if (Util.isArray(this.type2String(node.right)) || Util.is2DArray(this.type2String(node.right))){
+            throw formatThrowMessage(node,'arrays can not be assigned');
+        }*/
+        //let b = a; => Give b the same type as a
         sb.push(this.type2String(node.right) + ' ');
         this.handleType(node.left, sb);
     }
@@ -576,8 +587,10 @@ class CodeGenerator {
 
     genIdentifier(node, sb) {
         let type = this.parameters.get(node.name);
+
+        //if its not an array type it is a uniform ???? I think that´s not that simple
         if (type && !(Util.isArray(type) || Util.is2DArray(type))) {
-            sb.push("u_" + node.name);
+            sb.push("u_" + this.function.id.name + "_"+node.name);
         } else {
             sb.push(node.name);
         }
@@ -587,6 +600,9 @@ class CodeGenerator {
         sb.push(node.raw);
     }
     genUpdateExpression(node, sb) {
+        if (node.argument.type === 'MemberExpression'){
+            throw formatThrowMessage (node.argument,'Update operation not allowed on array member');
+        }
         (node.prefix === true) ? sb.push(node.operator) : "";
         this.handleType(node.argument, sb);
         (node.prefix !== true) ? sb.push(node.operator) : "";

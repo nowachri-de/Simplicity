@@ -546,39 +546,83 @@ float read_{{@this.name}}(float x, float y){
 
     static generateFragmentShader2(functionsDescriptor) {
       
-        var shaderTemplate = `
+        var shaderTemplate =  `
 /**
-* This is a generated shader.
+* This is a generated fragment shader.
 */
-
+        
 #ifdef GL_ES 
-    precision highp float; 
+  precision highp float; 
 #endif
 
 varying highp float vKernelX; 
 varying highp float vKernelY; 
 varying highp vec2 vTexture;
 
-struct LightInfo{
-    sampler2D sampler;
-    float width;
-    float height;
-};
-uniform LightInfo aaa;
 {{each(options.samplers)}}
+uniform sampler2D uSampler_{{@this.name}};
+{{/each}}
+
+{{each(options.samplers)}}
+uniform float uSampler_{{@this.name}}_width;
+uniform float uSampler_{{@this.name}}_height;
 
 {{/each}}
+{{each(options.samplers2D)}}
+uniform sampler2D uSampler_{{@this.name}};
+{{/each}}
+
+{{each(options.samplers2D)}}
+uniform float uSampler_{{@this.name}}_width;
+uniform float uSampler_{{@this.name}}_height;
+{{/each}}
+
 {{each(options.integers)}}
 uniform int u_{{@this.name}};
 {{/each}}
 {{each(options.floats)}}
 uniform float u_{{@this.name}};
 {{/each}}
+{{if(options.samplers.length > 0)}}
+/*
+*  functions for accessing values of a 1D array which is represented by a 2D texture
+*  parameter x:       pixel coordinate of result texture beeing shaded
+*  parameter width:   width of texture which is read by given sampler
+*  parameter sampler: sampler which is used to read values from texture
+*/
+float readTexture(float x, float width, in sampler2D sampler){
+    int index = 0;
+    //convert pixel coordinates of result texture to texture coordinates of sampled texture
+    float y = (x + 0.5)/(width);
 
-float readTexture(float x, float y, SamplerWrapper wrapper){
-   return 0.0;
+    if (index == 0) return texture2D(sampler,vec2(0.,y)).x;
+    if (index == 1) return texture2D(sampler,vec2(0.,y)).y;
+    if (index == 2) return texture2D(sampler,vec2(0.,y)).z;
+    if (index == 3) return texture2D(sampler,vec2(0.,y)).w;
 }
+{{/if}}
 
+{{if(options.samplers2D.length > 0)}}
+/*
+*  functions for accessing values of a 2D array which is represented by a 2D texture
+*  parameter x:       x pixel coordinate of result texture beeing shaded
+*  parameter y:       y pixel coordinate of result texture beeing shaded
+*  parameter width:   width of texture which is read by given sampler
+*  parameter height:  height of texture which is read by given sampler
+*  parameter sampler: sampler which is used to read values from texture
+*/
+float readTexture(float x, float y,float width,float height, in sampler2D sampler ){
+   int index = 0;
+   //convert pixel coordinates of result texture to texture coordinates of sampler texture
+   float xx = (x+0.5)/width;
+   float yy = (y+0.5)/height;
+   
+   if (index == 0) return texture2D(sampler,vec2(xx,yy)).x;
+   if (index == 1) return texture2D(sampler,vec2(xx,yy)).y;
+   if (index == 2) return texture2D(sampler,vec2(xx,yy)).z;
+   if (index == 3) return texture2D(sampler,vec2(xx,yy)).w;
+}
+{{/if}}
 {{each(options.functions)}}
 {{@this}}
 {{/each}}

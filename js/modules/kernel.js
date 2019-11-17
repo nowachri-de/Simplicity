@@ -72,16 +72,16 @@ function setUniforms(program, width, height, args, options) {
       let width = arg.length;
       let height = 1.0;
 
+      setUniformLocationFloat(program, "uSampler_" + name+"_width", width);
       //set propper height
       if (Util.is2DArray(type)) {
         height = arg[0].length;
+        setUniformLocationFloat(program, "uSampler_" + name+"_height", height);
       }
-
       let inputTexture = Util.createTexture(gl, "texture_uSampler_" + name, width, height, arg);
       textures.push(inputTexture);
       setUniformLocationInt(program, "uSampler_" + name , inputTexture.index);
-      setUniformLocationFloat(program, "uSampler_" + name, width);
-      setUniformLocationFloat(program, "uSampler_" + name, height);
+      
     }
 
     if (Util.isInteger(type)) {
@@ -155,7 +155,7 @@ class FunctionBuilder {
 
     //let options = createOptions(codeGen.function.parameters, glslCode);
     let functionsDescriptor = createFunctionsDescriptor(functions);
-    let fragmentShaderCode = ShaderCode.generateFragmentShader(functionsDescriptor);
+    let fragmentShaderCode = ShaderCode.generateFragmentShader2(functionsDescriptor);
     let vertexShaderCode = ShaderCode.generateVertexShaderCode();
 
     function implementation(...args) {
