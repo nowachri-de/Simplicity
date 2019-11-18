@@ -115,11 +115,15 @@ function createFunctionsDescriptor(functions) {
     options.samplers2D = [];
     options.integers = [];
     options.floats = [];
+    options.signature = "";
     options.parameterMap = new Map();
 
     let codeGen = functions[i].codeGen;
     let parameters = codeGen.function.parameters;
+    options.signature = codeGen.function.signature;
+
     let paramIndex = 0;
+
     parameters.forEach(param => {
       let type = param.type;
       let value = { name: param.name, type: type, index: paramIndex };

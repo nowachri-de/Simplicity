@@ -623,10 +623,14 @@ float readTexture(float x, float y,float width,float height, in sampler2D sample
    if (index == 3) return texture2D(sampler,vec2(xx,yy)).w;
 }
 {{/if}}
-{{each(options.functions)}}
-{{@this}}
+{{each(options.signatures)}}
+{{@this}};
 {{/each}}
 
+{{each(options.functions)}}
+{{@this}}
+
+{{/each}}
 {{main}}
 `;
         String.prototype.replaceAll = function (search, replacement) {
@@ -644,13 +648,13 @@ float readTexture(float x, float y,float width,float height, in sampler2D sample
         let options = main.options;
         options.main = (new Formatter()).format(main.glslCode); 
         options.functions = [];
+        options.signatures = [];
 
         let functions = functionsDescriptor.functionMap.getFunctionsExclusiveMain();
         functions.forEach(element => {
-            console.log(element.glslCode);
             options.functions.push((new Formatter()).format(element.glslCode));
+            options.signatures.push(element.options.signature);
         });
-        
         
         return Sqrl.Render(shaderTemplate, options);
         //return extendedRender(shaderTemplate, options);

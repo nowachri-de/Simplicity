@@ -355,21 +355,21 @@ class CodeGenerator {
     genFunctionDeclaration(node, sb) {
         this.function = node;
 
+        let signature = [];
         let tmp = [];
         this.handleType(node.id, tmp);
         let name = tmp.join('');
 
         //if the function has the name 'main' it needs to be handled specially
         if (name === 'main') {
-            sb.push('void ');
+            signature.push('void ');
             this.transformationRequests.set('replaceReturnStatement', true);
         } else {
-            sb.push('float ');
+            signature.push('float ');
         }
-        sb.push(name);
-        sb.push('(');
-        let self = this;
-
+        signature.push(name);
+        signature.push('(');
+      
         //process function parameters 
         tmp = [];
         node.parameters = [];
@@ -383,14 +383,16 @@ class CodeGenerator {
             this.iteratePlus(node.params, tmp, processAnyFunctionParameters.bind(scope));
         }
 
-
         if (name === 'main') {
-            sb.push('void');
+            signature.push('void');
         } else {
-            sb.push(tmp.join(''));
+            signature.push(tmp.join(''));
         }
 
-        sb.push(')');
+        signature.push(')');
+        this.function.signature = signature.join('');
+
+        sb.push(signature.join(''));
         this.handleType(node.body, sb);
         this.transformationRequests.delete('replaceReturnStatement');
 
@@ -486,7 +488,9 @@ class CodeGenerator {
                         sb.push(',');
                         sb.push('uSampler_' + getFunctionName(self) + "_" + tmp.join('') + '_width');
                     }else{
-                        throw 'not yet implemented';
+                        sb.push('sampler_'+ tmp.join(''));
+                        sb.push(',');
+                        sb.push('sampler_'+ tmp.join('') + '_width');
                     }
                 } else if (Util.is2DArray(type)) {
                     if (isMainFunction(self)) {
@@ -518,7 +522,7 @@ class CodeGenerator {
 
         if (node.computed) {
             //check that property (variable) has been defined.
-            if (node.property.type === 'Identifier' && !hasBeenDeclared(node.property.name)) {
+            if (node.property.type === 'Identifier' && !hasBeenDeclared(this,node.property.name)) {
                 throw formatThrowMessage(node, node.property.name + ' undefined')
             }
             if (typeof this.transformationRequests.get('memberExpression') != 'undefined') {
@@ -566,7 +570,7 @@ class CodeGenerator {
 
                 case '%': ;//we do not put a break here since we want + logic to be executed
                 case '/': ;//we do not put a break here since we want + logic to be executed
-                case '*': ; //we do not put a break here since we want + logic to be executed
+                case '*': ;//we do not put a break here since we want + logic to be executed
                 case '+': {
                     let left = this.type2String(node.left);
                     let right = this.type2String(node.right);
@@ -590,7 +594,7 @@ class CodeGenerator {
     }
 
     genVariableDeclarator(node, sb) {
-        if (node.init === null && !hasBeenDeclared(node.id.name)) {
+        if (node.init === null && !hasBeenDeclared(this,node.id.name)) {
             throw formatThrowMessage(node, "Variable declarator must be initialized");
         }
         let type;
@@ -703,7 +707,7 @@ class CodeGenerator {
     genIdentifier(node, sb) {
         let type = this.parameters.get(node.name);
 
-        //if its not an array type and main function is processed it is a uniform 
+        //if its not an array type and main function is processed then it is a uniform 
         if (type && !(Util.isArray(type) || Util.is2DArray(type)) && isMainFunction(this)) {
             sb.push("u_" + getFunctionName(this) + "_" + node.name);
         } else {
