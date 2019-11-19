@@ -136,7 +136,7 @@ class Program {
 			textures.push(TextureFactory.createReadableTexture(gl, 'resultTexture_'+i, {width:this.width,height:this.height}));
 		}
 		
-		gl.bindFramebuffer(gl.FRAMEBUFFER, FrameBufferFactory.createFrameBufferMultiAttachement(gl, textures).frameBuffer);
+		gl.bindFramebuffer(gl.FRAMEBUFFER, FrameBufferFactory.createFrameBufferMultiAttachement(gl, textures[0]).frameBuffer);
 		gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
 
 		return textures[0];

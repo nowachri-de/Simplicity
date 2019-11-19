@@ -39,7 +39,7 @@ module.exports.FrameBufferFactory = class FrameBufferFactory {
 
 		i = 0;
 		textures.forEach(arg => {
-			gl.framebufferTexture2D(gl.FRAMEBUFFER, ext.COLOR_ATTACHMENT0_WEBGL + i, gl.TEXTURE_2D, arg[0].texture, /*level*/ 0);
+			gl.framebufferTexture2D(gl.FRAMEBUFFER, ext.COLOR_ATTACHMENT0_WEBGL + i, gl.TEXTURE_2D, arg.texture, /*level*/ 0);
 			++i;
 		});
 

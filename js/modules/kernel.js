@@ -168,8 +168,8 @@ class FunctionBuilder {
       let height = implementation.dimensions[1];
       let program = new Program(width, height);
 
-      console.log(vertexShaderCode);
-      console.log(fragmentShaderCode);
+      //console.log(vertexShaderCode);
+      //console.log(fragmentShaderCode);
 
       program.buildProgram(vertexShaderCode, fragmentShaderCode);
       let textures = setUniforms(program, width, height, args, implementation.options);
