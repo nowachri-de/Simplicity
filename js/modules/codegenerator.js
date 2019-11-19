@@ -338,7 +338,7 @@ class CodeGenerator {
         }
 
         if (this.transformationRequests.get('replaceReturnStatement') === true) {
-            sb.push(Sqrl.Render('gl_FragColor = vec4({{returnValue}},0.,0.,0.);', { returnValue: tmp.join('') }));
+            sb.push(Sqrl.Render('gl_FragData[0] = vec4({{returnValue}},0.,0.,0.);', { returnValue: tmp.join('') }));
             this.transformationRequests.delete('replaceReturnStatement');
         } else {
             sb.push('return ');
@@ -604,6 +604,9 @@ class CodeGenerator {
             type = this.type2String(node.init);
         }
 
+        if (Util.isArray(type) || Util.is2DArray(type)){
+            throw formatThrowMessage(node,'assignment of array to variable not supported');
+        }
         this.addVariableType(node.id.name, type);
         sb.push(type + ' ');
         sb.push(node.id.name);

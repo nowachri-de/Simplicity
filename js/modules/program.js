@@ -123,15 +123,23 @@ class Program {
 		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(vertexIndices), gl.STATIC_DRAW);
 	}
 
-	execute(){
+	execute(count){
 		let gl = this.gl;
 		gl.useProgram(this.glProgram);
 		gl.viewport(0, 0, this.width, this.height);
-		let resultTexture = TextureFactory.createReadableTexture(gl, 'resultTexture', {width:this.width,height:this.height});
-		gl.bindFramebuffer(gl.FRAMEBUFFER, FrameBufferFactory.createFrameBuffer(gl,resultTexture));
+		let textures = [];
+		//let resultTexture = TextureFactory.createReadableTexture(gl, 'resultTexture', {width:this.width,height:this.height});
+		if (typeof count === 'undefined'){
+			count = 1;
+		}
+		for (let i = 0; i < count;++i){
+			textures.push(TextureFactory.createReadableTexture(gl, 'resultTexture_'+i, {width:this.width,height:this.height}));
+		}
+		
+		gl.bindFramebuffer(gl.FRAMEBUFFER, FrameBufferFactory.createFrameBufferMultiAttachement(gl, textures).frameBuffer);
 		gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
 
-		return resultTexture;
+		return textures[0];
 	}
 
 	buildProgram(vertexShaderCode, fragmentShaderCode) {

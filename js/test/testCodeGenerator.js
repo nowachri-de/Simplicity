@@ -297,4 +297,16 @@ describe('CodeGenerator', function () {
     }
     ).setOutput([2, 2])([[1, 2], [1, 2]]);
   });
+
+  it('Should throw an exception: assigment of array to variable not supported', function () {
+    try{
+      Kernel.create(function main(a=[]) {
+        let b = a;
+      }).setOutput([2, 1])([1.0, 2.0]);
+    }catch(e){
+
+    }
+    
+    //assert.fail('expected exception not thrown'); // this throws an AssertionError
+});
 });
