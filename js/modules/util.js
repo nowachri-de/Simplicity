@@ -1,9 +1,10 @@
-const {TextureFactory} = require(__dirname + "\\texturefactory.js");
-const {FrameBufferFactory} = require(__dirname + "\\framebufferfactory.js");
+const { TextureFactory } = require(__dirname + "\\texturefactory.js");
+const { FrameBufferFactory } = require(__dirname + "\\framebufferfactory.js");
+const { ResultReader } = require(__dirname + "\\resultreader.js");
 
 class Util {
     static isArray(value) {
-        if (Util.is2DArray(value)){
+        if (Util.is2DArray(value)) {
             return false;
         }
         return value.includes("[]");
@@ -21,7 +22,7 @@ class Util {
         return argument === 'float';
     }
 
-    static data2Texel(width,height,data,component){
+    static data2Texel(width, height, data, component) {
         let result = new Float32Array(4 * height * width);
         let cnt = 0;
 
@@ -29,7 +30,7 @@ class Util {
             component = "R";
         }
 
-        
+
         for (let row = 0; row < height; row++) {
             for (let col = 0; col < width; col++) {
                 result[cnt++] = 0.;
@@ -63,17 +64,34 @@ class Util {
         return result;
     }
 
-    static createTexture(gl,name,width,height,data){
-        return TextureFactory.createTextureByDimension(gl, name, height, width, Util.data2Texel(width,height,data,'R'));
+    static createTexture(gl, name, width, height, data) {
+        return TextureFactory.createTextureByDimension(gl, name, height, width, Util.data2Texel(width, height, data, 'R'));
     }
 
-    static createReadableTexture(gl,name,width,height){
-        return TextureFactory.createReadableTexture(gl, name, {width:width,height:height});
+    static createReadableTexture(gl, name, width, height) {
+        return TextureFactory.createReadableTexture(gl, name, { width: width, height: height });
     }
 
-    static createFrameBuffer(gl,texture){
-        return FrameBufferFactory.createFrameBuffer(gl,texture);
+    static createFrameBuffer(gl, texture) {
+        return FrameBufferFactory.createFrameBuffer(gl, texture);
     }
-    
+
+    /**
+    * converts the given texture to an array
+    * 
+    * @param {gl} gl -   WebGL context
+    * @param {Texture} texture -   Texture to read  values from
+    * @return {Integer} sourceIndex - The component index (R,G,B,A) to read the values from
+   */
+    static texture2array(gl, texture, sourceIndex) {
+        let dimension = { width: texture.width, height: texture.height };
+        let readableTexture = TextureFactory.createReadableTexture(gl, 'readableTexture', dimension);
+        let resultReader = new ResultReader(gl, texture.width, texture.height);
+        let result = resultReader.readByResultDimension(texture, readableTexture, dimension, sourceIndex);
+
+        readableTexture.delete();
+        return result;
+    }
+
 }
 module.exports.Util = Util;

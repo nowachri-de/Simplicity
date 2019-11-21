@@ -12,10 +12,8 @@ function check(impl, args, options) {
   if (options.parameterMap.size !== args.length) {
     throw "Mismatch between number of declared function parameters and number of actually passed arguments"
   }
-
-  let i = 0;
-  args.forEach(arg => {
-
+  
+  for ( let i = 0;i < args.length;i++){
     if (Util.isArray(options.parameterMap.get(i).type)) {
       if (!Array.isArray(arg)) {
         throw 'expected function argument ' + i + ' to be of type array';
@@ -31,13 +29,13 @@ function check(impl, args, options) {
         throw 'expected function argument ' + i + ' to be of type two dimensional array';
       }
     }
-    i++;
-  });
+  }
+  
 }
 
 function getUniformLocation(program, id) {
   let location = program.gl.getUniformLocation(program.glProgram, id);
-  
+
   if (location === null) {
     throw 'could not find unifrom ' + id;
   }
@@ -72,16 +70,16 @@ function setUniforms(program, width, height, args, options) {
       let width = arg.length;
       let height = 1.0;
 
-      setUniformLocationFloat(program, "uSampler_" + name+"_width", width);
+      setUniformLocationFloat(program, "uSampler_" + name + "_width", width);
       //set propper height
       if (Util.is2DArray(type)) {
         height = arg[0].length;
-        setUniformLocationFloat(program, "uSampler_" + name+"_height", height);
+        setUniformLocationFloat(program, "uSampler_" + name + "_height", height);
       }
       let inputTexture = Util.createTexture(gl, "texture_uSampler_" + name, width, height, arg);
       textures.push(inputTexture);
-      setUniformLocationInt(program, "uSampler_" + name , inputTexture.index);
-      
+      setUniformLocationInt(program, "uSampler_" + name, inputTexture.index);
+
     }
 
     if (Util.isInteger(type)) {
@@ -99,10 +97,10 @@ function setUniforms(program, width, height, args, options) {
 function createFunctionsDescriptor(functions) {
   let functionsDescriptor = {};
   functionsDescriptor.functionMap = new Map();
-  functionsDescriptor.functionMap.getFunctionsExclusiveMain = function(){
+  functionsDescriptor.functionMap.getFunctionsExclusiveMain = function () {
     let result = [];
-    this.forEach(function(functionDescriptor,nameKey,map){
-      if (nameKey !== 'main'){
+    this.forEach(function (functionDescriptor, nameKey, map) {
+      if (nameKey !== 'main') {
         result.push(functionDescriptor);
       }
     });
@@ -148,7 +146,7 @@ function createFunctionsDescriptor(functions) {
       paramIndex++;
     });
     functions[i].options = options;
-    functionsDescriptor.functionMap.set(codeGen.function.id.name,functions[i]);
+    functionsDescriptor.functionMap.set(codeGen.function.id.name, functions[i]);
   }
 
   return functionsDescriptor;
@@ -174,15 +172,15 @@ class FunctionBuilder {
       program.buildProgram(vertexShaderCode, fragmentShaderCode);
       let textures = setUniforms(program, width, height, args, implementation.options);
 
-      console.log(Matrix.texture2matrix(program.gl, program.execute(), 0));
+      program.execute();
       program.delete();
       textures.forEach(texture => {
         texture.delete();
       });
     }
 
-   implementation.options = functionsDescriptor.functionMap.get('main').options;
-   
+    implementation.options = functionsDescriptor.functionMap.get('main').options;
+
     implementation.setOutput = function (a) {
       this.dimensions = a;
       return implementation;
@@ -190,6 +188,7 @@ class FunctionBuilder {
     return implementation;
   }
 }
+
 
 class Kernel {
   constructor() { }

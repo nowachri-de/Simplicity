@@ -2,6 +2,7 @@ var headlessGL = require('gl');
 const {FrameBufferFactory} = require(__dirname + "\\framebufferfactory.js");
 const {TextureFactory} = require(__dirname + "\\texturefactory.js");
 const {ShaderFactory} = require(__dirname + "\\shader.js");
+const {Util} = require(__dirname + "\\util.js");
 
 class Program {
 	
@@ -123,23 +124,20 @@ class Program {
 		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(vertexIndices), gl.STATIC_DRAW);
 	}
 
-	execute(count){
+	execute(){
 		let gl = this.gl;
 		gl.useProgram(this.glProgram);
 		gl.viewport(0, 0, this.width, this.height);
-		let textures = [];
-		//let resultTexture = TextureFactory.createReadableTexture(gl, 'resultTexture', {width:this.width,height:this.height});
-		if (typeof count === 'undefined'){
-			count = 1;
-		}
-		for (let i = 0; i < count;++i){
-			textures.push(TextureFactory.createReadableTexture(gl, 'resultTexture_'+i, {width:this.width,height:this.height}));
-		}
+		let resultTexture = TextureFactory.createReadableTexture(gl, 'resultTexture', {width:this.width,height:this.height});
 		
-		gl.bindFramebuffer(gl.FRAMEBUFFER, FrameBufferFactory.createFrameBufferMultiAttachement(gl, textures[0]).frameBuffer);
+		gl.bindFramebuffer(gl.FRAMEBUFFER, FrameBufferFactory.createFrameBufferMultiAttachement(gl, resultTexture).frameBuffer);
 		gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
 
-		return textures[0];
+		return resultTexture;
+	}
+
+	getResult(texture){
+		Util.texture2array(texture);
 	}
 
 	buildProgram(vertexShaderCode, fragmentShaderCode) {
