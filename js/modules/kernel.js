@@ -2,8 +2,6 @@ const { CodeGenerator } = require(__dirname + '\\..\\modules\\codegenerator.js')
 const { Util } = require(__dirname + '\\..\\modules\\util.js');
 const { ShaderCode } = require(__dirname + '\\..\\modules\\shadercode.js');
 const { Program } = require(__dirname + '\\..\\modules\\program.js');
-const { Matrix } = require(__dirname + '\\..\\modules\\matrix.js');
-
 
 function check(impl, args, options) {
   if (typeof impl.dimensions === 'undefined')
@@ -12,25 +10,24 @@ function check(impl, args, options) {
   if (options.parameterMap.size !== args.length) {
     throw "Mismatch between number of declared function parameters and number of actually passed arguments"
   }
-  
-  for ( let i = 0;i < args.length;i++){
+
+  for (let i = 0; i < args.length; i++) {
     if (Util.isArray(options.parameterMap.get(i).type)) {
-      if (!Array.isArray(arg)) {
+      if (!Array.isArray(args[i])) {
         throw 'expected function argument ' + i + ' to be of type array';
       }
     }
 
     if (Util.is2DArray(options.parameterMap.get(i).type)) {
-      if (!Array.isArray(arg)) {
+      if (!Array.isArray(args[i])) {
         throw 'expected function argument ' + i + ' to be of type two dimensional array';
       }
 
-      if (!Array.isArray(arg[0])) {
+      if (!Array.isArray(args[i])) {
         throw 'expected function argument ' + i + ' to be of type two dimensional array';
       }
     }
   }
-  
 }
 
 function getUniformLocation(program, id) {
@@ -94,19 +91,27 @@ function setUniforms(program, width, height, args, options) {
   return textures;
 }
 
-function createFunctionsDescriptor(functions) {
+//The functionsDescriptor is a map which is mapping function names to function code
+function setupFunctionsDescriptor() {
   let functionsDescriptor = {};
   functionsDescriptor.functionMap = new Map();
   functionsDescriptor.functionMap.getFunctionsExclusiveMain = function () {
     let result = [];
-    this.forEach(function (functionDescriptor, nameKey, map) {
+    this.forEach(function (functionDescriptor, nameKey) {
       if (nameKey !== 'main') {
         result.push(functionDescriptor);
       }
     });
     return result;
   }
+  return functionsDescriptor;
+}
 
+/*
+  Create options to be passed to template engine. 
+  One set of options per function. 
+*/
+function setupOptions(functions, functionsDescriptor) {
   for (let i = 0; i < functions.length; ++i) {
     let options = {};
     options.samplers = [];
@@ -118,8 +123,15 @@ function createFunctionsDescriptor(functions) {
 
     let codeGen = functions[i].codeGen;
     let parameters = codeGen.function.parameters;
-    options.signature = codeGen.function.signature;
 
+    options.signature = codeGen.function.signature;
+    options.functionName = codeGen.function.id.name;
+
+    if (typeof functionsDescriptor.functionMap.get(codeGen.function.id.name) !== 'undefined'){
+      throw "function names must be unique. " +codeGen.function.id.name + " has already been defined";
+    }
+    
+    functionsDescriptor.functionMap.set(codeGen.function.id.name, functions[i]);
     let paramIndex = 0;
 
     parameters.forEach(param => {
@@ -146,9 +158,14 @@ function createFunctionsDescriptor(functions) {
       paramIndex++;
     });
     functions[i].options = options;
-    functionsDescriptor.functionMap.set(codeGen.function.id.name, functions[i]);
   }
 
+  return functionsDescriptor;
+}
+
+function createFunctionsDescriptor(functions) {
+  let functionsDescriptor = setupFunctionsDescriptor();
+  functionsDescriptor = setupOptions(functions, functionsDescriptor);
   return functionsDescriptor;
 }
 
