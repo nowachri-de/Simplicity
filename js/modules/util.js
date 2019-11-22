@@ -64,9 +64,6 @@ class Util {
         return result;
     }
 
-    static createTexture(gl, name, width, height, data) {
-        return TextureFactory.createTextureByDimension(gl, name, height, width, Util.data2Texel(width, height, data, 'R'));
-    }
 
     static createReadableTexture(gl, name, width, height) {
         return TextureFactory.createReadableTexture(gl, name, { width: width, height: height });

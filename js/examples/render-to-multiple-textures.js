@@ -18,11 +18,11 @@ function multiply(gl,inputTexture,program,outputDimensions){
     testTexture = TextureFactory.createReadableTexture(gl, 'testTexture', outputDimensions);
     var frameBuffer = FrameBufferFactory.createFrameBufferMultiAttachement(gl, resultTexture,testTexture);
 
-    gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.frameBuffer);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.glFrameBuffer);
     program.doSingleTextureBindings(inputTexture, outputDimensions, program.glProgram, 0, 1, 0);
 
     gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
-    resultTexture.frameBuffer = frameBuffer;
+    frameBuffer.delete();
 
     return resultTexture;
 }

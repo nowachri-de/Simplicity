@@ -12,18 +12,14 @@ class ResultReader{
 
 	runShaders(textureA,textureB,targetIndex) {
         var gl = this.gl;
-		/*var canvas = this.getRenderCanvas(this.canvasID);
-		
-		canvas.width = textureB.width;
-		canvas.height = textureB.height;*/
-		
+
 		gl.useProgram(this.program.glProgram);
         gl.viewport(0, 0,textureB.width,textureB.height);
 		gl.scissor(0, 0, textureB.width,textureB.height);
 		var frameBuffer = FrameBufferFactory.createFrameBuffer(gl,textureB);
 		
 		//gl.activeTexture(gl.TEXTURE0 + textureB.index);
-        gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.frameBuffer);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.glFrameBuffer);
 		this.program.doBindings(textureA,textureB,this.program.glProgram,targetIndex);
         
 		gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
@@ -54,11 +50,12 @@ class ResultReader{
 		var glresult = new Uint8Array(rawBuffer);
 		//gl.bindFramebuffer(gl.FRAMEBUFFER, textureA.frameBuffer);
 		//gl.readBuffer(ext.COLOR_ATTACHMENT1_WEBGL);
-		gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.frameBuffer);
+		gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.glFrameBuffer);
         gl.readPixels(0, 0,  dimension.width,dimension.height, gl.RGBA, gl.UNSIGNED_BYTE, glresult);
         var result = new Matrix.Matrix(dimension.width,dimension.height);
         result.setData(new Float32Array(rawBuffer));
 	
+		frameBuffer.delete();
 		return result;
 	}
 	
@@ -71,7 +68,6 @@ class ResultReader{
 }
 
 module.exports.ResultReader = ResultReader
-const {ShaderFactory} = require(__dirname + "\\shader.js");
 const {ShaderCode} = require(__dirname + "\\shadercode.js");
 const {Program} = require(__dirname + "\\program.js");
 const {FrameBufferFactory} = require(__dirname + "\\framebufferfactory.js");

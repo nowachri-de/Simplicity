@@ -155,16 +155,7 @@ describe('Matrix', function () {
       validateMultiplicationResult(matrixA, matrixB, matrixA.multiply(matrixB));
     });
   });
-  it('Many functions and function calls', function () {
-    Kernel.create(function main(a=[]) {
-      return test(a);
-    },function test(a=[]){
-      return test2(a);
-    },function test2(a = []){
-      return a[this.thread.x];
-    }).setOutput([2, 1])([1.0, 2.0]);
-    //assert.fail('expected exception not thrown'); // this throws an AssertionError
-});
+ 
   describe('#multiply(Matrix)', function () {
     it('should return a x b. should return a x b. Matrix a (20x5) and Matrix b (1x20))', function () {
       var matrixA = new Matrix(20, 5).randomInitialize();//rows, columns

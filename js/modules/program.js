@@ -1,8 +1,4 @@
 var headlessGL = require('gl');
-const {FrameBufferFactory} = require(__dirname + "\\framebufferfactory.js");
-const {TextureFactory} = require(__dirname + "\\texturefactory.js");
-const {ShaderFactory} = require(__dirname + "\\shader.js");
-const {Util} = require(__dirname + "\\util.js");
 
 class Program {
 	
@@ -129,10 +125,12 @@ class Program {
 		gl.useProgram(this.glProgram);
 		gl.viewport(0, 0, this.width, this.height);
 		let resultTexture = TextureFactory.createReadableTexture(gl, 'resultTexture', {width:this.width,height:this.height});
-		
-		gl.bindFramebuffer(gl.FRAMEBUFFER, FrameBufferFactory.createFrameBufferMultiAttachement(gl, resultTexture).frameBuffer);
+		let frameBuffer = FrameBufferFactory.createFrameBufferMultiAttachement(gl, resultTexture);
+
+		gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.glFrameBuffer);
 		gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
 
+		frameBuffer.delete();
 		return resultTexture;
 	}
 
@@ -157,7 +155,7 @@ class Program {
 
 		if (!gl.getProgramParameter(this.glProgram, gl.LINK_STATUS)) {
 			var info = gl.getProgramInfoLog(this.glProgram);
-			throw 'Could not compile WebGL program. \n\n' + info;
+			throw 'Could not compile WebGL program.' + info;
 		}
 
 		this.doVertexBindings();
@@ -178,11 +176,12 @@ class Program {
 
 		var frameBuffer = FrameBufferFactory.createFrameBuffer(gl,textureC);
 
-		gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.frameBuffer);
+		gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.glFrameBuffer);
 		this.doBindings(textureA, textureB, this.glProgram);
 
 		gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
-		gl.deleteFramebuffer(frameBuffer);
+		frameBuffer.delete();
+
 		var t1 = Date.now();
 		textureC.duration = t1 - t0;
 		return textureC;
@@ -197,11 +196,11 @@ class Program {
 		let resultTexture = TextureFactory.createReadableTexture(gl, 'resultTexture', outputDimensions);
 		let frameBuffer =  FrameBufferFactory.createFrameBuffer(gl,resultTexture);
 		
-		gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.frameBuffer);
+		gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.glFrameBuffer);
 		this.doSingleTextureBindings(texture, resultTexture, this.glProgram, componentA, componentB, targetIndex);
 		
 		gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
-		gl.deleteFramebuffer(frameBuffer);
+		frameBuffer.delete();
 		
 		return resultTexture;
 	}
@@ -229,3 +228,7 @@ class Program {
 }
 
 module.exports.Program = Program
+const {FrameBufferFactory} = require(__dirname + "\\framebufferfactory.js");
+const {TextureFactory} = require(__dirname + "\\texturefactory.js");
+const {ShaderFactory} = require(__dirname + "\\shader.js");
+const {Util} = require(__dirname + "\\util.js");

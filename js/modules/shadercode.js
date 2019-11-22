@@ -14,7 +14,6 @@ class ShaderCode {
         }
     }
 
-    
     static getVertexShaderCode() {
         var code = `
         

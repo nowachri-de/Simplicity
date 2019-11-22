@@ -4,18 +4,8 @@
 	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
 	"version": "0.2.0",
 	"configurations": [
-		{
-			"type": "node",
-			"request": "launch",
-			"name": "test2.js",
-			"program": "${workspaceFolder}\\js\\test\\test2.js"
-		},
-		{
-			"type": "node",
-			"request": "launch",
-			"name": "test.js",
-			"program": "${workspaceFolder}\\js\\test\\test.js"
-		},
+
+	
 		{
 			"type": "node",
 			"request": "launch",
@@ -34,21 +24,10 @@
 			"name": "render-to-multiple-textures.js",
 			"program": "${workspaceFolder}\\js\\examples\\render-to-multiple-textures.js"
 		},
-		{
-			"type": "node",
-			"request": "launch",
-			"name": "headless.js",
-			"program": "${workspaceFolder}\\js\\headless.js"
-		},
-		{
-			"type": "node",
-			"request": "launch",
-			"name": "webgl.js",
-			"program": "C:/nowak/development/git/headless-gl/example/webgl_fundamentals/test0.js"
-		},
+	
 		{
 			// Name of configuration; appears in the launch configuration drop down menu.
-			"name": "Run mocha testMatrix",
+			"name": "testMatrix",
 			// Type of configuration. Possible values: "node", "mono".
 			"type": "node",
 			"request": "launch",

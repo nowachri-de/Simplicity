@@ -219,7 +219,7 @@ describe('CodeGenerator', function () {
     }).setOutput([1, 1])([1, 1]);
   });
 
- 
+
 
   it('should throw an exception since y is used but not declared', function () {
     try {
@@ -243,7 +243,7 @@ describe('CodeGenerator', function () {
     }
   });
 
- 
+
 
   it('', function () {
     Kernel.create(function main(a = [[]]) {
@@ -299,14 +299,24 @@ describe('CodeGenerator', function () {
   });
 
   it('Should throw an exception: assigment of array to variable not supported', function () {
-    try{
-      Kernel.create(function main(a=[]) {
+    try {
+      Kernel.create(function main(a = []) {
         let b = a;
       }).setOutput([2, 1])([1.0, 2.0]);
-    }catch(e){
+    } catch (e) {
 
     }
-    
+    //assert.fail('expected exception not thrown'); // this throws an AssertionError
+  });
+
+  it('Many functions and function calls', function () {
+    Kernel.create(function main(a=[]) {
+      return test(a);
+    },function test(a=[]){
+      return test2(a);
+    },function test2(a = []){
+      return a[this.thread.x];
+    }).setOutput([2, 1])([1.0, 2.0]);
     //assert.fail('expected exception not thrown'); // this throws an AssertionError
 });
 });

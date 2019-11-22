@@ -2,6 +2,7 @@ const { CodeGenerator } = require(__dirname + '\\..\\modules\\codegenerator.js')
 const { Util } = require(__dirname + '\\..\\modules\\util.js');
 const { ShaderCode } = require(__dirname + '\\..\\modules\\shadercode.js');
 const { Program } = require(__dirname + '\\..\\modules\\program.js');
+const { TextureFactory } = require(__dirname + '\\..\\modules\\texturefactory.js');
 
 function check(impl, args, options) {
   if (typeof impl.dimensions === 'undefined')
@@ -73,7 +74,8 @@ function setUniforms(program, width, height, args, options) {
         height = arg[0].length;
         setUniformLocationFloat(program, "uSampler_" + name + "_height", height);
       }
-      let inputTexture = Util.createTexture(gl, "texture_uSampler_" + name, width, height, arg);
+      let inputTexture = TextureFactory.createTextureByDimension(gl, "texture_uSampler_" + name,width,height,arg);
+
       textures.push(inputTexture);
       setUniformLocationInt(program, "uSampler_" + name, inputTexture.index);
 
@@ -189,7 +191,7 @@ class FunctionBuilder {
       program.buildProgram(vertexShaderCode, fragmentShaderCode);
       let textures = setUniforms(program, width, height, args, implementation.options);
 
-      program.execute();
+      program.execute().delete();
       program.delete();
       textures.forEach(texture => {
         texture.delete();
@@ -198,10 +200,16 @@ class FunctionBuilder {
 
     implementation.options = functionsDescriptor.functionMap.get('main').options;
 
-    implementation.setOutput = function (a) {
-      this.dimensions = a;
+    implementation.setOutput = function (dimensions) {
+      this.dimensions = dimensions;
       return implementation;
     };
+
+    implementation.deferred = function (status) {
+      this.deffered = status;
+      return implementation;
+    };
+
     return implementation;
   }
 }
