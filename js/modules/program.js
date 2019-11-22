@@ -122,16 +122,23 @@ class Program {
 
 	execute(){
 		let gl = this.gl;
+		let textures = [];
+		textures.push(TextureFactory.createReadableTexture(gl, 'resultTexture', {width:this.width,height:this.height}));
+		return this.executeUsingTextures(textures);
+	}
+
+	executeUsingTextures(textures){
+		let gl = this.gl;
 		gl.useProgram(this.glProgram);
 		gl.viewport(0, 0, this.width, this.height);
-		let resultTexture = TextureFactory.createReadableTexture(gl, 'resultTexture', {width:this.width,height:this.height});
-		let frameBuffer = FrameBufferFactory.createFrameBufferMultiAttachement(gl, resultTexture);
+		
+		let frameBuffer = FrameBufferFactory.createFrameBufferMultiAttachement(gl, textures);
 
 		gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.glFrameBuffer);
 		gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
 
 		frameBuffer.delete();
-		return resultTexture;
+		return textures;
 	}
 
 	getResult(texture){

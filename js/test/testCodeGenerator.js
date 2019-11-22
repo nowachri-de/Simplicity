@@ -94,6 +94,7 @@ describe('CodeGenerator', function () {
       return a;
     }).setOutput([2, 2])();
   });
+
   it('Test variable declaration using expression as assigment pattern', function () {
     //
     Kernel.create(function main() {
@@ -101,6 +102,7 @@ describe('CodeGenerator', function () {
       return a;
     }).setOutput([2, 2])();
   });
+
   it('Should throw exception since no parameters specified but function is called using parameters', function () {
     try {
       Kernel.create(function main() {
@@ -112,52 +114,62 @@ describe('CodeGenerator', function () {
       assert.equal(e, 'Mismatch between number of declared function parameters and number of actually passed arguments');
     }
   });
+
   it('Result must be 7. This did not work propperly before the readable shader fix', function () {
     Kernel.create(function main(x = [[]]) {
       let a = 2.0;
       return x[this.thread.x][this.thread.y] + a;
     }).setOutput([2, 2])([[5, 5], [5, 5]]);
   });
+
   it('Test binary division expression using 2D arrays as left hand and right hand operator', function () {
     Kernel.create(function main(x = [[]], y = [[]]) {
       return x[this.thread.x][this.thread.y] / y[this.thread.x][this.thread.y];
     }).setOutput([2, 2])([[3., 5.], [3., 5.]], [[2., 2.], [2., 2.]]);
   });
+
   it('Test binary modulo expression using 2D arrays as left hand and right hand operator', function () {
     Kernel.create(function main(x = [[]], y = [[]]) {
       return x[this.thread.x][this.thread.y] % y[this.thread.x][this.thread.y];
     }).setOutput([2, 2])([[3., 5.], [3., 5.]], [[2., 2.], [2., 2.]]);
   });
+
   it('Test binary substraction expression using 2D arrays as left hand and right hand operator', function () {
     Kernel.create(function main(x = [[]], y = [[]]) {
       return x[this.thread.x][this.thread.y] - y[this.thread.x][this.thread.y];
     }).setOutput([2, 2])([[1., 2.], [3., 4.]], [[4., 5.], [6., 7.]]);
   });
+
   it('Test multiple substraction expression using 2D arrays as left hand and right hand operator', function () {
     Kernel.create(function main(x = [[]], y = [[]]) {
       return x[this.thread.x][this.thread.y] - y[this.thread.x][this.thread.y] - y[this.thread.x][this.thread.y];
     }).setOutput([2, 2])([[1., 2.], [3., 4.]], [[4., 5.], [6., 7.]]);
   });
+
   it('Test self multiplication', function () {
     Kernel.create(function main(x = [[]]) {
       return x[this.thread.x][this.thread.y] * x[this.thread.x][this.thread.y];
     }).setOutput([2, 2])([[1., 2.], [3., 4.]]);
   });
+
   it('Test self summation using 2D array', function () {
     Kernel.create(function main(x = [[]]) {
       return x[this.thread.x][this.thread.y] + x[this.thread.x][this.thread.y];
     }).setOutput([2, 2])([[1., 2.], [3., 4.]]);
   });
+
   it('Test self summation using 1D array', function () {
     Kernel.create(function main(x = []) {
       return x[this.thread.x] + x[this.thread.x];
     }).setOutput([2, 2])([1., 2.]);
   });
+
   it('Test self substraction 2D array', function () {
     Kernel.create(function main(x = [[]]) {
       return x[this.thread.x][this.thread.y] - x[this.thread.x][this.thread.y];
     }).setOutput([2, 2])([[1., 2.], [3., 4.]]);
   });
+
   it('Test multiple functions', function () {
     Kernel.create(function main() {
       return test(this.thread.x);
@@ -166,6 +178,7 @@ describe('CodeGenerator', function () {
     }
     ).setOutput([2, 2])();
   });
+
   it('Test multiple functions', function () {
     Kernel.create(function main(a = 0.) {
       return test(this.thread.x + a);
@@ -174,6 +187,7 @@ describe('CodeGenerator', function () {
     }
     ).setOutput([2, 2])(5.);
   });
+
   it('Test self substraction 1D array', function () {
     Kernel.create(function main(x = []) {
       return x[this.thread.x] - x[this.thread.x];
@@ -187,39 +201,35 @@ describe('CodeGenerator', function () {
     }).setOutput([2, 2])(1);
   });
 
-  it('test created options using 2d array', function () {
+  it('Test created options using 2d array', function () {
     Kernel.create(function main(y = [[]]) {
       return y[this.thread.x][this.thread.y];
     }).setOutput([2, 2])([[1., 2.], [3., 4.]]);
   });
 
-  it('test created options using array', function () {
+  it('Test created options using array', function () {
     Kernel.create(function main(y = []) {
       return y[this.thread.x];
     }).setOutput([1, 1])([1., 2., 3.]);
   });
 
-
-  it('test created options using float parameter', function () {
+  it('Test created options using float parameter', function () {
     Kernel.create(function main(i = 0.) {
       return i;
     }).setOutput([1, 1])(1.0);
   });
 
-
-  it('test created options using int parameter', function () {
+  it('Test created options using int parameter', function () {
     Kernel.create(function main(i = 0) {
       return i;
     }).setOutput([1, 1])(1);
   });
 
-  it('test created options using array parameter', function () {
+  it('Test created options using array parameter', function () {
     Kernel.create(function main(y = []) {
       return y[this.thread.x];
     }).setOutput([1, 1])([1, 1]);
   });
-
-
 
   it('should throw an exception since y is used but not declared', function () {
     try {
@@ -243,18 +253,18 @@ describe('CodeGenerator', function () {
     }
   });
 
-
-
   it('', function () {
     Kernel.create(function main(a = [[]]) {
       return a[this.thread.x][this.thread.y];
     }).setOutput([2, 2])([[1, 5], [1, 5]]);
   });
+
   it('', function () {
     Kernel.create(function main(a = []) {
       return a[this.thread.x];
     }).setOutput([2, 2])([1, 5]);
   });
+
   it('', function () {
     Kernel.create(function main() {
       return test(this.thread.x);
@@ -263,6 +273,7 @@ describe('CodeGenerator', function () {
     }
     ).setOutput([2, 2])();
   });
+
   it('', function () {
     Kernel.create(function main(a = 0.) {
       return test(this.thread.x + a);
@@ -271,6 +282,7 @@ describe('CodeGenerator', function () {
     }
     ).setOutput([2, 2])(5.);
   });
+
   it('', function () {
     Kernel.create(function main(a = []) {
       return test(a);
@@ -310,13 +322,13 @@ describe('CodeGenerator', function () {
   });
 
   it('Many functions and function calls', function () {
-    Kernel.create(function main(a=[]) {
+    Kernel.create(function main(a = []) {
       return test(a);
-    },function test(a=[]){
+    }, function test(a = []) {
       return test2(a);
-    },function test2(a = []){
+    }, function test2(a = []) {
       return a[this.thread.x];
     }).setOutput([2, 1])([1.0, 2.0]);
     //assert.fail('expected exception not thrown'); // this throws an AssertionError
-});
+  });
 });

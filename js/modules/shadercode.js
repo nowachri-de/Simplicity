@@ -418,7 +418,6 @@ uniform float uResultTextureHeight; // result texture height
 varying float vKernelX; 
 varying float vKernelY; 
 varying highp vec2 vTexture;
-
 //U = S = x dimension
 //V = T = y dimension
 
@@ -434,116 +433,9 @@ void main(void) {
         return code;
     }
 
-    static generateFragmentShader(functionsDescriptor) {
-      
-        var shaderTemplate = `
-/**
-* This is a generated shader.
-*/
 
-#ifdef GL_ES 
-    precision highp float; 
-#endif
 
-varying highp float vKernelX; 
-varying highp float vKernelY; 
-varying highp vec2 vTexture;
-{{each(options.samplers)}}
-uniform sampler2D uSampler_{{@this.name}};
-{{/each}}
-{{each(options.samplers)}}
-uniform float uSampler_{{@this.name}}_width;
-uniform float uSampler_{{@this.name}}_height;
-{{/each}}
-
-{{each(options.samplers2D)}}
-uniform sampler2D uSampler_{{@this.name}};
-{{/each}}
-{{each(options.samplers2D)}}
-uniform float uSampler_{{@this.name}}_width;
-uniform float uSampler_{{@this.name}}_height;
-{{/each}}
-
-{{each(options.integers)}}
-uniform int u_{{@this.name}};
-{{/each}}
-{{each(options.floats)}}
-uniform float u_{{@this.name}};
-{{/each}}
-{{if(options.samplers.length > 0)}}
-/*
-*  functions for accessing values of a 1D array which is represented by a 2D texture
-*  parameter x: pixel coordinate of result texture beeing shaded
-*/
-{{/if}}
-{{each(options.samplers)}}
-float read_{{@this.name}}(float x){
-    int index = 0;
-    //convert pixel coordinates of result texture to texture coordinates of sampler texture
-    float {{@this.name}}_x = (x/uSampler_{{@this.name}}_width)+(1.0/(2.0*uSampler_{{@this.name}}_width));
-    float {{@this.name}}_y = (0.0/uSampler_{{@this.name}}_height)+(1.0/(2.0*uSampler_{{@this.name}}_height));
-
-    if (index == 0) return texture2D(uSampler_{{@this.name}},vec2(0.0,{{@this.name}}_x)).x;
-    if (index == 1) return texture2D(uSampler_{{@this.name}},vec2(0.0,{{@this.name}}_x)).y;
-    if (index == 2) return texture2D(uSampler_{{@this.name}},vec2(0.0,{{@this.name}}_x)).z;
-    if (index == 3) return texture2D(uSampler_{{@this.name}},vec2(0.0,{{@this.name}}_x)).w;
-}
-
-{{/each}}
-{{if(options.samplers.length > 0)}}
-/*
-*  functions for accessing values of a 2D array which is represented by a 2D texture
-*  parameter x: pixel coordinate of result texture beeing shaded
-*/
-{{/if}}
-{{each(options.samplers2D)}}
-float read_{{@this.name}}(float x, float y){
-    int index = 0;
-    //convert pixel coordinates of result texture to texture coordinates of sampler texture
-    float {{@this.name}}_x = (x/uSampler_{{@this.name}}_width)+(1.0/(2.0*uSampler_{{@this.name}}_width));
-    float {{@this.name}}_y = (y/uSampler_{{@this.name}}_height)+(1.0/(2.0*uSampler_{{@this.name}}_height));
-
-    if (index == 0) return texture2D(uSampler_{{@this.name}},vec2({{@this.name}}_x,{{@this.name}}_y)).x;
-    if (index == 1) return texture2D(uSampler_{{@this.name}},vec2({{@this.name}}_x,{{@this.name}}_y)).y;
-    if (index == 2) return texture2D(uSampler_{{@this.name}},vec2({{@this.name}}_x,{{@this.name}}_y)).z;
-    if (index == 3) return texture2D(uSampler_{{@this.name}},vec2({{@this.name}}_x,{{@this.name}}_y)).w;
-}
-
-{{/each}}
-{{each(options.functions)}}
-{{@this}}
-{{/each}}
-
-{{main}}
-`;
-        String.prototype.replaceAll = function (search, replacement) {
-            var target = this;
-            return target.split(search).join(replacement);
-        };
-
-        let oldRender = Sqrl.Render;
-        Sqrl.Render = function(...args){
-            let result = oldRender.apply(this, arguments);
-            return result.replaceAll('&lt;', '<');
-        }
-
-        let main = functionsDescriptor.functionMap.get('main');
-        let options = main.options;
-        options.main = (new Formatter()).format(main.glslCode); 
-        options.functions = [];
-
-        let functions = functionsDescriptor.functionMap.getFunctionsExclusiveMain();
-        functions.forEach(element => {
-            console.log(element.glslCode);
-            options.functions.push((new Formatter()).format(element.glslCode));
-        });
-        
-        
-        return Sqrl.Render(shaderTemplate, options);
-        //return extendedRender(shaderTemplate, options);
-    }
-
-    static generateFragmentShader2(functionsDescriptor) {
+static generateFragmentShader(functionsDescriptor) {
       
         var shaderTemplate =  `
 /**
@@ -556,7 +448,14 @@ float read_{{@this.name}}(float x, float y){
 
 varying highp float vKernelX; 
 varying highp float vKernelY; 
-varying highp vec2 vTexture;
+varying highp vec2  vTexture;
+vec4  vResult = vec4(0.,0.,0.,0.); 
+
+#define MAIN 0
+{{each(options.preprocessor)}}
+#define {{@this.name}} {{@this.id}}
+
+{{/each}}
 
 {{each(options.samplers)}}
 uniform sampler2D uSampler_{{@this.name}};
@@ -582,6 +481,21 @@ uniform int u_{{@this.name}};
 {{each(options.floats)}}
 uniform float u_{{@this.name}};
 {{/each}}
+
+float write (float value, int index){
+    if (index == 0) vResult.x = value; return value;
+    if (index == 1) vResult.y = value; return value;
+    if (index == 2) vResult.z = value; return value;
+    if (index == 3) vResult.w = value; return value;
+}
+
+float write (int value, int index){
+    if (index == 0) vResult.x = float(value); return float(value);
+    if (index == 1) vResult.y = float(value); return float(value);
+    if (index == 2) vResult.z = float(value); return float(value);
+    if (index == 3) vResult.w = float(value); return float(value);
+}
+
 {{if(options.samplers.length > 0)}}
 /*
 *  functions for accessing values of a 1D array which is represented by a 2D texture
@@ -648,11 +562,17 @@ float readTexture(float x, float y,float width,float height, in sampler2D sample
         options.main = (new Formatter()).format(main.glslCode); 
         options.functions = [];
         options.signatures = [];
+        options.preprocessor = [];
+        
 
         let functions = functionsDescriptor.functionMap.getFunctionsExclusiveMain();
+        let i = 1;
         functions.forEach(element => {
             options.functions.push((new Formatter()).format(element.glslCode));
             options.signatures.push(element.options.signature);
+            options.preprocessor.push({name: element.options.functionName.toUpperCase(), id:i});
+            element.targetIndex = i;
+            i++;
         });
         
         return Sqrl.Render(shaderTemplate, options);

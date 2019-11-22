@@ -176,11 +176,13 @@ class FunctionBuilder {
 
     //let options = createOptions(codeGen.function.parameters, glslCode);
     let functionsDescriptor = createFunctionsDescriptor(functions);
-    let fragmentShaderCode = ShaderCode.generateFragmentShader2(functionsDescriptor);
+    let fragmentShaderCode = ShaderCode.generateFragmentShader(functionsDescriptor);
     let vertexShaderCode = ShaderCode.generateVertexShaderCode();
 
     function implementation(...args) {
       check(implementation, args, implementation.options);
+      //check(implementation, args, implementation.functionsDescriptor.functionMap.get('main').options);
+      
       let width = implementation.dimensions[0];
       let height = implementation.dimensions[1];
       let program = new Program(width, height);
@@ -191,7 +193,12 @@ class FunctionBuilder {
       program.buildProgram(vertexShaderCode, fragmentShaderCode);
       let textures = setUniforms(program, width, height, args, implementation.options);
 
-      program.execute().delete();
+      let resultTextures = program.execute();
+      
+      resultTextures.forEach(texture =>{
+        texture.delete();
+      })
+
       program.delete();
       textures.forEach(texture => {
         texture.delete();
@@ -199,6 +206,7 @@ class FunctionBuilder {
     }
 
     implementation.options = functionsDescriptor.functionMap.get('main').options;
+    
 
     implementation.setOutput = function (dimensions) {
       this.dimensions = dimensions;

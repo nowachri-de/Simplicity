@@ -30,7 +30,7 @@ module.exports.FrameBufferFactory = class FrameBufferFactory {
 		return new FrameBuffer(gl,glFrameBuffer,texture,texture.width,texture.height);
 	}
 
-	static createFrameBufferMultiAttachement(gl, ...textures) {
+	static createFrameBufferMultiAttachement(gl, textures) {
 		let ext = gl.getExtension('WEBGL_draw_buffers');
 		let offset = ext.COLOR_ATTACHMENT0_WEBGL;
 		let buffers = [];

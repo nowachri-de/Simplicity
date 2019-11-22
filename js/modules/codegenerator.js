@@ -1,6 +1,5 @@
 const acorn = require('acorn');
 const Sqrl = require('squirrelly');
-const { Formatter } = require(__dirname + "\\formatter.js");
 const { Util } = require(__dirname + "\\util.js");
 
 let space = 0;
@@ -338,12 +337,11 @@ class CodeGenerator {
         }
 
         if (this.transformationRequests.get('replaceReturnStatement') === true) {
-            sb.push(Sqrl.Render('gl_FragData[0] = vec4({{returnValue}},0.,0.,0.);', { returnValue: tmp.join('') }));
+            //sb.push(Sqrl.Render('gl_FragData[0] = vec4({{returnValue}},0.,0.,0.);', { returnValue: tmp.join('') }));
+            sb.push(Sqrl.Render('write({{returnValue}},{{functionName}});\r\ngl_FragData[0]=vResult;', { returnValue: tmp.join(''),functionName: getFunctionName(this).toUpperCase() }));
             this.transformationRequests.delete('replaceReturnStatement');
         } else {
-            sb.push('return ');
-            sb.push(tmp.join(''));
-            sb.push(';');
+            sb.push(Sqrl.Render('return write({{returnValue}},{{functionName}});', { returnValue: tmp.join(''),functionName: getFunctionName(this).toUpperCase() }));
         }
     }
     genArrayExpression(node, sb) {
