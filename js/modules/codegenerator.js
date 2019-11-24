@@ -393,11 +393,9 @@ class CodeGenerator {
         sb.push(signature.join(''));
         this.handleType(node.body, sb);
         this.transformationRequests.delete('replaceReturnStatement');
-
         node.code = sb.join('');
-
-
     }
+    
     getParenthesizedExpression(node, sb) {
         sb.push('(');
         this.handleType(node.expression, sb);

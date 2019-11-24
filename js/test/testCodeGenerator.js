@@ -111,7 +111,7 @@ describe('CodeGenerator', function () {
       }).setOutput([2, 2])([[5, 5], [5, 5]]);
       assert.fail('expected exception not thrown'); // this throws an AssertionError
     } catch (e) {
-      assert.equal(e, 'Mismatch between number of declared function parameters and number of actually passed arguments');
+      assert.equal(e, 'mismatch between number of declared function parameters and number of actually passed arguments');
     }
   });
 

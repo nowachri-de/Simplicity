@@ -557,25 +557,7 @@ float readTexture(float x, float y,float width,float height, in sampler2D sample
             return result.replaceAll('&lt;', '<');
         }
 
-        let main = functionsDescriptor.functionMap.get('main');
-        let options = main.options;
-        options.main = (new Formatter()).format(main.glslCode); 
-        options.functions = [];
-        options.signatures = [];
-        options.preprocessor = [];
-        
-
-        let functions = functionsDescriptor.functionMap.getFunctionsExclusiveMain();
-        let i = 1;
-        functions.forEach(element => {
-            options.functions.push((new Formatter()).format(element.glslCode));
-            options.signatures.push(element.options.signature);
-            options.preprocessor.push({name: element.options.functionName.toUpperCase(), id:i});
-            element.targetIndex = i;
-            i++;
-        });
-        
-        return Sqrl.Render(shaderTemplate, options);
+        return Sqrl.Render(shaderTemplate, functionsDescriptor.get('main').options);
         //return extendedRender(shaderTemplate, options);
     }
 }

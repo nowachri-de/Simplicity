@@ -3,13 +3,16 @@ const { Util } = require(__dirname + '\\..\\modules\\util.js');
 const { ShaderCode } = require(__dirname + '\\..\\modules\\shadercode.js');
 const { Program } = require(__dirname + '\\..\\modules\\program.js');
 const { TextureFactory } = require(__dirname + '\\..\\modules\\texturefactory.js');
+const { Formatter } = require(__dirname + "\\formatter.js");
 
-function check(impl, args, options) {
-  if (typeof impl.dimensions === 'undefined')
+function checkDimensions(impl) {
+  if (typeof impl.dimensions === 'undefined') {
     throw 'kernel has no dimensions specified. Use setOutput([x,y]) to specify kernel output dimensions';
-
+  }
+}
+function checkArguments(args, options) {
   if (options.parameterMap.size !== args.length) {
-    throw "Mismatch between number of declared function parameters and number of actually passed arguments"
+    throw "mismatch between number of declared function parameters and number of actually passed arguments"
   }
 
   for (let i = 0; i < args.length; i++) {
@@ -74,7 +77,7 @@ function setUniforms(program, width, height, args, options) {
         height = arg[0].length;
         setUniformLocationFloat(program, "uSampler_" + name + "_height", height);
       }
-      let inputTexture = TextureFactory.createTextureByDimension(gl, "texture_uSampler_" + name,width,height,arg);
+      let inputTexture = TextureFactory.createTextureByDimension(gl, "texture_uSampler_" + name, width, height, arg);
 
       textures.push(inputTexture);
       setUniformLocationInt(program, "uSampler_" + name, inputTexture.index);
@@ -97,14 +100,30 @@ function setUniforms(program, width, height, args, options) {
 function setupFunctionsDescriptor() {
   let functionsDescriptor = {};
   functionsDescriptor.functionMap = new Map();
-  functionsDescriptor.functionMap.getFunctionsExclusiveMain = function () {
+  functionsDescriptor.getFunctionsExclusiveMain = function () {
     let result = [];
-    this.forEach(function (functionDescriptor, nameKey) {
+    this.functionMap.forEach(function (functionDescriptor, nameKey) {
       if (nameKey !== 'main') {
         result.push(functionDescriptor);
       }
     });
     return result;
+  }
+
+  functionsDescriptor.getAll = function () {
+    let result = [];
+    this.functionMap.forEach(function (functionDescriptor, nameKey) {
+      result.push(functionDescriptor);
+    });
+    return result;
+  }
+
+  functionsDescriptor.get = function (key) {
+    return this.functionMap.get(key);
+  }
+
+  functionsDescriptor.set = function (key, value) {
+    this.functionMap.set(key, value);
   }
   return functionsDescriptor;
 }
@@ -129,11 +148,11 @@ function setupOptions(functions, functionsDescriptor) {
     options.signature = codeGen.function.signature;
     options.functionName = codeGen.function.id.name;
 
-    if (typeof functionsDescriptor.functionMap.get(codeGen.function.id.name) !== 'undefined'){
-      throw "function names must be unique. " +codeGen.function.id.name + " has already been defined";
+    if (typeof functionsDescriptor.get(codeGen.function.id.name) !== 'undefined') {
+      throw "function names must be unique. " + codeGen.function.id.name + " has already been defined";
     }
-    
-    functionsDescriptor.functionMap.set(codeGen.function.id.name, functions[i]);
+
+    functionsDescriptor.set(codeGen.function.id.name, functions[i]);
     let paramIndex = 0;
 
     parameters.forEach(param => {
@@ -168,7 +187,38 @@ function setupOptions(functions, functionsDescriptor) {
 function createFunctionsDescriptor(functions) {
   let functionsDescriptor = setupFunctionsDescriptor();
   functionsDescriptor = setupOptions(functions, functionsDescriptor);
+
+  let main = functionsDescriptor.get('main');
+  let options = main.options;
+  options.main = (new Formatter()).format(main.glslCode);
+  options.functions = [];
+  options.signatures = [];
+  options.preprocessor = [];
+
+  functions = functionsDescriptor.getFunctionsExclusiveMain();
+  let i = 1;
+  functions.forEach(funct => {
+    options.functions.push((new Formatter()).format(funct.glslCode));
+    options.signatures.push(funct.options.signature);
+    options.preprocessor.push({ name: funct.options.functionName.toUpperCase(), id: i });
+    funct.targetIndex = i;
+    i++;
+  });
+
   return functionsDescriptor;
+}
+
+function createTextures(functionsDescriptor, width, height){
+
+  let result = [];
+  let texture = TextureFactory.createReadableTexture(gl, 'resultTexture', { width: width, height: height });
+  functionsDescriptor.getAll().forEach(funct => {
+    funct.texture = texture;
+  });
+
+  //only one texture supported for now
+  result.push(texture);
+  return result;
 }
 
 class FunctionBuilder {
@@ -180,9 +230,11 @@ class FunctionBuilder {
     let vertexShaderCode = ShaderCode.generateVertexShaderCode();
 
     function implementation(...args) {
-      check(implementation, args, implementation.options);
-      //check(implementation, args, implementation.functionsDescriptor.functionMap.get('main').options);
-      
+      //check(implementation, args, implementation.options);
+      let options = functionsDescriptor.get('main').options;
+      checkDimensions(implementation);
+      checkArguments(args, options);
+
       let width = implementation.dimensions[0];
       let height = implementation.dimensions[1];
       let program = new Program(width, height);
@@ -191,30 +243,26 @@ class FunctionBuilder {
       //console.log(fragmentShaderCode);
 
       program.buildProgram(vertexShaderCode, fragmentShaderCode);
-      let textures = setUniforms(program, width, height, args, implementation.options);
+      let inputTextures = setUniforms(program, width, height, args, options);
 
       let resultTextures = program.execute();
-      
-      resultTextures.forEach(texture =>{
+
+      resultTextures.forEach(texture => {
         texture.delete();
       })
 
       program.delete();
-      textures.forEach(texture => {
+
+      inputTextures.forEach(texture => {
         texture.delete();
       });
     }
 
-    implementation.options = functionsDescriptor.functionMap.get('main').options;
-    
+    //implementation.options = functionsDescriptor.get('main').options;
+
 
     implementation.setOutput = function (dimensions) {
       this.dimensions = dimensions;
-      return implementation;
-    };
-
-    implementation.deferred = function (status) {
-      this.deffered = status;
       return implementation;
     };
 
