@@ -84,7 +84,7 @@ class Util {
         let dimension = { width: texture.width, height: texture.height };
         let readableTexture = TextureFactory.createReadableTexture(gl, 'readableTexture', dimension);
         let resultReader = new ResultReader(gl, texture.width, texture.height);
-        let result = resultReader.readByResultDimension(texture, readableTexture, dimension, sourceIndex);
+        let result = resultReader.readResult2Array(texture, readableTexture, dimension, sourceIndex);
 
         readableTexture.delete();
         return result;

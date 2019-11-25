@@ -61,8 +61,8 @@ function setUniforms(program, width, height, args, options) {
   setUniformLocationFloat(program, "uResultTextureWidth", width);
   setUniformLocationFloat(program, "uResultTextureHeight", height);
 
-  let i = 0;
-  args.forEach(arg => {
+  for (let i=0; i < args.length;++i){
+    let arg = args[i];
     let type = options.parameterMap.get(i).type;
     let name = options.parameterMap.get(i).name;
 
@@ -74,11 +74,12 @@ function setUniforms(program, width, height, args, options) {
       setUniformLocationFloat(program, "uSampler_" + name + "_width", width);
       //set propper height
       if (Util.is2DArray(type)) {
-        height = arg[0].length;
+        height = arg.length;
         setUniformLocationFloat(program, "uSampler_" + name + "_height", height);
       }
-      let inputTexture = TextureFactory.createTextureByDimension(gl, "texture_uSampler_" + name, width, height, arg);
-
+      let inputTexture = TextureFactory.createTextureByDimension(gl, "texture_uSampler_" + name, width, height, Util.data2Texel(width,height,arg,'R'));
+      
+      console.log(Util.texture2array(program.gl,inputTexture,0));
       textures.push(inputTexture);
       setUniformLocationInt(program, "uSampler_" + name, inputTexture.index);
 
@@ -91,8 +92,9 @@ function setUniforms(program, width, height, args, options) {
     if (Util.isFloat(type)) {
       setUniformLocationFloat(program, "u_" + name, arg);
     }
-    i++;
-  });
+    
+  }
+ 
   return textures;
 }
 
@@ -246,7 +248,7 @@ class FunctionBuilder {
       console.log(fragmentShaderCode);
 
       program.buildProgram(vertexShaderCode, fragmentShaderCode);
-      inputTextures = setUniforms(program, width, height, args, options);
+      inputTextures = setUniforms(program, width, height,args, options);
 
       resultTextures = program.execute();
 

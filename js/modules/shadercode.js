@@ -508,10 +508,10 @@ float readTexture(float x, float width, in sampler2D sampler){
     //convert pixel coordinates of result texture to texture coordinates of sampled texture
     float y = (x + 0.5)/(width);
 
-    if (index == 0) return texture2D(sampler,vec2(0.,y)).x;
-    if (index == 1) return texture2D(sampler,vec2(0.,y)).y;
-    if (index == 2) return texture2D(sampler,vec2(0.,y)).z;
-    if (index == 3) return texture2D(sampler,vec2(0.,y)).w;
+    if (index == 0) return texture2D(sampler,vec2(y,0.)).x;
+    if (index == 1) return texture2D(sampler,vec2(y,0.)).y;
+    if (index == 2) return texture2D(sampler,vec2(y,0.)).z;
+    if (index == 3) return texture2D(sampler,vec2(y,0.)).w;
 }
 {{/if}}
 
@@ -535,7 +535,7 @@ float readTexture(float x, float y,float width,float height, in sampler2D sample
    if (index == 2) return texture2D(sampler,vec2(xx,yy)).z;
    if (index == 3) return texture2D(sampler,vec2(xx,yy)).w;
 
-   return -1;
+   return -1.0;
 }
 {{/if}}
 {{each(options.signatures)}}
