@@ -483,17 +483,17 @@ uniform float u_{{@this.name}};
 {{/each}}
 
 float write (float value, int index){
-    if (index == 0) vResult.x = value; return value;
-    if (index == 1) vResult.y = value; return value;
-    if (index == 2) vResult.z = value; return value;
-    if (index == 3) vResult.w = value; return value;
+    if (index == 0) vResult = vec4(value,vResult.y,vResult.z,vResult.w); return value;
+    if (index == 1) vResult = vec4(vResult.x,value,vResult.z,vResult.w); return value;
+    if (index == 2) vResult = vec4(vResult.x,vResult.y,value,vResult.w); return value;
+    if (index == 3) vResult = vec4(vResult.x,vResult.y,vResult.z,value); return value;
 }
 
 float write (int value, int index){
-    if (index == 0) vResult.x = float(value); return float(value);
-    if (index == 1) vResult.y = float(value); return float(value);
-    if (index == 2) vResult.z = float(value); return float(value);
-    if (index == 3) vResult.w = float(value); return float(value);
+    if (index == 0) vResult = vec4(float(value),vResult.y,vResult.z,vResult.w); return float(value);
+    if (index == 1) vResult = vec4(vResult.x,float(value),vResult.z,vResult.w); return float(value);
+    if (index == 2) vResult = vec4(vResult.x,vResult.y,float(value),vResult.w); return float(value);
+    if (index == 3) vResult = vec4(vResult.x,vResult.y,vResult.z,float(value)); return float(value);
 }
 
 {{if(options.samplers.length > 0)}}
@@ -534,6 +534,8 @@ float readTexture(float x, float y,float width,float height, in sampler2D sample
    if (index == 1) return texture2D(sampler,vec2(xx,yy)).y;
    if (index == 2) return texture2D(sampler,vec2(xx,yy)).z;
    if (index == 3) return texture2D(sampler,vec2(xx,yy)).w;
+
+   return -1;
 }
 {{/if}}
 {{each(options.signatures)}}

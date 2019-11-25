@@ -228,6 +228,9 @@ class FunctionBuilder {
     let functionsDescriptor = createFunctionsDescriptor(functions);
     let fragmentShaderCode = ShaderCode.generateFragmentShader(functionsDescriptor);
     let vertexShaderCode = ShaderCode.generateVertexShaderCode();
+    let inputTextures;
+    let resultTextures;
+    let program;
 
     function implementation(...args) {
       //check(implementation, args, implementation.options);
@@ -237,30 +240,33 @@ class FunctionBuilder {
 
       let width = implementation.dimensions[0];
       let height = implementation.dimensions[1];
-      let program = new Program(width, height);
+      program = new Program(width, height);
 
       //console.log(vertexShaderCode);
-      //console.log(fragmentShaderCode);
+      console.log(fragmentShaderCode);
 
       program.buildProgram(vertexShaderCode, fragmentShaderCode);
-      let inputTextures = setUniforms(program, width, height, args, options);
+      inputTextures = setUniforms(program, width, height, args, options);
 
-      let resultTextures = program.execute();
+      resultTextures = program.execute();
 
+      /*resultTextures.forEach(texture => {
+        texture.delete();
+      })*/
+     
+    }
+    implementation.getResult = function(name){
+      return Util.texture2array(program.gl,resultTextures[0],0);
+    }
+    implementation.delete = function(){
+      program.delete();
       resultTextures.forEach(texture => {
         texture.delete();
-      })
-
-      program.delete();
-
+      });
       inputTextures.forEach(texture => {
         texture.delete();
       });
     }
-
-    //implementation.options = functionsDescriptor.get('main').options;
-
-
     implementation.setOutput = function (dimensions) {
       this.dimensions = dimensions;
       return implementation;
