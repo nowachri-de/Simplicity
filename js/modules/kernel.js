@@ -16,19 +16,33 @@ function checkArguments(args, options) {
   }
 
   for (let i = 0; i < args.length; i++) {
-    if (Util.isArray(options.parameterMap.get(i).type)) {
-      if (!Array.isArray(args[i])) {
+    let arg = args[i];
+    let type = options.parameterMap.get(i).type;
+
+    if (Util.isArray(type)) {
+      if (Array.isArray(arg[0])) {
+        throw 'expected function argument ' + i + ' to be of type 1d array but is 2d array';
+      }
+      if (!Array.isArray(arg)) {
         throw 'expected function argument ' + i + ' to be of type array';
       }
     }
 
-    if (Util.is2DArray(options.parameterMap.get(i).type)) {
-      if (!Array.isArray(args[i])) {
+    if (Util.is2DArray(type)) {
+      if (!Array.isArray(arg[0])) {
         throw 'expected function argument ' + i + ' to be of type two dimensional array';
       }
+    }
 
-      if (!Array.isArray(args[i])) {
-        throw 'expected function argument ' + i + ' to be of type two dimensional array';
+    if (Util.isInteger(type)) {
+      if (!Util.isArgumentInteger(arg)){
+        throw 'expected function argument ' + i + ' to be of type integer';
+      }
+    }
+
+    if (Util.isFloat(type)) {
+      if (Array.isArray(arg)){
+        throw 'expected function argument ' + i + ' to be of type float';
       }
     }
   }
@@ -79,7 +93,7 @@ function setUniforms(program, width, height, args, options) {
       }
       let inputTexture = TextureFactory.createTextureByDimension(gl, "texture_uSampler_" + name, width, height, Util.data2Texel(width,height,arg,'R'));
       
-      console.log(Util.texture2array(program.gl,inputTexture,0));
+      
       textures.push(inputTexture);
       setUniformLocationInt(program, "uSampler_" + name, inputTexture.index);
 
@@ -245,7 +259,7 @@ class FunctionBuilder {
       program = new Program(width, height);
 
       //console.log(vertexShaderCode);
-      console.log(fragmentShaderCode);
+      //console.log(fragmentShaderCode);
 
       program.buildProgram(vertexShaderCode, fragmentShaderCode);
       inputTextures = setUniforms(program, width, height,args, options);
@@ -255,9 +269,21 @@ class FunctionBuilder {
       /*resultTextures.forEach(texture => {
         texture.delete();
       })*/
-     
+      return implementation;
     }
-    implementation.getResult = function(name){
+
+    implementation.fragmentShaderCode = fragmentShaderCode;
+    implementation.vertexShaderCode = vertexShaderCode;
+
+    implementation.getVertexShaderCode = function(){
+      return implementation.vertexShaderCode;
+    }
+
+    implementation.getFragmentShaderCode = function(){
+      return implementation.fragmentShaderCode;
+    }
+
+    implementation.result = function(name){
       return Util.texture2array(program.gl,resultTextures[0],0);
     }
     implementation.delete = function(){

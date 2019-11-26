@@ -459,21 +459,17 @@ vec4  vResult = vec4(0.,0.,0.,0.);
 
 {{each(options.samplers)}}
 uniform sampler2D uSampler_{{@this.name}};
-{{/each}}
-
-{{each(options.samplers)}}
 uniform float uSampler_{{@this.name}}_width;
 uniform float uSampler_{{@this.name}}_height;
-
 {{/each}}
+
+
 {{each(options.samplers2D)}}
 uniform sampler2D uSampler_{{@this.name}};
-{{/each}}
-
-{{each(options.samplers2D)}}
 uniform float uSampler_{{@this.name}}_width;
 uniform float uSampler_{{@this.name}}_height;
 {{/each}}
+
 
 {{each(options.integers)}}
 uniform int u_{{@this.name}};

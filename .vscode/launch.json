@@ -50,7 +50,7 @@
 		},
 		{
 			// Name of configuration; appears in the launch configuration drop down menu.
-			"name": "testCodeGenerator",
+			"name": "functional tests",
 			// Type of configuration. Possible values: "node", "mono".
 			"type": "node",
 			"request": "launch",

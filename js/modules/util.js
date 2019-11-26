@@ -14,6 +14,20 @@ class Util {
         return value.includes("[][]");
     }
 
+    static isArgumentInteger(argument) {
+        if (Number.isInteger(argument) && !argument.toString().includes('.')) {
+            return true;
+        }
+        return false;
+    }
+
+    static isArgumentFloat(argument) {
+        if (!Number.isInteger(argument) && argument.toString().includes('.')) {
+            return true;
+        }
+        return false;
+    }
+
     static isInteger(argument) {
         return argument === 'int';
     }
@@ -85,9 +99,17 @@ class Util {
         let readableTexture = TextureFactory.createReadableTexture(gl, 'readableTexture', dimension);
         let resultReader = new ResultReader(gl, texture.width, texture.height);
         let result = resultReader.readResult2Array(texture, readableTexture, dimension, sourceIndex);
+        let finalResult = [];
+
+        for (let row = 0; row < texture.height; row++) {
+            finalResult[row] = [];
+            for (let col = 0; col < texture.width; col++) {
+                finalResult[row].push(result[(row * texture.width)+col]);
+            }
+        }
 
         readableTexture.delete();
-        return result;
+        return finalResult;
     }
 
 }
