@@ -84,13 +84,15 @@ function setUniforms(program, width, height, args, options) {
       //width and height of inputTexture not required to be same dimensions as resultTexture
       let width = arg.length;
       let height = 1.0;
-
-      setUniformLocationFloat(program, "uSampler_" + name + "_width", width);
+      
       //set propper height
       if (Util.is2DArray(type)) {
+        width = arg[0].length;
         height = arg.length;
         setUniformLocationFloat(program, "uSampler_" + name + "_height", height);
       }
+      setUniformLocationFloat(program, "uSampler_" + name + "_width", width);
+     
       let inputTexture = TextureFactory.createTextureByDimension(gl, "texture_uSampler_" + name, width, height, Util.data2Texel(width,height,arg,'R'));
       
       
@@ -259,7 +261,7 @@ class FunctionBuilder {
       program = new Program(width, height);
 
       //console.log(vertexShaderCode);
-      console.log(fragmentShaderCode);
+      //console.log(fragmentShaderCode);
 
       program.buildProgram(vertexShaderCode, fragmentShaderCode);
       inputTextures = setUniforms(program, width, height,args, options);

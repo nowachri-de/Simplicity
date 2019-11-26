@@ -56,7 +56,7 @@ describe('Test multiple function definitions - call function in function', funct
       }
     ).setOutput([5, 1]);
     console.log(test([1,2,3,4,5],[[1,2,3,4,5],[1,2,3,4,5]]).result());
-    TestUtil.compare1DArray(test([1,2,3,4,5],[[1,2,3,4,5],[1,2,3,4,5]]).result(), [1,2,3,4,5]);
+    TestUtil.compare1DArray(test([1,2,3,4,5],[[1,2,3,4,5],[1,2,3,4,5]]).result(), [ 2, 4, 6, 8, 10 ]);
     test.delete();
   });
 
