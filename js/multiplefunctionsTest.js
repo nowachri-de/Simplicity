@@ -39,7 +39,24 @@ describe('Test multiple function definitions - call function in function', funct
       }
     ).setOutput([5, 1]);
 
-    TestUtil.compare2DArray(test([1,2,3,4,5]).result(), [1,2,3,4,5]);
+    TestUtil.compare1DArray(test([1,2,3,4,5]).result(), [1,2,3,4,5]);
+    test.delete();
+  });
+
+  it('Many functions and function calls - pass array to internal function', function () {
+    let test = Kernel.create(
+      function main(a = [],b=[[]]) {
+        return test(a,b);
+      },
+      function test(a = [],b=[[]]) {
+        return test2(a,b);
+      },
+      function test2(a = [],b=[[]]) {
+        return a[this.thread.x] + b[this.thread.x][this.thread.y];
+      }
+    ).setOutput([5, 1]);
+    console.log(test([1,2,3,4,5],[[1,2,3,4,5],[1,2,3,4,5]]).result());
+    TestUtil.compare1DArray(test([1,2,3,4,5],[[1,2,3,4,5],[1,2,3,4,5]]).result(), [1,2,3,4,5]);
     test.delete();
   });
 

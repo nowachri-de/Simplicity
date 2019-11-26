@@ -496,7 +496,11 @@ class CodeGenerator {
                         sb.push(',');
                         sb.push('uSampler_' + getFunctionName(self) + "_" + tmp.join('') + '_height');
                     }else{
-                        throw 'not yet implemented';
+                        sb.push('sampler_'+ tmp.join(''));
+                        sb.push(',');
+                        sb.push('sampler_'+ tmp.join('') + '_width');
+                        sb.push(',');
+                        sb.push('sampler_'+ tmp.join('') + '_height');
                     }
                 } else {
                     sb.push(tmp.join(''));

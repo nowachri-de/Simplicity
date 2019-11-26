@@ -3,7 +3,7 @@ const { Kernel } = require(__dirname + '\\..\\modules\\kernel.js');
 const { TestUtil } = require(__dirname + '\\..\\modules\\testutil.js');
 
 
-describe('Iterating 1d and 2d arrays', function () {
+describe('Test iterations', function () {
     it('Test iterating 2d array', function () {
         let test = Kernel.create(function main(y = [[]]) {
             return y[this.thread.x][this.thread.y];
@@ -37,6 +37,15 @@ describe('Iterating 1d and 2d arrays', function () {
         }).setOutput([5, 2]);
 
         TestUtil.compare2DArray(test(1).result(),  [[1., 1., 1., 1., 1.],[1., 1., 1., 1., 1.]]);
+        test.delete();
+    });
+
+    it('Test iterating 2 arrays', function () {
+        let test = Kernel.create(function main(a = [[]] , b = [[]] ) {
+            return a[this.thread.x][this.thread.y] + b[this.thread.x][this.thread.y];
+        }).setOutput([5, 2]);
+
+        TestUtil.compare2DArray(test([[1., 2., 3., 4., 5.], [1., 2., 3., 4., 5.]],[[1., 2., 3., 4., 5.], [1., 2., 3., 4., 5.]]).result(), [[2., 4., 6., 8., 10.], [2., 4., 6., 8., 10.]]);
         test.delete();
     });
 
