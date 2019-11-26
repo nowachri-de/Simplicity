@@ -11,7 +11,7 @@ class TestUtil {
     }
 
     static compare2DArray(a1, a2) {
-
+        let FIXED = 5;
         if (a1.length !== a2.length) {
             throw 'array length mistmatch ' + a1.length + ' ' + a2.length;
         }
@@ -20,9 +20,8 @@ class TestUtil {
         }
 
         for (let i = 0; i < a1.length; ++i) {
-
             for (let j = 0; j < a2.length; ++j) {
-                if (a1[i][j] !== a2[i][j]) {
+                if (a1[i][j].toFixed(FIXED) !== a2[i][j].toFixed(FIXED)) {
                     throw 'array mistmatch ' + a1[i][j] + ' ' + a2[i][j];
                 }
             }

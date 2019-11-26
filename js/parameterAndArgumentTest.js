@@ -1,5 +1,6 @@
 var assert = require('assert');
 const { Kernel } = require(__dirname + '\\..\\modules\\kernel.js');
+const { TestUtil } = require(__dirname + '\\..\\modules\\testutil.js');
 
 describe('Test parameters and arguments', function () {
     it('Validate exception if kernel is called with too many parameters - zero input parameters', function () {
@@ -102,37 +103,48 @@ describe('Test parameters and arguments', function () {
 
     it('Validate that kernel returns correct result when only single parameter is specified', function () {
         let test = Kernel.create(function main(a = 0.) {
-          return a;
+            return a;
         }).setOutput([3, 3]);
         test = test(1.0);
         TestUtil.compare2DArray(test.result(), [[1, 1, 1], [1, 1, 1], [1, 1, 1]]);
         test.delete();
-      });
+    });
 
-      it('Test mixed input function parameters. Use parameters in simple math operation', function () {
+    it('Test mixed input function parameters. Use parameters in simple math operation', function () {
         let test = Kernel.create(function main(a = [[]], b = 0, c = 0.) {
-           return a[this.thread.x][this.thread.y] + b + c;
-         }).setOutput([3, 3]);
-         TestUtil.compare2DArray(test([[1, 1, 1], [2, 2, 2], [3, 3, 3]], 10, 11).result(),[ [ 22, 22, 22 ], [ 23, 23, 23 ], [ 24, 24, 24 ] ]);
-         test.delete();
-       });
-
-       it('Test 2D and 1D array as input parameter', function () {
-        let test  = Kernel.create(function main(a = [[]], b = []) {
-          return a[this.thread.x][this.thread.y] + b[this.thread.x];
+            return a[this.thread.x][this.thread.y] + b + c;
         }).setOutput([3, 3]);
-        
-        TestUtil.compare2DArray(test([[1, 1, 1], [2, 2, 2], [3, 3, 3]], [1, 1, 1]).result(),[ [ 2, 2, 2 ], [ 3, 3, 3 ], [ 4, 4, 4 ] ]);
+        TestUtil.compare2DArray(test([[1, 1, 1], [2, 2, 2], [3, 3, 3]], 10, 11).result(), [[22, 22, 22], [23, 23, 23], [24, 24, 24]]);
         test.delete();
-      });
-    
-     it('Test 1D array as input parameter', function () {
+    });
+
+    it('Test 2D and 1D array as input parameter', function () {
+        let test = Kernel.create(function main(a = [[]], b = []) {
+            return a[this.thread.x][this.thread.y] + b[this.thread.x];
+        }).setOutput([3, 3]);
+
+        TestUtil.compare2DArray(test([[1, 1, 1], [2, 2, 2], [3, 3, 3]], [1, 1, 1]).result(), [[2, 2, 2], [3, 3, 3], [4, 4, 4]]);
+        test.delete();
+    });
+
+    it('Test 1D array as input parameter', function () {
         let test = Kernel.create(function main(a = []) {
             return a[this.thread.x];
         }).setOutput([5, 1])
-        console.log(test([1., 2., 3., 4., 5]).result());
-        TestUtil.compare2DArray(test([1., 2., 3., 4., 5]).result(),[ [ 1, 2, 3, 4, 5 ] ]);
+        TestUtil.compare2DArray(test([1., 2., 3., 4., 5]).result(), [1, 2, 3, 4, 5]);
     });
-    
+
+    it('Should throw exception since no parameters specified but function is called using parameters', function () {
+        try {
+            Kernel.create(function main() {
+                let a = 2.0 * 3.0;
+                return a;
+            }).setOutput([2, 2])([[5, 5], [5, 5]]).delete();
+            assert.fail('expected exception not thrown'); // this throws an AssertionError
+        } catch (e) {
+            assert.equal(e, 'mismatch between number of declared function parameters and number of actually passed arguments');
+        }
+    });
+
 
 });

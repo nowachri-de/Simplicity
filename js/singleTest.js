@@ -3,6 +3,5 @@ const { Kernel } = require(__dirname + '\\..\\modules\\kernel.js');
 const { TestUtil } = require(__dirname + '\\..\\modules\\TestUtil.js');
 
 describe('CodeGenerator', function () {
-
-    
+   
 });

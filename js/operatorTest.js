@@ -1,7 +1,5 @@
-var assert = require('assert');
 const { Kernel } = require(__dirname + '\\..\\modules\\kernel.js');
 const { TestUtil } = require(__dirname + '\\..\\modules\\testutil.js');
-
 
 describe('Test mathematical operators', function () {
   it('Validate division', function () {

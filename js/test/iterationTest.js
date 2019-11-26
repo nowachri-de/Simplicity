@@ -1,0 +1,43 @@
+var assert = require('assert');
+const { Kernel } = require(__dirname + '\\..\\modules\\kernel.js');
+const { TestUtil } = require(__dirname + '\\..\\modules\\testutil.js');
+
+
+describe('Iterating 1d and 2d arrays', function () {
+    it('Test iterating 2d array', function () {
+        let test = Kernel.create(function main(y = [[]]) {
+            return y[this.thread.x][this.thread.y];
+        }).setOutput([5, 2]);
+
+        TestUtil.compare2DArray(test([[1., 2., 3., 4., 5.], [1., 2., 3., 4., 5.]]).result(), [[1., 2., 3., 4., 5.], [1., 2., 3., 4., 5.]]);
+        test.delete();
+    });
+
+    it('Test iterating 1d array', function () {
+        let test = Kernel.create(function main(y = []) {
+            return y[this.thread.x];
+        }).setOutput([5, 1]);
+
+        TestUtil.compare1DArray(test([1., 2., 3., 4., 5.]).result(), [1., 2., 3., 4., 5.]);
+        test.delete();
+    });
+
+    it('Test iteration using a float parameter', function () {
+        let test = Kernel.create(function main(i = 0.) {
+            return i;
+        }).setOutput([5, 2]);
+
+        TestUtil.compare2DArray(test(1.0).result(), [[1., 1., 1., 1., 1.],[1., 1., 1., 1., 1.]]);
+        test.delete();
+    });
+
+    it('Test iteration using an int parameter', function () {
+        let test = Kernel.create(function main(i = 0) {
+            return i;
+        }).setOutput([5, 2]);
+
+        TestUtil.compare2DArray(test(1).result(),  [[1., 1., 1., 1., 1.],[1., 1., 1., 1., 1.]]);
+        test.delete();
+    });
+
+});
