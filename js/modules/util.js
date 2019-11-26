@@ -108,6 +108,10 @@ class Util {
             }
         }
 
+        if (texture.height === 1){
+            finalResult = finalResult[0];
+        }
+
         readableTexture.delete();
         return finalResult;
     }

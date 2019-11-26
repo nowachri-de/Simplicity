@@ -4,14 +4,7 @@ const { TestUtil } = require(__dirname + '\\..\\modules\\testutil.js');
 
 
 describe('Kernel functional tests', function () {
-  it('Validate that kernel returns correct result when only single parameter is specified', function () {
-    let test = Kernel.create(function main(a = 0.) {
-      return a;
-    }).setOutput([3, 3]);
-    test = test(1.0);
-    TestUtil.compare2DArray(test.result(), [[1, 1, 1], [1, 1, 1], [1, 1, 1]]);
-    test.delete();
-  });
+
 
   it('Validate that kernel returns correct result when multiple input function parameters of mixed type are used', function () {
     let test = Kernel.create(function main(weights = [[]], dEtot2dOut = [], dOut2dNet = [], prevOutput = [], learningRate = 0.) {
@@ -25,27 +18,7 @@ describe('Kernel functional tests', function () {
     TestUtil.compare2DArray(test.result(),[[0.5, -3], [1.5, -2]]);
     test.delete();
   });
-
-  it('Test mixed input function parameters. Use parameters in simple math operation', function () {
-    Kernel.create(function main(a = [[]], b = 0, c = 0.) {
-      return a[this.thread.x][this.thread.y] + b + c;
-    }).setOutput([3, 3])([[1, 1, 1], [2, 2, 2], [3, 3, 3]], 10, 11).delete();
-  });
-
-  it('Test 2D and 1D array as input parameter', function () {
-    Kernel.create(function main(a = [[]], b = []) {
-      return a[this.thread.x][this.thread.y] + b[this.thread.x];
-    }).setOutput([3, 3])([[1, 1, 1], [2, 2, 2], [3, 3, 3]], [1, 1, 1]).delete();
-  });
-
-  it('Test 1D array as input parameter', function () {
-    Kernel.create(function main(a = []) {
-      return a[this.thread.x];
-    }).setOutput([10, 1])([6., 7., 8., 9., 10]).delete();
-  });
-
- 
-
+  
   it('Test variable declaration using expression as assigment pattern', function () {
     Kernel.create(function main() {
       let a = (2. * 3. * 4.) / 120.0;
@@ -107,7 +80,6 @@ describe('Kernel functional tests', function () {
       assert.equal(e, 'mismatch between number of declared function parameters and number of actually passed arguments');
     }
   });
-
 
   it('Test multiple functions', function () {
     Kernel.create(function main() {

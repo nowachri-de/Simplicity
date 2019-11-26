@@ -100,4 +100,39 @@ describe('Test parameters and arguments', function () {
         }).setOutput([3, 3])(1.0).delete();
     });
 
+    it('Validate that kernel returns correct result when only single parameter is specified', function () {
+        let test = Kernel.create(function main(a = 0.) {
+          return a;
+        }).setOutput([3, 3]);
+        test = test(1.0);
+        TestUtil.compare2DArray(test.result(), [[1, 1, 1], [1, 1, 1], [1, 1, 1]]);
+        test.delete();
+      });
+
+      it('Test mixed input function parameters. Use parameters in simple math operation', function () {
+        let test = Kernel.create(function main(a = [[]], b = 0, c = 0.) {
+           return a[this.thread.x][this.thread.y] + b + c;
+         }).setOutput([3, 3]);
+         TestUtil.compare2DArray(test([[1, 1, 1], [2, 2, 2], [3, 3, 3]], 10, 11).result(),[ [ 22, 22, 22 ], [ 23, 23, 23 ], [ 24, 24, 24 ] ]);
+         test.delete();
+       });
+
+       it('Test 2D and 1D array as input parameter', function () {
+        let test  = Kernel.create(function main(a = [[]], b = []) {
+          return a[this.thread.x][this.thread.y] + b[this.thread.x];
+        }).setOutput([3, 3]);
+        
+        TestUtil.compare2DArray(test([[1, 1, 1], [2, 2, 2], [3, 3, 3]], [1, 1, 1]).result(),[ [ 2, 2, 2 ], [ 3, 3, 3 ], [ 4, 4, 4 ] ]);
+        test.delete();
+      });
+    
+     it('Test 1D array as input parameter', function () {
+        let test = Kernel.create(function main(a = []) {
+            return a[this.thread.x];
+        }).setOutput([5, 1])
+        console.log(test([1., 2., 3., 4., 5]).result());
+        TestUtil.compare2DArray(test([1., 2., 3., 4., 5]).result(),[ [ 1, 2, 3, 4, 5 ] ]);
+    });
+    
+
 });
