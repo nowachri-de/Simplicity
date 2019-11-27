@@ -84,7 +84,7 @@ function setUniforms(program, width, height, args, options) {
       //width and height of inputTexture not required to be same dimensions as resultTexture
       let width = arg.length;
       let height = 1.0;
-      
+
       //set propper height
       if (Util.is2DArray(type)) {
         width = arg[0].length;

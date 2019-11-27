@@ -60,32 +60,44 @@ describe('Test mathematical operators', function () {
   });
 
   it('Result must be 7. This did not work propperly before the readable shader fix', function () {
-    Kernel.create(function main(x = [[]]) {
+    let test = Kernel.create(function main(x = [[]]) {
       let a = 2.0;
       return x[this.thread.x][this.thread.y] + a;
-    }).setOutput([2, 2])([[5, 5], [5, 5]]).delete();
+    }).setOutput([2, 2]);
+
+    TestUtil.compare2DArray(test([[5, 5], [5, 5]]).result(), [[7, 7], [7, 7]]);
+    test.delete();
   });
 
   it('Test binary division expression using 2D arrays as left hand and right hand operator', function () {
-    Kernel.create(function main(x = [[]], y = [[]]) {
+    let test = Kernel.create(function main(x = [[]], y = [[]]) {
       return x[this.thread.x][this.thread.y] / y[this.thread.x][this.thread.y];
-    }).setOutput([2, 2])([[3., 5.], [3., 5.]], [[2., 2.], [2., 2.]]).delete();
+    }).setOutput([2, 2]);
+    
+    TestUtil.compare2DArray(test([[3., 5.], [3., 5.]], [[3., 5.], [3., 5.]]).result(), [[1, 1], [1, 1]]);
+    test.delete();
   });
 
   it('Test binary modulo expression using 2D arrays as left hand and right hand operator', function () {
-    Kernel.create(function main(x = [[]], y = [[]]) {
+    let test = Kernel.create(function main(x = [[]], y = [[]]) {
       return x[this.thread.x][this.thread.y] % y[this.thread.x][this.thread.y];
-    }).setOutput([2, 2])([[3., 5.], [3., 5.]], [[2., 2.], [2., 2.]]).delete();
+    }).setOutput([2, 2]);
+
+    TestUtil.compare2DArray(test([[3., 5.], [3., 5.]], [[2., 2.], [2., 2.]]).result(), [[1, 1], [1, 1]]);
+    test.delete();
   });
 
   it('Test binary substraction expression using 2D arrays as left hand and right hand operator', function () {
-    Kernel.create(function main(x = [[]], y = [[]]) {
+    let test = Kernel.create(function main(x = [[]], y = [[]]) {
       return x[this.thread.x][this.thread.y] - y[this.thread.x][this.thread.y];
-    }).setOutput([2, 2])([[1., 2.], [3., 4.]], [[4., 5.], [6., 7.]]).delete();
+    }).setOutput([2, 2])
+    
+    TestUtil.compare2DArray(test ([[1., 2.], [3., 4.]], [[4., 5.], [6., 7.]]).result(), [[-3, -3], [-3, -3]]);
+    test.delete();
   });
 
   it('Test multiple substraction expression using 2D arrays as left hand and right hand operator', function () {
-    Kernel.create(function main(x = [[]], y = [[]]) {
+    let test = Kernel.create(function main(x = [[]], y = [[]]) {
       return x[this.thread.x][this.thread.y] - y[this.thread.x][this.thread.y] - y[this.thread.x][this.thread.y];
     }).setOutput([2, 2])([[1., 2.], [3., 4.]], [[4., 5.], [6., 7.]]).delete();
   });

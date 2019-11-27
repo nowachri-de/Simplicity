@@ -39,6 +39,9 @@ function checkAndReturnParameter(codeGen, node) {
     }
     return name;
 }
+function getParameter(codeGen,name){
+    return codeGen.parameters.get(name);
+}
 
 function storeParameter(codeGen, node, functionNode, name) {
     //store name and type of parameter, needed for later assertion
@@ -338,7 +341,7 @@ class CodeGenerator {
 
         if (this.transformationRequests.get('replaceReturnStatement') === true) {
             //sb.push(Sqrl.Render('gl_FragData[0] = vec4({{returnValue}},0.,0.,0.);', { returnValue: tmp.join('') }));
-            sb.push(Sqrl.Render('write({{returnValue}},{{functionName}});\r\ngl_FragData[0]=vec4({{returnValue}},0.,0.,0.);', { returnValue: tmp.join(''),functionName: getFunctionName(this).toUpperCase() }));
+            sb.push(Sqrl.Render('write({{returnValue}},{{functionName}});\r\ngl_FragData[0]=vResult;', { returnValue: tmp.join(''),functionName: getFunctionName(this).toUpperCase() }));
             this.transformationRequests.delete('replaceReturnStatement');
         } else {
             sb.push(Sqrl.Render('return write({{returnValue}},{{functionName}});', { returnValue: tmp.join(''),functionName: getFunctionName(this).toUpperCase() }));
@@ -465,7 +468,7 @@ class CodeGenerator {
             } else {
                 self.handleType(node, tmp);
                 //make sure that identifier has been declared
-                if (node.type === 'Identifier' && !hasBeenDeclared(self, tmp.join(''))) {
+                if (node.type === 'Identifier' && !hasBeenDeclared(self, node.name)) {
                     throw formatThrowMessage(node, tmp.join('') + " unknown identifier");
                 }
                 /*  Check if functioan call argument is an array.
@@ -590,6 +593,13 @@ class CodeGenerator {
             }
         }
 
+        if (node.type === 'UpdateExpression') {
+            return "int";
+        }
+
+        if (node.type === 'CallExpression') {
+            return "float";
+        }
         return "unknown";
     }
 
@@ -722,6 +732,14 @@ class CodeGenerator {
         sb.push(node.raw);
     }
     genUpdateExpression(node, sb) {
+        if (typeof node.argument !== 'undefined' && isMainFunction(this)){
+            let identifierName = node.argument.name;
+            let parameter =getParameter(this,identifierName);
+            if ( typeof parameter !== 'undefined' && parameter !== null ){
+                throw 'update operation can not be performed on parameter of main function';
+            }
+        }
+        
         if (node.argument.type === 'MemberExpression') {
             throw formatThrowMessage(node.argument, 'Update operation not allowed on array member');
         }

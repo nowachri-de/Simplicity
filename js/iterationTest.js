@@ -27,7 +27,7 @@ describe('Test iterations', function () {
             return i;
         }).setOutput([5, 2]);
 
-        TestUtil.compare2DArray(test(1.0).result(), [[1., 1., 1., 1., 1.],[1., 1., 1., 1., 1.]]);
+        TestUtil.compare2DArray(test(1.0).result(), [[1., 1., 1., 1., 1.], [1., 1., 1., 1., 1.]]);
         test.delete();
     });
 
@@ -36,16 +36,16 @@ describe('Test iterations', function () {
             return i;
         }).setOutput([5, 2]);
 
-        TestUtil.compare2DArray(test(1).result(),  [[1., 1., 1., 1., 1.],[1., 1., 1., 1., 1.]]);
+        TestUtil.compare2DArray(test(1).result(), [[1., 1., 1., 1., 1.], [1., 1., 1., 1., 1.]]);
         test.delete();
     });
 
     it('Test iterating 2 arrays', function () {
-        let test = Kernel.create(function main(a = [[]] , b = [[]] ) {
+        let test = Kernel.create(function main(a = [[]], b = [[]]) {
             return a[this.thread.x][this.thread.y] + b[this.thread.x][this.thread.y];
         }).setOutput([5, 2]);
 
-        TestUtil.compare2DArray(test([[1., 2., 3., 4., 5.], [1., 2., 3., 4., 5.]],[[1., 2., 3., 4., 5.], [1., 2., 3., 4., 5.]]).result(), [[2., 4., 6., 8., 10.], [2., 4., 6., 8., 10.]]);
+        TestUtil.compare2DArray(test([[1., 2., 3., 4., 5.], [1., 2., 3., 4., 5.]], [[1., 2., 3., 4., 5.], [1., 2., 3., 4., 5.]]).result(), [[2., 4., 6., 8., 10.], [2., 4., 6., 8., 10.]]);
         test.delete();
     });
 
