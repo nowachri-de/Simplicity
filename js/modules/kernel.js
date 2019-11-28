@@ -94,8 +94,6 @@ function setUniforms(program, width, height, args, options) {
       setUniformLocationFloat(program, "uSampler_" + name + "_width", width);
      
       let inputTexture = TextureFactory.createTextureByDimension(gl, "texture_uSampler_" + name, width, height, Util.data2Texel(width,height,arg,'R'));
-      
-      
       textures.push(inputTexture);
       setUniformLocationInt(program, "uSampler_" + name, inputTexture.index);
 
@@ -207,19 +205,20 @@ function createFunctionsDescriptor(functions) {
   functionsDescriptor = setupOptions(functions, functionsDescriptor);
 
   let main = functionsDescriptor.get('main');
-  let options = main.options;
-  options.main = (new Formatter()).format(main.glslCode);
-  options.functions = [];
-  options.signatures = [];
-  options.preprocessor = [];
+  let mainOptions = main.options;
+  mainOptions.main = (new Formatter()).format(main.glslCode);
+  mainOptions.functions = [];
+  mainOptions.signatures = [];
+  mainOptions.preprocessor = [];
+  mainOptions.targetIndex = 0;
 
   functions = functionsDescriptor.getFunctionsExclusiveMain();
   let i = 1;
   functions.forEach(funct => {
-    options.functions.push((new Formatter()).format(funct.glslCode));
-    options.signatures.push(funct.options.signature);
-    options.preprocessor.push({ name: funct.options.functionName.toUpperCase(), id: i });
-    funct.targetIndex = i;
+    mainOptions.functions.push((new Formatter()).format(funct.glslCode));
+    mainOptions.signatures.push(funct.options.signature);
+    mainOptions.preprocessor.push({ name: funct.options.functionName.toUpperCase(), id: i });
+    funct.options.targetIndex = i; //used for result lookup
     i++;
   });
 
@@ -261,7 +260,7 @@ class FunctionBuilder {
       program = new Program(width, height);
 
       //console.log(vertexShaderCode);
-      //console.log(fragmentShaderCode);
+      console.log(fragmentShaderCode);
 
       program.buildProgram(vertexShaderCode, fragmentShaderCode);
       inputTextures = setUniforms(program, width, height,args, options);
@@ -276,7 +275,8 @@ class FunctionBuilder {
 
     implementation.fragmentShaderCode = fragmentShaderCode;
     implementation.vertexShaderCode = vertexShaderCode;
-
+    implementation.functionsDescriptor = functionsDescriptor;
+    
     implementation.getVertexShaderCode = function(){
       return implementation.vertexShaderCode;
     }
@@ -286,8 +286,17 @@ class FunctionBuilder {
     }
 
     implementation.result = function(name){
-      return Util.texture2array(program.gl,resultTextures[0],0);
+      if(typeof name === 'undefined'){
+        name = 'main';
+      }
+      let targetIndex = implementation.functionsDescriptor.get(name).options.targetIndex;
+
+      if (typeof targetIndex === 'undefined'){
+        throw 'could not lookup result of function ' + name;
+      }
+      return Util.texture2array(program.gl,resultTextures[0],targetIndex);
     }
+
     implementation.delete = function(){
       program.delete();
       resultTextures.forEach(texture => {
@@ -297,6 +306,7 @@ class FunctionBuilder {
         texture.delete();
       });
     }
+
     implementation.setOutput = function (dimensions) {
       this.dimensions = dimensions;
       return implementation;

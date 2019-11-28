@@ -118,9 +118,9 @@ function handleMemberExpression(codeGen, node, sb) {
     data.properties = [];
 
     //due to setting a transformation request, data will contain all properties after handling type
-    codeGen.transformationRequests.set('memberExpression', data);
+    setTransformationRequest(codeGen,'memberExpression',data)
     codeGen.handleType(node, []);
-    codeGen.transformationRequests.delete('memberExpression');//remove transformation request
+    deleteTransformationRequest(codeGen,'memberExpression');//remove transformation request
 
     //set name of glsl function
     sb.push('readTexture');
@@ -231,6 +231,18 @@ function formatThrowMessage(node, message) {
     return '[' + node.start + ',' + node.end + ']:' + message;
 }
 
+function setTransformationRequest(codeGen,key,value){
+    codeGen.transformationRequests.set(key,value);
+}
+
+function getTransformationRequest(codeGen,key){
+    return codeGen.transformationRequests.get(key);
+}
+
+function deleteTransformationRequest(codeGen,key){
+    codeGen.transformationRequests.delete(key);
+}
+
 class CodeGenerator {
 
     constructor() {
@@ -339,10 +351,10 @@ class CodeGenerator {
             this.handleType(node.argument, tmp);
         }
 
-        if (this.transformationRequests.get('replaceReturnStatement') === true) {
+        if ( getTransformationRequest(this,'replaceReturnStatement')  === true) {
             //sb.push(Sqrl.Render('gl_FragData[0] = vec4({{returnValue}},0.,0.,0.);', { returnValue: tmp.join('') }));
-            sb.push(Sqrl.Render('write({{returnValue}},{{functionName}});\r\ngl_FragData[0]=vResult;', { returnValue: tmp.join(''),functionName: getFunctionName(this).toUpperCase() }));
-            this.transformationRequests.delete('replaceReturnStatement');
+            sb.push(Sqrl.Render('write({{returnValue}},{{functionName}});', { returnValue: tmp.join(''),functionName: getFunctionName(this).toUpperCase() }));
+            deleteTransformationRequest(this,'replaceReturnStatement');
         } else {
             sb.push(Sqrl.Render('return write({{returnValue}},{{functionName}});', { returnValue: tmp.join(''),functionName: getFunctionName(this).toUpperCase() }));
         }
@@ -364,7 +376,7 @@ class CodeGenerator {
         //if the function has the name 'main' it needs to be handled specially
         if (name === 'main') {
             signature.push('void ');
-            this.transformationRequests.set('replaceReturnStatement', true);
+            setTransformationRequest(this,'replaceReturnStatement', true);
         } else {
             signature.push('float ');
         }
@@ -394,8 +406,10 @@ class CodeGenerator {
         this.function.signature = signature.join('');
 
         sb.push(signature.join(''));
+        setTransformationRequest(this,'mainBody', true)
         this.handleType(node.body, sb);
-        this.transformationRequests.delete('replaceReturnStatement');
+        deleteTransformationRequest(this,'mainBody');
+        deleteTransformationRequest(this,'replaceReturnStatement');
         node.code = sb.join('');
     }
     
@@ -450,7 +464,7 @@ class CodeGenerator {
 
             handleMemberExpression(this, node.expression, sb);
             sb.push(';');
-            this.transformationRequests.delete('memberExpression');
+            deleteTransformationRequest(this,'memberExpression');
         } else {
             this.handleType(node.expression, tmp);
             sb.push(tmp.join(''));
@@ -528,10 +542,10 @@ class CodeGenerator {
             if (node.property.type === 'Identifier' && !hasBeenDeclared(this,node.property.name)) {
                 throw formatThrowMessage(node, node.property.name + ' undefined')
             }
-            if (typeof this.transformationRequests.get('memberExpression') != 'undefined') {
+            if (typeof getTransformationRequest(this,'memberExpression')  != 'undefined') {
                 let tmp = [];
                 this.handleType(node.property, tmp);
-                this.transformationRequests.get('memberExpression').properties.push(tmp.join(''));
+                getTransformationRequest(this,'memberExpression').properties.push(tmp.join(''));
             }
 
             sb.push(']');
@@ -650,6 +664,10 @@ class CodeGenerator {
     }
     genBody(node, sb) {
         sb.push('{');
+        if (isMainFunction(this)){
+            sb.push('//Hello World');
+        }
+        
         this.iterate(node, sb);
         sb.push('}');
     }

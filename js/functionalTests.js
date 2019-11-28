@@ -90,7 +90,7 @@ describe('Kernel functional tests', function () {
     }
   });
 
-  it('should throw an exception since y is not an array', function () {
+  it('Validate that exception is thrown since y is not an array', function () {
     try {
       Kernel.create(function main(y = 0, x = 0, z = 0) {
         y[x][z];

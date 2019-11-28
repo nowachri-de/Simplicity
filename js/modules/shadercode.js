@@ -449,7 +449,8 @@ static generateFragmentShader(functionsDescriptor) {
 varying highp float vKernelX; 
 varying highp float vKernelY; 
 varying highp vec2  vTexture;
-vec4  vResult = vec4(0.,0.,0.,0.); 
+vec4  vResult = vec4(0.,0.,0.,0.);
+
 
 #define MAIN 0
 {{each(options.preprocessor)}}
@@ -479,17 +480,24 @@ uniform float u_{{@this.name}};
 {{/each}}
 
 float write (float value, int index){
-    if (index == 0) vResult = vec4(value,vResult.y,vResult.z,vResult.w); return value;
-    if (index == 1) vResult = vec4(vResult.x,value,vResult.z,vResult.w); return value;
-    if (index == 2) vResult = vec4(vResult.x,vResult.y,value,vResult.w); return value;
-    if (index == 3) vResult = vec4(vResult.x,vResult.y,vResult.z,value); return value;
+    if (index == 0) { vResult = vec4(value,vResult.y,vResult.z,vResult.w); }
+    if (index == 1) { vResult = vec4(vResult.x,value,vResult.z,vResult.w); }
+    if (index == 2) { vResult = vec4(vResult.x,vResult.y,value,vResult.w); }
+    if (index == 3) { vResult = vec4(vResult.x,vResult.y,vResult.z,value); }
+
+    gl_FragData[index / 4] = vResult;
+    return value;
 }
 
 float write (int value, int index){
-    if (index == 0) vResult = vec4(float(value),vResult.y,vResult.z,vResult.w); return float(value);
-    if (index == 1) vResult = vec4(vResult.x,float(value),vResult.z,vResult.w); return float(value);
-    if (index == 2) vResult = vec4(vResult.x,vResult.y,float(value),vResult.w); return float(value);
-    if (index == 3) vResult = vec4(vResult.x,vResult.y,vResult.z,float(value)); return float(value);
+    
+    if (index == 0){ vResult = vec4(float(value),vResult.y,vResult.z,vResult.w);  }
+    if (index == 1){ vResult = vec4(vResult.x,float(value),vResult.z,vResult.w);  }
+    if (index == 2){ vResult = vec4(vResult.x,vResult.y,float(value),vResult.w);  }
+    if (index == 3){ vResult = vec4(vResult.x,vResult.y,vResult.z,float(value));  }
+
+    gl_FragData[index / 4] = vResult;
+    return float(value);
 }
 
 {{if(options.samplers.length > 0)}}
