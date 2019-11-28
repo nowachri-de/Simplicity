@@ -449,7 +449,10 @@ static generateFragmentShader(functionsDescriptor) {
 varying highp float vKernelX; 
 varying highp float vKernelY; 
 varying highp vec2  vTexture;
-vec4  vResult = vec4(0.,0.,0.,0.);
+vec4 vResult = vec4(0.,0.,0.,0.);
+{{if(options.resultTextures.length > 0)}}
+vec4 vResults[{{options.resultTextures.length}}];
+{{/if}}
 
 
 #define MAIN 0
@@ -464,13 +467,11 @@ uniform float uSampler_{{@this.name}}_width;
 uniform float uSampler_{{@this.name}}_height;
 {{/each}}
 
-
 {{each(options.samplers2D)}}
 uniform sampler2D uSampler_{{@this.name}};
 uniform float uSampler_{{@this.name}}_width;
 uniform float uSampler_{{@this.name}}_height;
 {{/each}}
-
 
 {{each(options.integers)}}
 uniform int u_{{@this.name}};
@@ -541,6 +542,11 @@ float readTexture(float x, float y,float width,float height, in sampler2D sample
 
    return -1.0;
 }
+
+void init(){
+    vResults[0]=vResult;
+}
+
 {{/if}}
 {{each(options.signatures)}}
 {{@this}};

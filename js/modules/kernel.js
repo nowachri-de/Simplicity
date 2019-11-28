@@ -35,13 +35,13 @@ function checkArguments(args, options) {
     }
 
     if (Util.isInteger(type)) {
-      if (!Util.isArgumentInteger(arg)){
+      if (!Util.isArgumentInteger(arg)) {
         throw 'expected function argument ' + i + ' to be of type integer';
       }
     }
 
     if (Util.isFloat(type)) {
-      if (Array.isArray(arg)){
+      if (Array.isArray(arg)) {
         throw 'expected function argument ' + i + ' to be of type float';
       }
     }
@@ -75,7 +75,7 @@ function setUniforms(program, width, height, args, options) {
   setUniformLocationFloat(program, "uResultTextureWidth", width);
   setUniformLocationFloat(program, "uResultTextureHeight", height);
 
-  for (let i=0; i < args.length;++i){
+  for (let i = 0; i < args.length; ++i) {
     let arg = args[i];
     let type = options.parameterMap.get(i).type;
     let name = options.parameterMap.get(i).name;
@@ -92,8 +92,8 @@ function setUniforms(program, width, height, args, options) {
         setUniformLocationFloat(program, "uSampler_" + name + "_height", height);
       }
       setUniformLocationFloat(program, "uSampler_" + name + "_width", width);
-     
-      let inputTexture = TextureFactory.createTextureByDimension(gl, "texture_uSampler_" + name, width, height, Util.data2Texel(width,height,arg,'R'));
+
+      let inputTexture = TextureFactory.createTextureByDimension(gl, "texture_uSampler_" + name, width, height, Util.data2Texel(width, height, arg, 'R'));
       textures.push(inputTexture);
       setUniformLocationInt(program, "uSampler_" + name, inputTexture.index);
 
@@ -106,9 +106,9 @@ function setUniforms(program, width, height, args, options) {
     if (Util.isFloat(type)) {
       setUniformLocationFloat(program, "u_" + name, arg);
     }
-    
+
   }
- 
+
   return textures;
 }
 
@@ -199,7 +199,23 @@ function setupOptions(functions, functionsDescriptor) {
 
   return functionsDescriptor;
 }
+function setAdditionalOptions(mainOptions, functionsDescriptor) {
+  let functions = functionsDescriptor.getFunctionsExclusiveMain();
+  let i = 1;
+  let numResultTextures = 2;//Math.floor((functions.length + 1)/4);
+ 
+  for(let j=0; j < numResultTextures;++j){
+    mainOptions.resultTextures.push(j+1);
+  }
 
+  functions.forEach(funct => {
+    mainOptions.functions.push((new Formatter()).format(funct.glslCode));
+    mainOptions.signatures.push(funct.options.signature);
+    mainOptions.preprocessor.push({ name: funct.options.functionName.toUpperCase(), id: i });
+    funct.options.targetIndex = i; //used for result lookup
+    i++;
+  });
+}
 function createFunctionsDescriptor(functions) {
   let functionsDescriptor = setupFunctionsDescriptor();
   functionsDescriptor = setupOptions(functions, functionsDescriptor);
@@ -210,33 +226,14 @@ function createFunctionsDescriptor(functions) {
   mainOptions.functions = [];
   mainOptions.signatures = [];
   mainOptions.preprocessor = [];
+  mainOptions.resultTextures = [];
   mainOptions.targetIndex = 0;
 
-  functions = functionsDescriptor.getFunctionsExclusiveMain();
-  let i = 1;
-  functions.forEach(funct => {
-    mainOptions.functions.push((new Formatter()).format(funct.glslCode));
-    mainOptions.signatures.push(funct.options.signature);
-    mainOptions.preprocessor.push({ name: funct.options.functionName.toUpperCase(), id: i });
-    funct.options.targetIndex = i; //used for result lookup
-    i++;
-  });
+  setAdditionalOptions(mainOptions, functionsDescriptor);
 
   return functionsDescriptor;
 }
 
-function createTextures(functionsDescriptor, width, height){
-
-  let result = [];
-  let texture = TextureFactory.createReadableTexture(gl, 'resultTexture', { width: width, height: height });
-  functionsDescriptor.getAll().forEach(funct => {
-    funct.texture = texture;
-  });
-
-  //only one texture supported for now
-  result.push(texture);
-  return result;
-}
 
 class FunctionBuilder {
   static buildFunction(functions) {
@@ -263,7 +260,7 @@ class FunctionBuilder {
       console.log(fragmentShaderCode);
 
       program.buildProgram(vertexShaderCode, fragmentShaderCode);
-      inputTextures = setUniforms(program, width, height,args, options);
+      inputTextures = setUniforms(program, width, height, args, options);
 
       resultTextures = program.execute();
 
@@ -276,28 +273,28 @@ class FunctionBuilder {
     implementation.fragmentShaderCode = fragmentShaderCode;
     implementation.vertexShaderCode = vertexShaderCode;
     implementation.functionsDescriptor = functionsDescriptor;
-    
-    implementation.getVertexShaderCode = function(){
+
+    implementation.getVertexShaderCode = function () {
       return implementation.vertexShaderCode;
     }
 
-    implementation.getFragmentShaderCode = function(){
+    implementation.getFragmentShaderCode = function () {
       return implementation.fragmentShaderCode;
     }
 
-    implementation.result = function(name){
-      if(typeof name === 'undefined'){
+    implementation.result = function (name) {
+      if (typeof name === 'undefined') {
         name = 'main';
       }
       let targetIndex = implementation.functionsDescriptor.get(name).options.targetIndex;
 
-      if (typeof targetIndex === 'undefined'){
+      if (typeof targetIndex === 'undefined') {
         throw 'could not lookup result of function ' + name;
       }
-      return Util.texture2array(program.gl,resultTextures[0],targetIndex);
+      return Util.texture2array(program.gl, resultTextures[0], targetIndex);
     }
 
-    implementation.delete = function(){
+    implementation.delete = function () {
       program.delete();
       resultTextures.forEach(texture => {
         texture.delete();
