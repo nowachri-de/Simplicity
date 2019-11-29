@@ -438,7 +438,7 @@ void main(void) {
 /**
 * This is a generated fragment shader.
 */
-        
+#extension GL_EXT_draw_buffers : require        
 #ifdef GL_ES 
   precision highp float; 
 #endif
@@ -487,7 +487,7 @@ float write (float value, int index){
     if (vecComponentIndex == 3) { vector2set = vec4(vector2set.x,vector2set.y,vector2set.z,value); }
 
     vResults[vecIndex] = vector2set;
-    gl_FragData[0] = vector2set;
+    gl_FragData[vecIndex] = vector2set;
     return value;
 }
 

@@ -257,7 +257,7 @@ class FunctionBuilder {
       program.buildProgram(vertexShaderCode, fragmentShaderCode);
       inputTextures = setUniforms(program, width, height, args, options);
 
-      resultTextures = program.execute();
+      resultTextures = program.execute(options.numResults);
 
       /*resultTextures.forEach(texture => {
         texture.delete();
@@ -286,7 +286,10 @@ class FunctionBuilder {
       if (typeof targetIndex === 'undefined') {
         throw 'could not lookup result of function ' + name;
       }
-      return Util.texture2array(program.gl, resultTextures[0], targetIndex);
+
+      let textureIndex = Math.floor(targetIndex/4);
+      targetIndex = targetIndex % 4;
+      return Util.texture2array(program.gl, resultTextures[textureIndex], targetIndex);
     }
 
     implementation.delete = function () {

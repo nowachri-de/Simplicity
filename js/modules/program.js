@@ -1,7 +1,13 @@
 var headlessGL = require('gl');
-
+function genTextures(gl,num,width,height) {
+	let textures = [];
+	for (let i=0; i < num;++i){
+		textures.push(TextureFactory.createReadableTexture(gl, 'resultTexture', { width: width, height: height }));
+	}
+	return textures;
+}
 class Program {
-	
+
 	constructor(width, height, gl) {
 		this.glProgram = null;
 		this.debug = false;
@@ -37,7 +43,7 @@ class Program {
 
 		return gl;
 	}
-	
+
 
 	doBindings(textureA, textureB, program, targetIndex) {
 		this.doUniformBindings(textureA, textureB, program, targetIndex);
@@ -69,7 +75,7 @@ class Program {
 			gl.uniform1i(uTargetIndex, targetIndex);
 		}
 	}
-	doGenericUniformBinding(unifroms){
+	doGenericUniformBinding(unifroms) {
 
 	}
 	doUniformBindingsSingleTexture(inputTexture, outputDimensions, program, componentIndexA, componentIndexB, targetIndex) {
@@ -81,16 +87,14 @@ class Program {
 
 		gl.uniform1i(gl.getUniformLocation(program, "usampler"), inputTexture.index);
 		gl.uniform1f(gl.getUniformLocation(program, "uWidth"), inputTexture.width);
-		gl.uniform1f(gl.getUniformLocation(program, "uHeight"), inputTexture.height);
-		gl.uniform1f(gl.getUniformLocation(program, "uStepX"), 1. / inputTexture.width);
-		gl.uniform1f(gl.getUniformLocation(program, "uStepY"), 1. / inputTexture.height);
+		gl.uniform1f(gl.getUniformLgenTexturesocation(program, "uStepY"), 1. / inputTexture.height);
 
 		gl.uniform1f(gl.getUniformLocation(program, "uResultWidth"), outputDimensions.width);
 		gl.uniform1f(gl.getUniformLocation(program, "uResultHeight"), outputDimensions.height);
 	}
 
 	doVertexBindings() {
-		
+
 		let gl = this.gl;
 		// bind vertices
 		let aPosition = gl.getAttribLocation(this.glProgram, "aPosition");
@@ -100,7 +104,7 @@ class Program {
 		let vertices = [-1.0, -1.0, 0.0, 1.0, -1.0, 0.0, 1.0, 1.0, 0.0, -1.0, 1.0, 0.0];
 
 		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-		gl.vertexAttribPointer(aPosition,  3, gl.FLOAT, false, 0, 0);
+		gl.vertexAttribPointer(aPosition, 3, gl.FLOAT, false, 0, 0);
 		gl.enableVertexAttribArray(aPosition);
 
 		// bind texture cords
@@ -110,7 +114,7 @@ class Program {
 
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.texCoords);
 		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoords), gl.STATIC_DRAW);
-		gl.vertexAttribPointer(aTexture,  2, gl.FLOAT, false, 0, 0);
+		gl.vertexAttribPointer(aTexture, 2, gl.FLOAT, false, 0, 0);
 		gl.enableVertexAttribArray(aTexture);
 
 		// index to vertices
@@ -120,18 +124,23 @@ class Program {
 		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(vertexIndices), gl.STATIC_DRAW);
 	}
 
-	execute(){
-		let gl = this.gl;
-		let textures = [];
-		textures.push(TextureFactory.createReadableTexture(gl, 'resultTexture', {width:this.width,height:this.height}));
+
+	execute(num) {
+		let numTextures = num;
+
+		if (typeof numTextures === 'undefined'){
+			numTextures = 1;
+		}
+
+		let textures = genTextures(this.gl,numTextures,this.width,this.height);
 		return this.executeUsingTextures(textures);
 	}
 
-	executeUsingTextures(textures){
+	executeUsingTextures(textures) {
 		let gl = this.gl;
 		gl.useProgram(this.glProgram);
 		gl.viewport(0, 0, this.width, this.height);
-		
+
 		let frameBuffer = FrameBufferFactory.createFrameBufferMultiAttachement(gl, textures);
 
 		gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.glFrameBuffer);
@@ -141,7 +150,7 @@ class Program {
 		return textures;
 	}
 
-	getResult(texture){
+	getResult(texture) {
 		Util.texture2array(texture);
 	}
 
@@ -149,11 +158,11 @@ class Program {
 		let gl = this.gl;
 		// link into a program
 		this.glProgram = gl.createProgram();
-		
+
 		this.vShader = ShaderFactory.createVertexShader(gl, vertexShaderCode);
 		this.fShader = ShaderFactory.createFragmentShader(gl, fragmentShaderCode);
 
-		
+
 		gl.attachShader(this.glProgram, this.vShader);
 		gl.attachShader(this.glProgram, this.fShader);
 		gl.linkProgram(this.glProgram);
@@ -181,7 +190,7 @@ class Program {
 		gl.useProgram(this.glProgram);
 		gl.viewport(0, 0, canvas.width, canvas.height);
 
-		var frameBuffer = FrameBufferFactory.createFrameBuffer(gl,textureC);
+		var frameBuffer = FrameBufferFactory.createFrameBuffer(gl, textureC);
 
 		gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.glFrameBuffer);
 		this.doBindings(textureA, textureB, this.glProgram);
@@ -201,14 +210,14 @@ class Program {
 		gl.viewport(0, 0, outputDimensions.width, outputDimensions.height);
 
 		let resultTexture = TextureFactory.createReadableTexture(gl, 'resultTexture', outputDimensions);
-		let frameBuffer =  FrameBufferFactory.createFrameBuffer(gl,resultTexture);
-		
+		let frameBuffer = FrameBufferFactory.createFrameBuffer(gl, resultTexture);
+
 		gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.glFrameBuffer);
 		this.doSingleTextureBindings(texture, resultTexture, this.glProgram, componentA, componentB, targetIndex);
-		
+
 		gl.drawElements(gl.TRIANGLES, /*num items*/ 6, gl.UNSIGNED_SHORT, 0);
 		frameBuffer.delete();
-		
+
 		return resultTexture;
 	}
 
@@ -220,7 +229,7 @@ class Program {
 
 	delete() {
 		let gl = this.gl;
-		
+
 		gl.deleteShader(this.vShader);
 		this.debugPrint("Deleted vertex shader");
 		gl.deleteShader(this.fShader);
@@ -235,7 +244,7 @@ class Program {
 }
 
 module.exports.Program = Program
-const {FrameBufferFactory} = require(__dirname + "\\framebufferfactory.js");
-const {TextureFactory} = require(__dirname + "\\texturefactory.js");
-const {ShaderFactory} = require(__dirname + "\\shader.js");
-const {Util} = require(__dirname + "\\util.js");
+const { FrameBufferFactory } = require(__dirname + "\\framebufferfactory.js");
+const { TextureFactory } = require(__dirname + "\\texturefactory.js");
+const { ShaderFactory } = require(__dirname + "\\shader.js");
+const { Util } = require(__dirname + "\\util.js");

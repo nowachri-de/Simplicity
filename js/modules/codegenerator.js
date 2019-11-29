@@ -406,7 +406,9 @@ class CodeGenerator {
         this.function.signature = signature.join('');
 
         sb.push(signature.join(''));
-        setTransformationRequest(this,'mainBody', true)
+        if(isMainFunction(this)){
+            setTransformationRequest(this,'mainBody', true);
+        }
         this.handleType(node.body, sb);
         deleteTransformationRequest(this,'mainBody');
         deleteTransformationRequest(this,'replaceReturnStatement');
@@ -442,6 +444,9 @@ class CodeGenerator {
     genBlockStatement(node, sb) {
         this.pushScope();
         sb.push('{');
+        if(getTransformationRequest(this,'mainBody')=== true){
+            sb.push('  init();');
+        }
         this.iterate(node.body, sb);
         sb.push('}');
         this.popScope();
