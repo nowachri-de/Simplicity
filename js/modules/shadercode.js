@@ -452,7 +452,8 @@ varying highp vec2  vTexture;
 
 #define MAIN 0
 {{each(options.preprocessor)}}
-#define {{@this.name}} {{@this.id}}\r\n
+#define {{@this.name}} {{@this.id}}
+
 {{/each}}
 {{each(options.samplers)}}
 

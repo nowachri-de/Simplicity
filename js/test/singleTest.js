@@ -6,14 +6,27 @@ describe('Single Test', function () {
   it('Validate individual function result', function () {
     let test = Kernel.create(
       function main() {
-        return test(3.0) + 1;
+        test();
+        return  1;
       },
-      function test(a = 0.) {
-        return a;
+      function test() {
+        test1();
+        return  2;
+      },
+      function test1() {
+        test2();
+        return  3;
+      },
+      function test2() {
+        return  4;
       }
     ).setOutput([5, 5]);
 
+    console.log(test().result('main'));
     console.log(test().result('test'));
+    console.log(test().result('test1'));
+    console.log(test().result('test2'));
+
     //TestUtil.compare2DArray(test().result('test'), [[3, 3, 3, 3, 3], [3, 3, 3, 3, 3], [3, 3, 3, 3, 3], [3, 3, 3, 3, 3], [3, 3, 3, 3, 3]]);
     //TestUtil.compare2DArray(test().result('main'), [[4, 4, 4, 4, 4], [4, 4, 4, 4, 4], [4, 4, 4, 4, 4], [4, 4, 4, 4, 4], [4, 4, 4, 4, 4]]);
     test.delete();
