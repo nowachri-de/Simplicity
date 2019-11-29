@@ -432,12 +432,9 @@ void main(void) {
 }`;
         return code;
     }
+    static generateFragmentShader(functionsDescriptor) {
 
-
-
-static generateFragmentShader(functionsDescriptor) {
-      
-        var shaderTemplate =  `
+        var shaderTemplate = `
 /**
 * This is a generated fragment shader.
 */
@@ -449,28 +446,26 @@ static generateFragmentShader(functionsDescriptor) {
 varying highp float vKernelX; 
 varying highp float vKernelY; 
 varying highp vec2  vTexture;
-vec4 vResult = vec4(0.,0.,0.,0.);
-{{if(options.resultTextures.length > 0)}}
-vec4 vResults[{{options.resultTextures.length}}];
-{{/if}}
 
+{{resultDeclarations(options.numResults)}}
+{{/resultDeclarations}}
 
 #define MAIN 0
 {{each(options.preprocessor)}}
-#define {{@this.name}} {{@this.id}}
-
+#define {{@this.name}} {{@this.id}}\r\n
 {{/each}}
-
 {{each(options.samplers)}}
+
 uniform sampler2D uSampler_{{@this.name}};
 uniform float uSampler_{{@this.name}}_width;
 uniform float uSampler_{{@this.name}}_height;
-{{/each}}
 
+{{/each}}
 {{each(options.samplers2D)}}
 uniform sampler2D uSampler_{{@this.name}};
 uniform float uSampler_{{@this.name}}_width;
 uniform float uSampler_{{@this.name}}_height;
+
 {{/each}}
 
 {{each(options.integers)}}
@@ -481,23 +476,33 @@ uniform float u_{{@this.name}};
 {{/each}}
 
 float write (float value, int index){
-    if (index == 0) { vResult = vec4(value,vResult.y,vResult.z,vResult.w); }
-    if (index == 1) { vResult = vec4(vResult.x,value,vResult.z,vResult.w); }
-    if (index == 2) { vResult = vec4(vResult.x,vResult.y,value,vResult.w); }
-    if (index == 3) { vResult = vec4(vResult.x,vResult.y,vResult.z,value); }
+    int vecIndex = index / 4;
+    int vecComponentIndex = int(mod(float(index),4.0));
+    vec4 vector2set = vResults[vecIndex];
 
-    gl_FragData[index / 4] = vResult;
+    if (vecComponentIndex == 0) { vector2set = vec4(value,vector2set.y,vector2set.z,vector2set.w); }
+    if (vecComponentIndex == 1) { vector2set = vec4(vector2set.x,value,vector2set.z,vector2set.w); }
+    if (vecComponentIndex == 2) { vector2set = vec4(vector2set.x,vector2set.y,value,vector2set.w); }
+    if (vecComponentIndex == 3) { vector2set = vec4(vector2set.x,vector2set.y,vector2set.z,value); }
+
+    vResults[vecIndex] = vector2set;
+    gl_FragData[0] = vector2set;
     return value;
 }
 
 float write (int value, int index){
-    
-    if (index == 0){ vResult = vec4(float(value),vResult.y,vResult.z,vResult.w);  }
-    if (index == 1){ vResult = vec4(vResult.x,float(value),vResult.z,vResult.w);  }
-    if (index == 2){ vResult = vec4(vResult.x,vResult.y,float(value),vResult.w);  }
-    if (index == 3){ vResult = vec4(vResult.x,vResult.y,vResult.z,float(value));  }
+    int vecIndex = index / 4;
+    int vecComponentIndex = int(mod(float(index),4.0));
+    vec4 vector2set = vResults[vecIndex];
 
-    gl_FragData[index / 4] = vResult;
+    if (vecComponentIndex == 0) { vector2set = vec4(float(value),vector2set.y,vector2set.z,vector2set.w); }
+    if (vecComponentIndex == 1) { vector2set = vec4(vector2set.x,float(value),vector2set.z,vector2set.w); }
+    if (vecComponentIndex == 2) { vector2set = vec4(vector2set.x,vector2set.y,float(value),vector2set.w); }
+    if (vecComponentIndex == 3) { vector2set = vec4(vector2set.x,vector2set.y,vector2set.z,float(value)); }
+
+    vResults[vecIndex] = vector2set;
+    gl_FragData[vecIndex] = vector2set;
+
     return float(value);
 }
 
@@ -543,10 +548,6 @@ float readTexture(float x, float y,float width,float height, in sampler2D sample
    return -1.0;
 }
 
-void init(){
-    vResults[0]=vResult;
-}
-
 {{/if}}
 {{each(options.signatures)}}
 {{@this}};
@@ -556,6 +557,8 @@ void init(){
 {{@this}}
 
 {{/each}}
+{{init(options.numResults)}}
+{{/init}}
 {{main}}
 `;
         String.prototype.replaceAll = function (search, replacement) {
@@ -564,11 +567,32 @@ void init(){
         };
 
         let oldRender = Sqrl.Render;
-        Sqrl.Render = function(...args){
+        Sqrl.Render = function (...args) {
             let result = oldRender.apply(this, arguments);
             return result.replaceAll('&lt;', '<');
         }
 
+        Sqrl.defineHelper("resultDeclarations", function (args, content, blocks, options) {
+            let result = "";
+            if (args[0] > 0){
+                result+="vec4 vResults[" + args[0] + "];\r\n";
+            }
+            
+            return result;
+        })
+
+        Sqrl.defineHelper("init", function (args, content, blocks, options) {
+            let result = "void init(){\r\n";
+            if (args[0] > 0){
+                for (let i =0; i < args[0];++i){
+                    result+="   vResults[" + i + "] = vec4(0.,0.,0.,0.);\r\n";
+                }
+            }
+            result += "}\r\n";
+            return result;
+        })
+
+        Sqrl.definePartial("mypartial", "Partial content: the value of arr is ")
         return Sqrl.Render(shaderTemplate, functionsDescriptor.get('main').options);
         //return extendedRender(shaderTemplate, options);
     }

@@ -202,12 +202,8 @@ function setupOptions(functions, functionsDescriptor) {
 function setAdditionalOptions(mainOptions, functionsDescriptor) {
   let functions = functionsDescriptor.getFunctionsExclusiveMain();
   let i = 1;
-  let numResultTextures = 2;//Math.floor((functions.length + 1)/4);
- 
-  for(let j=0; j < numResultTextures;++j){
-    mainOptions.resultTextures.push(j+1);
-  }
-
+  let numResultTextures = Math.floor((functions.length)/4)+1;
+  mainOptions.numResults=numResultTextures;
   functions.forEach(funct => {
     mainOptions.functions.push((new Formatter()).format(funct.glslCode));
     mainOptions.signatures.push(funct.options.signature);
@@ -223,11 +219,10 @@ function createFunctionsDescriptor(functions) {
   let main = functionsDescriptor.get('main');
   let mainOptions = main.options;
   mainOptions.main = (new Formatter()).format(main.glslCode);
-  mainOptions.functions = [];
-  mainOptions.signatures = [];
-  mainOptions.preprocessor = [];
-  mainOptions.resultTextures = [];
-  mainOptions.targetIndex = 0;
+  mainOptions['functions'] = [];
+  mainOptions['signatures'] = [];
+  mainOptions['preprocessor'] = [];
+  mainOptions['targetIndex'] = 0;
 
   setAdditionalOptions(mainOptions, functionsDescriptor);
 

@@ -133,32 +133,32 @@ describe('Test multiple function definitions - call function in function', funct
 
   it('Using function for variable initialization', function () {
     let test = Kernel.create(function main(i = 0.0) {
-       let a = test(i) + 1;
-       a++;
-       return a;
+      let a = test(i) + 1;
+      a++;
+      return a;
     }, function test(a = 0.0) {
       return a++;
     }
     ).setOutput([5, 1]);
 
-    TestUtil.compare1DArray(test(2).result(), [4,4,4,4,4]);
+    TestUtil.compare1DArray(test(2).result(), [4, 4, 4, 4, 4]);
     test.delete();
   });
 
   it('Validate individual function result', function () {
     let test = Kernel.create(
-        function main() {
-            return test(3.0) + 1;
-        },
-        function test(a = 0.) {
-            return a;
-        }
+      function main() {
+        return test(3.0) + 1;
+      },
+      function test(a = 0.) {
+        return a;
+      }
     ).setOutput([5, 5]);
 
     TestUtil.compare2DArray(test().result('test'), [[3, 3, 3, 3, 3], [3, 3, 3, 3, 3], [3, 3, 3, 3, 3], [3, 3, 3, 3, 3], [3, 3, 3, 3, 3]]);
     TestUtil.compare2DArray(test().result('main'), [[4, 4, 4, 4, 4], [4, 4, 4, 4, 4], [4, 4, 4, 4, 4], [4, 4, 4, 4, 4], [4, 4, 4, 4, 4]]);
     test.delete();
-});
+  });
 
 });
 
