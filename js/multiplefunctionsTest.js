@@ -160,5 +160,173 @@ describe('Test multiple function definitions - call function in function', funct
     test.delete();
   });
 
+  it('Validate individual function results of 16 functions in total', function () {
+    let test = Kernel.create(
+      function main() {
+        test2();
+        return 1.0;
+      },
+      function test2() {
+        test3();
+        return 2.0;
+      },
+      function test3() {
+        test4();
+        return 3.0;
+      },
+      function test4() {
+        test5();
+        return 4.0;
+      },
+      function test5() {
+        test6();
+        return 5.0;
+      },
+      function test6() {
+        test7();
+        return 6.0;
+      },
+      function test7() {
+        test8();
+        return 7.0;
+      },
+      function test8() {
+        test9();
+        return 8.0;
+      },
+      function test9() {
+        test10();
+        return 9.0;
+      },
+      function test10() {
+        test11();
+        return 10.0;
+      },
+      function test11() {
+        test12();
+        return 11.0;
+      },
+      function test12() {
+        test13();
+        return 12.0;
+      },
+      function test13() {
+        test14();
+        return 13.0;
+      },
+      function test14() {
+        test15();
+        return 14.0;
+      },
+      function test15() {
+        test16();
+        return 15.0;
+      },
+      function test16() {
+        return 16.0;
+      }
+    ).setOutput([5, 5]);
+
+    test()
+    TestUtil.compare2DArray(test.result('main'),
+      [[1, 1, 1, 1, 1],
+      [1, 1, 1, 1, 1],
+      [1, 1, 1, 1, 1],
+      [1, 1, 1, 1, 1],
+      [1, 1, 1, 1, 1]]);
+    TestUtil.compare2DArray(test.result('test2'),
+      [[2, 2, 2, 2, 2],
+      [2, 2, 2, 2, 2],
+      [2, 2, 2, 2, 2],
+      [2, 2, 2, 2, 2],
+      [2, 2, 2, 2, 2]]);
+    TestUtil.compare2DArray(test.result('test3'),
+      [[3, 3, 3, 3, 3],
+      [3, 3, 3, 3, 3],
+      [3, 3, 3, 3, 3],
+      [3, 3, 3, 3, 3],
+      [3, 3, 3, 3, 3]]);
+    TestUtil.compare2DArray(test.result('test4'),
+      [[4, 4, 4, 4, 4],
+      [4, 4, 4, 4, 4],
+      [4, 4, 4, 4, 4],
+      [4, 4, 4, 4, 4],
+      [4, 4, 4, 4, 4]]);
+    TestUtil.compare2DArray(test.result('test5'),
+      [[5, 5, 5, 5, 5],
+      [5, 5, 5, 5, 5],
+      [5, 5, 5, 5, 5],
+      [5, 5, 5, 5, 5],
+      [5, 5, 5, 5, 5]]);
+    TestUtil.compare2DArray(test.result('test6'),
+      [[6, 6, 6, 6, 6],
+      [6, 6, 6, 6, 6],
+      [6, 6, 6, 6, 6],
+      [6, 6, 6, 6, 6],
+      [6, 6, 6, 6, 6]]);
+    TestUtil.compare2DArray(test.result('test7'),
+      [[7, 7, 7, 7, 7],
+      [7, 7, 7, 7, 7],
+      [7, 7, 7, 7, 7],
+      [7, 7, 7, 7, 7],
+      [7, 7, 7, 7, 7]]);
+    TestUtil.compare2DArray(test.result('test8'),
+      [[8, 8, 8, 8, 8],
+      [8, 8, 8, 8, 8],
+      [8, 8, 8, 8, 8],
+      [8, 8, 8, 8, 8],
+      [8, 8, 8, 8, 8]]);
+    TestUtil.compare2DArray(test.result('test9'),
+      [[9, 9, 9, 9, 9],
+      [9, 9, 9, 9, 9],
+      [9, 9, 9, 9, 9],
+      [9, 9, 9, 9, 9],
+      [9, 9, 9, 9, 9]]);
+    TestUtil.compare2DArray(test.result('test10'),
+      [[10, 10, 10, 10, 10],
+      [10, 10, 10, 10, 10],
+      [10, 10, 10, 10, 10],
+      [10, 10, 10, 10, 10],
+      [10, 10, 10, 10, 10]]);
+    TestUtil.compare2DArray(test.result('test11'),
+      [[11, 11, 11, 11, 11],
+      [11, 11, 11, 11, 11],
+      [11, 11, 11, 11, 11],
+      [11, 11, 11, 11, 11],
+      [11, 11, 11, 11, 11]]);
+    TestUtil.compare2DArray(test.result('test12'),
+      [[12, 12, 12, 12, 12],
+      [12, 12, 12, 12, 12],
+      [12, 12, 12, 12, 12],
+      [12, 12, 12, 12, 12],
+      [12, 12, 12, 12, 12]]);
+    TestUtil.compare2DArray(test.result('test13'),
+      [[13, 13, 13, 13, 13],
+      [13, 13, 13, 13, 13],
+      [13, 13, 13, 13, 13],
+      [13, 13, 13, 13, 13],
+      [13, 13, 13, 13, 13]]);
+    TestUtil.compare2DArray(test.result('test14'),
+      [[14, 14, 14, 14, 14],
+      [14, 14, 14, 14, 14],
+      [14, 14, 14, 14, 14],
+      [14, 14, 14, 14, 14],
+      [14, 14, 14, 14, 14]]);
+    TestUtil.compare2DArray(test.result('test15'),
+      [[15, 15, 15, 15, 15],
+      [15, 15, 15, 15, 15],
+      [15, 15, 15, 15, 15],
+      [15, 15, 15, 15, 15],
+      [15, 15, 15, 15, 15]]);
+    TestUtil.compare2DArray(test.result('test16'),
+      [[16, 16, 16, 16, 16],
+      [16, 16, 16, 16, 16],
+      [16, 16, 16, 16, 16],
+      [16, 16, 16, 16, 16],
+      [16, 16, 16, 16, 16]]);
+  
+    test.delete();
+  });
+
 });
 

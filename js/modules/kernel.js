@@ -252,7 +252,7 @@ class FunctionBuilder {
       program = new Program(width, height);
 
       //console.log(vertexShaderCode);
-      console.log(fragmentShaderCode);
+      //console.log(fragmentShaderCode);
 
       program.buildProgram(vertexShaderCode, fragmentShaderCode);
       inputTextures = setUniforms(program, width, height, args, options);

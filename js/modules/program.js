@@ -87,7 +87,7 @@ class Program {
 
 		gl.uniform1i(gl.getUniformLocation(program, "usampler"), inputTexture.index);
 		gl.uniform1f(gl.getUniformLocation(program, "uWidth"), inputTexture.width);
-		gl.uniform1f(gl.getUniformLgenTexturesocation(program, "uStepY"), 1. / inputTexture.height);
+		gl.uniform1f(gl.getUniformLocation(program, "uStepY"), 1. / inputTexture.height);
 
 		gl.uniform1f(gl.getUniformLocation(program, "uResultWidth"), outputDimensions.width);
 		gl.uniform1f(gl.getUniformLocation(program, "uResultHeight"), outputDimensions.height);
