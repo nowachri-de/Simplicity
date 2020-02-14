@@ -6,8 +6,8 @@ class ShaderCode {
     static getCode(type) {
         switch (type) {
             case "READABLE": return ShaderCode.getReadableShaderCode();
+            case "READABLE2": return ShaderCode.getReadableShaderCode2();
             case "SINGLE": return ShaderCode.getSingleTextureCode();
-            case "SINGLE-ACTIVATION": return ShaderCode.getMatMulWithActivationCode();
             case "DUAL": return ShaderCode.getDualTextureCode();
             case "VERTEX": return ShaderCode.getVertexShaderCode();
             default: throw "getCode " + type + " not known.";
@@ -301,105 +301,12 @@ class ShaderCode {
                 float v = matrixmul(x,y);
                 //gl_FragColor = getResultValue(x,y,v,uTargetIndex);
                 gl_FragData[0] = getResultValue(x,y,v,uTargetIndex);
-                gl_FragData[1] = vec4(2.0,2.0,2.0,2.0);
-                //gl_FragColor = vec4(v,0.,0.,0.);
             }
         `;
         return code;
     }
 
-    static getMatMulWithActivationCode() {
-        var code = ` 
-      /* Do matrix multiplication using a single texture 
-      *  Upto four matrices can be stored in a single texture using the RGBA components. */
-      
-      #ifdef GL_ES 
-          precision highp float; 
-      #endif 
    
-      varying highp vec2          vTexture;         // row, column to calculate 
-      uniform highp sampler2D     usampler;         // merged matrix texels
-      uniform highp float         uWidth;           // input texture width
-      uniform highp float         uHeight;	    	// input texture height
-      uniform highp float         uResultWidth;	    // result texture width
-      uniform highp float         uResultHeight;    // result texture height
-
-      uniform       int           uRGBAIndexA;      // R,G,B,A index matrixA
-      uniform       int           uRGBAIndexB;      // R,G,B,A index matrixB
-      uniform       int           uTargetIndex;     // vec4 index where to put result
-      
-      float getMatrixValue(float x, float y,int rgbaIndex){
-          if (rgbaIndex == 0) return texture2D(usampler,vec2(x,y)).x;
-          if (rgbaIndex == 1) return texture2D(usampler,vec2(x,y)).y;
-          if (rgbaIndex == 2) return texture2D(usampler,vec2(x,y)).z;
-          if (rgbaIndex == 3) return texture2D(usampler,vec2(x,y)).w;
-          
-          return 0.;
-      }
-      
-      vec4 getResultValue(float col, float row,float value,int targetIndex){
-          vec4 result = texture2D(usampler,vec2(col,row));
-          
-          if (targetIndex == 0) result.x = value; return result;
-          if (targetIndex == 1) result.y = value; return result;
-          if (targetIndex == 2) result.z = value; return result;
-          if (targetIndex == 3) result.w = value; return result;
-
-          return result;
-      }
-      
-      float matrixmul(float col, float row){
-          highp float sum = 0.;
-          
-          //convert pixel coordinate to texture coordinate
-          highp float x = (col/uWidth)+(1.0/(2.0*uWidth));
-          highp float y = (row/uHeight)+(1.0/(2.0*uHeight));
-          
-          //colum a and row b to multiply
-          highp float columnA = y;
-          highp float rowB    = x;
-
-          //initialize x and y to zero texture coordinate
-          x = (0.0/uWidth)+(1.0/(2.0*uWidth));
-          y = (0.0/uHeight)+(1.0/(2.0*uHeight));
-
-          highp float stepX = 1.0/uWidth;
-          highp float stepY = 1.0/uHeight;
-
-          for (int index=0; index < 2048; index ++){
-              if (index>=int(uWidth)) break;
-
-              float m1 = getMatrixValue(x,columnA,uRGBAIndexA);
-              float m2 = getMatrixValue(rowB,y,uRGBAIndexB);
-              
-              x  += stepX;
-              y  += stepY;
-
-              sum += (m1*m2);
-          }
-        return 1.0/(1.0+exp(sum*(-1.0)));
-        // return sum; 
-      }
-      
-      void main(void) { 
-          // The texture coordinates are coming from the target texture 
-          // WebGL coordinate system is explained here
-          // http://learnwebgl.brown37.net/10_surface_properties/texture_mapping_images.html
-          highp float  col = vTexture.s;
-          highp float  row = vTexture.t;
-          
-          //convert result texture coordinates to result texture pixel coordinates
-          highp float  x = (col-(1.0/(2.0*uResultWidth)))*uResultWidth;
-          highp float  y = (row-(1.0/(2.0*uResultHeight)))*uResultHeight;
-          
-          //x = (x/uResultWidth)+(1.0/(2.0*uResultWidth));
-          //y = (y/uResultHeight)+(1.0/(2.0*uResultHeight));
-
-          float v = matrixmul(x,y);
-          gl_FragColor = getResultValue(x,y,v,uTargetIndex);
-      } `;
-        return code;
-    };
     static generateVertexShaderCode() {
         var code = `
 // vertex shader for a single quad 
@@ -475,6 +382,12 @@ uniform int u_{{@this.name}};
 {{each(options.floats)}}
 uniform float u_{{@this.name}};
 {{/each}}
+float readTexture(int x, float width, in sampler2D sampler);
+float readTexture(float x, int width, in sampler2D sampler);
+float readTexture(int x, int width, in sampler2D sampler);
+float readTexture(int x, float y,float width,float height, in sampler2D sampler);
+float readTexture(float x, int y,float width,float height, in sampler2D sampler);
+float readTexture(int x, int y,float width,float height, in sampler2D sampler);
 
 float write (float value, int index){
     int vecIndex = index / 4;
@@ -524,6 +437,17 @@ float readTexture(float x, float width, in sampler2D sampler){
     if (index == 2) return texture2D(sampler,vec2(y,0.)).z;
     if (index == 3) return texture2D(sampler,vec2(y,0.)).w;
 }
+float readTexture(int x, float width, in sampler2D sampler){
+    return readTexture(float(x),width,sampler);
+}
+
+float readTexture(float x, int width, in sampler2D sampler){
+    return readTexture(x,float(width),sampler);
+}
+
+float readTexture(int x, int width, in sampler2D sampler){
+    return readTexture(float(x),float(width),sampler);
+}
 {{/if}}
 
 {{if(options.samplers2D.length > 0)}}
@@ -535,20 +459,38 @@ float readTexture(float x, float width, in sampler2D sampler){
 *  parameter height:  height of texture which is read by given sampler
 *  parameter sampler: sampler which is used to read values from texture
 */
-float readTexture(float x, float y,float width,float height, in sampler2D sampler ){
+float readTexture(float y, float x,float width,float height, in sampler2D sampler ){
    int index = 0;
+
    //convert pixel coordinates of result texture to texture coordinates of sampler texture
    float xx = (x+0.5)/width;
    float yy = (y+0.5)/height;
+
    
    if (index == 0) return texture2D(sampler,vec2(xx,yy)).x;
    if (index == 1) return texture2D(sampler,vec2(xx,yy)).y;
    if (index == 2) return texture2D(sampler,vec2(xx,yy)).z;
    if (index == 3) return texture2D(sampler,vec2(xx,yy)).w;
 
+   /*if (index == 0) return texture2D(sampler,vec2(yy,xx)).x;
+   if (index == 1) return texture2D(sampler,vec2(yy,xx)).y;
+   if (index == 2) return texture2D(sampler,vec2(yy,xx)).z;
+   if (index == 3) return texture2D(sampler,vec2(yy,xx)).w;*/
+
    return -1.0;
 }
 
+float readTexture(int x, float y,float width,float height, in sampler2D sampler){
+    return readTexture(float(x), y, width,height, sampler);
+}
+
+float readTexture(float x, int y,float width,float height, in sampler2D sampler){
+    return readTexture(x, float(y), width,height, sampler);
+}
+
+float readTexture(int x, int y,float width,float height, in sampler2D sampler){
+    return readTexture(float(x), float(y), width,height, sampler);
+}
 {{/if}}
 {{each(options.signatures)}}
 {{@this}};

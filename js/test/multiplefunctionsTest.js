@@ -51,7 +51,7 @@ describe('Test multiple function definitions - call function in function', funct
         return test2(a, b);
       },
       function test2(a = [], b = [[]]) {
-        return a[this.thread.x] + b[this.thread.x][this.thread.y];
+        return a[this.thread.x] + b[this.thread.y][this.thread.x];
       }
     ).setOutput([5, 1]);
 
@@ -63,7 +63,7 @@ describe('Test multiple function definitions - call function in function', funct
     let test = Kernel.create(function main(a = [[]]) {
       return test(a, a, 1.0);
     }, function test(b = [[]], c = [[]], x = 0.) {
-      return b[this.thread.x][this.thread.y] + c[this.thread.x][this.thread.y] + x;
+      return b[this.thread.y][this.thread.x] + c[this.thread.y][this.thread.x] + x;
     }
     ).setOutput([2, 2]);
 

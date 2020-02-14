@@ -112,7 +112,7 @@ describe('Test parameters and arguments', function () {
 
     it('Test mixed input function parameters. Use parameters in simple math operation', function () {
         let test = Kernel.create(function main(a = [[]], b = 0, c = 0.) {
-            return a[this.thread.x][this.thread.y] + b + c;
+            return a[this.thread.y][this.thread.x] + b + c;
         }).setOutput([3, 3]);
         TestUtil.compare2DArray(test([[1, 1, 1], [2, 2, 2], [3, 3, 3]], 10, 11).result(), [[22, 22, 22], [23, 23, 23], [24, 24, 24]]);
         test.delete();
@@ -120,7 +120,7 @@ describe('Test parameters and arguments', function () {
 
     it('Test 2D and 1D array as input parameter', function () {
         let test = Kernel.create(function main(a = [[]], b = []) {
-            return a[this.thread.x][this.thread.y] + b[this.thread.x];
+            return a[this.thread.y][this.thread.x] + b[this.thread.x];
         }).setOutput([3, 3]);
 
         TestUtil.compare2DArray(test([[1, 1, 1], [2, 2, 2], [3, 3, 3]], [1, 1, 1]).result(), [[2, 2, 2], [3, 3, 3], [4, 4, 4]]);

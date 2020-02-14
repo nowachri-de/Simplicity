@@ -50,14 +50,6 @@ describe('Matrix', function () {
     assert.equal(row1[1], 1);
   });
 
-  it('', function () {
-    var matrixA = new Matrix(2, 2).sequenzeInitialize();
-    console.log(matrixA.getRow(0));
-    console.log(matrixA.getRow(1));
-    console.log(matrixA.getColumn(0));
-    console.log(matrixA.getColumn(1));
-  });
-
   it('should return a string representation of the matrix with 3 desimals', function () {
     var matrixA = new Matrix(4, 4).randomInitialize();
     assert.ok(matrixA.print(3).length > 0);
@@ -140,6 +132,26 @@ describe('Matrix', function () {
     validateMultiplicationResult(matrixA, matrixB, matrixA.multiply(matrixB));
   });
 
+  it('should multiply matrix a (200x200) with matrix b (200x200) using random initialization and validate the result', function () {
+    this.timeout(0);//disable timeout
+    var matrixA = new Matrix(200, 200);//rows, columns
+    var matrixB = new Matrix(200, 200);//rows, columns
+    
+    matrixA.randomInitialize();
+    matrixB.randomInitialize();
+    validateMultiplicationResult(matrixA, matrixB, matrixA.multiply(matrixB));
+  });
+
+  it('should multiply matrix a (200x200) with matrix b (200x200) using sequence initialization and validate the result', function () {
+    this.timeout(0);//disable timeout
+    var matrixA = new Matrix(200, 200);//rows, columns
+    var matrixB = new Matrix(200, 200);//rows, columns
+    
+    matrixA.sequenzeInitialize(10000); //the given parameter is used as a factor and causes the sequence numbers to be devided by the given number 
+    matrixB.sequenzeInitialize(10000); //the given parameter is used as a factor and causes the sequence numbers to be devided by the given number
+    validateMultiplicationResult(matrixA, matrixB, matrixA.multiply(matrixB));
+  });
+
   it('should multiply matrix a (200x3) with matrix b (10x200) 10 times.', function () {
     this.timeout(0);//disable timeout
     var matrixA = new Matrix(200, 3);//rows, columns
@@ -152,40 +164,25 @@ describe('Matrix', function () {
     }
   });
 
-  it('should store four matrices using the store method', function () {
-    let matrixA = new Matrix(2, 2);//rows, columns
-    let matrixB = new Matrix(2, 2);//rows, columns
-   
-
-    matrixA.randomInitialize();
-    matrixB.randomInitialize();
-
-    let result = Matrix.multiply2Texture(matrixA,matrixB);
-    let resultMatrix =   Matrix.texture2matrix(result.gl,result, 0); //0 stands for index of component 'R'
-    validateMultiplicationResult(matrixA, matrixB,resultMatrix);
-    result.delete();
-  });
-
-  it('should multiply matrix a (200x200) with matrix b (200x200) 10 times.', function () {
+  it('should multiply matrix a (200x200) with matrix b (200x200) 10 times. No validation', function () {
     this.timeout(0);//disable timeout
     var matrixA = new Matrix(200, 200);//rows, columns
     var matrixB = new Matrix(200, 200);//rows, columns
     for (let i = 0; i < 10; i++) {
       matrixA.randomInitialize();
       matrixB.randomInitialize();
-      validateMultiplicationResult(matrixA, matrixB, matrixA.multiply(matrixB));
+      matrixA.multiply(matrixB)
     }
   });
 
-  it('should multiply matrix a (500x500) with matrix b (500x500)', function () {
+  it('should multiply matrix a (500x500) with matrix b (500x500). No validation', function () {
     this.timeout(0);//disable timeout
     var matrixA = new Matrix(500, 500);//rows, columns
     var matrixB = new Matrix(500, 500);//rows, columns
 
     matrixA.randomInitialize();
     matrixB.randomInitialize();
-
-    validateMultiplicationResult(matrixA, matrixB, matrixA.multiply(matrixB));
+    matrixA.multiply(matrixB);
   });
 
  

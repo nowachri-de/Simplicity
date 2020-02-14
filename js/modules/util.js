@@ -55,19 +55,19 @@ class Util {
                 switch (component) {
                     //R component of RGBA color
                     case 'R':
-                        result[cnt - 4] = (height > 1) ? data[row][col] : data[col];
+                        result[cnt - 4] = Array.isArray(data[0]) ? data[row][col] : data[col];
                         break;
                     //G component of RGBA color
                     case 'G':
-                        result[cnt - 3] = (height > 1) ? data[row][col] : data[col];
+                        result[cnt - 3] = Array.isArray(data[0]) ? data[row][col] : data[col];
                         break;
                     //B component of RGBA color
                     case 'B':
-                        result[cnt - 2] = (height > 1) ? data[row][col] : data[col];
+                        result[cnt - 2] = Array.isArray(data[0]) ? data[row][col] : data[col];
                         break;
                     //A component of RGBA color
                     case 'A':
-                        result[cnt - 1] = (height > 1) ? data[row][col] : data[col];
+                        result[cnt - 1] = Array.isArray(data[0]) ? data[row][col] : data[col];
                         break;
                     default:
                         throw "getTexels: component " + component + " unknown";

@@ -1,16 +1,11 @@
-const { Program } = require(__dirname + "\\program.js");
-const { ShaderCode } = require(__dirname + "\\shadercode.js");
-const { ResultReader } = require(__dirname + "\\resultreader.js");
-const { MatrixStorage } = require(__dirname + "\\matrixstorage.js");
-const { TextureFactory } = require(__dirname + "\\texturefactory.js");
-
+const  {Kernel} = require(__dirname+'\\kernel.js');
 module.exports.Matrix = class Matrix {
     constructor(width, height) {
         this.width = width;
         this.height = height;
         this.data = new Array();
         for (var row = 0; row < this.height; row++) {
-            this.data.push(new Float32Array(width));
+            this.data.push(new Array(width));
         }
     }
 
@@ -132,14 +127,29 @@ module.exports.Matrix = class Matrix {
     /** Initializes the matrix to an ascending sequence.
     * @returns This matrix
     */
-    sequenzeInitialize() {
+    sequenzeInitialize(factor) {
+        if (typeof factor === 'undefined'){
+            factor = 1;
+        }
         for (var row = 0; row < this.height; row++) {
             for (var col = 0; col < this.width; col++) {
-                this.data[row][col] = (row * this.width) + col;
+                this.data[row][col] = ((row * this.width) + col) / factor;
             }
         }
         return this;
     }
+
+    /** Initializes each row in the matrix in ascending order starting from 0.
+    * @returns This matrix
+    */
+   sequenzeInitializePerRow() {
+    for (var row = 0; row < this.height; row++) {
+        for (var col = 0; col < this.width; col++) {
+            this.data[row][col] = col;
+        }
+    }
+    return this;
+}
 
     /**
      * Return that matrix value at the given row and column.
@@ -201,10 +211,9 @@ module.exports.Matrix = class Matrix {
      * @returns this matrix
      */
     setData(data) {
-        let cnt = 0;
         for (let row = 0; row < this.height; row++) {
             for (let col = 0; col < this.width; col++) {
-                this.data[row][col] = data[cnt++];
+                this.data[row][col] = data[row][col];
             }
         }
         return this;
@@ -370,65 +379,31 @@ module.exports.Matrix = class Matrix {
     }
 
     /**
-	 * multiply2Texture multiplies two matrices and stores the multiplication result in a texture.
-     * 
-     * @param {MatrixStorage} matrixStorage -   MatrixStorage containing the matrices
-     * @param {integer} componentAIndex -   value between 0 and 3. The componentA value specifies the first matrix to take from the matrix storage for multiplication
-     * @param {integer} componentBIndex -   value between 0 and 3. The componentB value specifies the second matrix to take from the matrix storage for multiplication
-     * @param {ResultDimension} resultDimensions -  Dimension of result matrix. MatrixA x MatrixB = ResultMatrix
-     * @return {Texture} - The result of the matrix multiplication stored in a texture
-    */
-
-    static multiply2Texture(matrixA, matrixB) {
-        let matrixStorage = new MatrixStorage();
-        
-        //prepare the storage of the two matrices in a single texture
-        matrixStorage.store(matrixA, 'R');
-        matrixStorage.store(matrixB, 'G');
-
-        let program = new Program( matrixStorage.maxRows, matrixStorage.maxColumns);
-        let gl = program.gl;
-
-        let inputTexture = TextureFactory.createTextureByDimension(gl, "inputTexture", matrixStorage.maxRows, matrixStorage.maxColumns, matrixStorage.getTexels());
-        program.buildProgram(ShaderCode.getCode("VERTEX"),ShaderCode.getCode("SINGLE"));
-
-        let result = program.multiplySingleTexture(inputTexture, matrixA.getResultMatrixDimensions(matrixB), 0, 1, 0);
-
-        inputTexture.delete();
-        program.delete();
-
-        result.gl = gl;
-        return result;
-    }
-
-    /**
-	 * converts the given texture containing matrix values to a matrix object
-     * 
-     * @param {Texture} texture -   Texture to read matrix values from
-     * @return {Integer} sourceIndex - The component index (R,G,B,A) to read the values from
-    */
-    static texture2matrix(gl,texture, sourceIndex) {   
-        let dimension = { width: texture.width, height: texture.height };
-        let readableTexture = TextureFactory.createReadableTexture(gl, 'readableTexture', dimension);
-        let resultReader = new ResultReader(gl, texture.width, texture.height);
-        let result = resultReader.readByResultDimension(texture, readableTexture, dimension, sourceIndex);
-
-        readableTexture.delete();
-        return result;
-    }
-
-    /**
 	 * multiply this matrix by the given matrix and return the matrix multiplication result as new matrix
      * 
      * @param {Matrix} matrixB -   The matrix to be multiplied with this matrix
      * @return {Texture} - The result of the matrix multiplication stored in a texture
     */
     multiply(matrixB) {
-        let resultTexture = Matrix.multiply2Texture(this,matrixB);
-        let result = Matrix.texture2matrix(resultTexture.gl,resultTexture, 0); //0 stands for index of component 'R'
-        resultTexture.delete();
+
+        let dimension = this.getResultMatrixDimensions(matrixB);
+        let test = Kernel.create(function main(a=[[]],b=[[]],width = 0) {
+            let result = 0.;
+            for(let j=0; j < 2048;j++){
+                if (j == width) break;
+                result +=  a[this.thread.y][j] *b[j][this.thread.x];
+            }
+            return result;
+        }).setOutput([dimension.width, dimension.height]);
+        
+        let result = new Matrix(dimension.width, dimension.height);
+        result.setData(test(this.data,matrixB.data,this.width).result());
+        test.delete();
         return result;
     }
 }
+
+
+
 
 

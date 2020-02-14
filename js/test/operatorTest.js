@@ -4,7 +4,7 @@ const { TestUtil } = require(__dirname + '\\..\\modules\\testutil.js');
 describe('Test mathematical operators', function () {
   it('Validate division', function () {
     let test = Kernel.create(function main(a = [[]]) {
-      return a[this.thread.x][this.thread.y] / 3.0;
+      return a[this.thread.y][this.thread.x] / 3.0;
     }).setOutput([3, 3]);
 
     TestUtil.compare2DArray(test([[1, 2, 3], [4, 5, 6], [7, 8, 9]]).result(), [[0.3333333432674408, 0.6666666865348816, 1],
@@ -15,7 +15,7 @@ describe('Test mathematical operators', function () {
 
   it('Validate summation', function () {
     let test = Kernel.create(function main(a = [[]]) {
-      return a[this.thread.x][this.thread.y] + a[this.thread.x][this.thread.y];
+      return a[this.thread.y][this.thread.x] + a[this.thread.y][this.thread.x];
     }).setOutput([3, 3]);
 
     TestUtil.compare2DArray(test([[1, 2, 3], [4, 5, 6], [7, 8, 9]]).result(), [[2, 4, 6], [8, 10, 12], [14, 16, 18]]);
@@ -42,7 +42,7 @@ describe('Test mathematical operators', function () {
 
   it('Validate substraction - result < 0', function () {
     let test = Kernel.create(function main(a = [[]]) {
-      return a[this.thread.x][this.thread.y] - 2 * a[this.thread.x][this.thread.y];
+      return a[this.thread.y][this.thread.x] - 2 * a[this.thread.y][this.thread.x];
     }).setOutput([3, 3]);
 
     TestUtil.compare2DArray(test([[1, 2, 3], [4, 5, 6], [7, 8, 9]]).result(), [[-1, -2, -3], [-4, -5, -6], [-7, -8, -9]]);
@@ -51,7 +51,7 @@ describe('Test mathematical operators', function () {
 
   it('Validate summation - large results', function () {
     let test = Kernel.create(function main(a = [[]]) {
-      return a[this.thread.x][this.thread.y] + a[this.thread.x][this.thread.y];
+      return a[this.thread.y][this.thread.x] + a[this.thread.y][this.thread.x];
     }).setOutput([3, 3]);
     TestUtil.compare2DArray(test([[500000, 500000, 500000], [500000, 500000, 500000], [500000, 500000, 500000]]).result(), [[1000000, 1000000, 1000000],
     [1000000, 1000000, 1000000],

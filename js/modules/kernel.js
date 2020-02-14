@@ -1,10 +1,3 @@
-const { CodeGenerator } = require(__dirname + '\\..\\modules\\codegenerator.js');
-const { Util } = require(__dirname + '\\..\\modules\\util.js');
-const { ShaderCode } = require(__dirname + '\\..\\modules\\shadercode.js');
-const { Program } = require(__dirname + '\\..\\modules\\program.js');
-const { TextureFactory } = require(__dirname + '\\..\\modules\\texturefactory.js');
-const { Formatter } = require(__dirname + "\\formatter.js");
-
 function checkDimensions(impl) {
   if (typeof impl.dimensions === 'undefined') {
     throw 'kernel has no dimensions specified. Use setOutput([x,y]) to specify kernel output dimensions';
@@ -23,13 +16,13 @@ function checkArguments(args, options) {
       if (Array.isArray(arg[0])) {
         throw 'expected function argument ' + i + ' to be of type 1d array but is 2d array';
       }
-      if (!Array.isArray(arg)) {
+      if (!Array.isArray(arg) && !ArrayBuffer.isView(arg)) {
         throw 'expected function argument ' + i + ' to be of type array';
       }
     }
 
     if (Util.is2DArray(type)) {
-      if (!Array.isArray(arg[0])) {
+      if (!Array.isArray(arg[0])  && !ArrayBuffer.isView(arg[0])) {
         throw 'expected function argument ' + i + ' to be of type two dimensional array';
       }
     }
@@ -326,5 +319,13 @@ class Kernel {
     return result;
   }
 }
-module.exports.Kernel = Kernel;
-module.exports.FunctionBuilder = FunctionBuilder;
+module.exports = {
+  Kernel,
+  FunctionBuilder
+}
+const { CodeGenerator } = require(__dirname + '\\..\\modules\\codegenerator.js');
+const { Util } = require(__dirname + '\\..\\modules\\util.js');
+const { ShaderCode } = require(__dirname + '\\..\\modules\\shadercode.js');
+const { Program } = require(__dirname + '\\..\\modules\\program.js');
+const { TextureFactory } = require(__dirname + '\\..\\modules\\texturefactory.js');
+const { Formatter } = require(__dirname + "\\formatter.js");

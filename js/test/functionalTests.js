@@ -55,10 +55,11 @@ describe('Kernel functional tests', function () {
 
   it('Test variable declaration using expression as assigment pattern - 6', function () {
     let test = Kernel.create(function main(a = 0, b = [[]]) {
-      let c = a + b[this.thread.x][this.thread.y] + (2.0 * 3.0 * 4.0);
+      let c = a + b[this.thread.y][this.thread.x] + (2.0 * 3.0 * 4.0);
       return c;
     }).setOutput([2, 2]);
-    TestUtil.compare2DArray(test(1, [[1, 2], [1, 2]]).result(), [[26, 27], [26, 27]]);
+
+    TestUtil.compare2DArray(test(1, [[1, 2], [3, 4]]).result(), [[26, 27], [28, 29]]);
     test.delete();
   });
 

@@ -92,7 +92,7 @@ function processAnyFunctionParameters(nodes, node, index, sb) {
     }
 }
 /**
- * Translate the access of an array into a glsl function
+ * Translate the array access  into a glsl function
  */
 function handleMemberExpression(codeGen, node, sb) {
     let data = {};
@@ -311,6 +311,7 @@ class CodeGenerator {
     handleType(node, sb) {
         //console.log(node.type);
         switch (node.type) {
+            case 'BreakStatement': return this.genBreakStatement(node, sb);
             case 'VariableDeclarator': return this.genVariableDeclarator(node, sb);
             case 'VariableDeclaration': return this.genVariableDeclaration(node, sb);
             case 'ForStatement': return this.genForStatement(node, sb);
@@ -410,7 +411,7 @@ class CodeGenerator {
             setTransformationRequest(this,'mainBody', true);
         }
         this.handleType(node.body, sb);
-        deleteTransformationRequest(this,'mainBody');
+       
         deleteTransformationRequest(this,'replaceReturnStatement');
         node.code = sb.join('');
     }
@@ -423,7 +424,12 @@ class CodeGenerator {
     genAssignmentExpression(node, sb) {
         this.handleType(node.left, sb);
         sb.push(node.operator);
-        this.handleType(node.right, sb);
+        if (node.right.type === 'MemberExpression') {
+            handleMemberExpression(this, node.right, sb);
+        } else {
+            this.handleType(node.right, sb);
+        }
+        
     }
     genWhileStatement(node, sb) {
         sb.push('while (')
@@ -446,6 +452,7 @@ class CodeGenerator {
         sb.push('{');
         if(getTransformationRequest(this,'mainBody')=== true){
             sb.push('  init();');
+            deleteTransformationRequest(this,'mainBody');
         }
         this.iterate(node.body, sb);
         sb.push('}');
@@ -621,7 +628,9 @@ class CodeGenerator {
         }
         return "unknown";
     }
-
+    genBreakStatement(node, sb){
+        sb.push('break;');
+    }
     genVariableDeclarator(node, sb) {
         if (node.init === null && !hasBeenDeclared(this,node.id.name)) {
             throw formatThrowMessage(node, "Variable declarator must be initialized");
