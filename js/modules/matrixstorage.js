@@ -1,4 +1,4 @@
-const {Matrix} = require(__dirname + "\\matrix.js");
+const {Matrix} = require("./matrix.js");
 /*
     The matrix storage does store matrices in a texture. It utilizes the R,G,B,A components of the texture to store a matrix.
     Since it is utilizing the R,G,B,A components of a texture it can store up to 4 matrices in a texture.

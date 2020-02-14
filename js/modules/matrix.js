@@ -1,4 +1,4 @@
-const  {Kernel} = require(__dirname+'\\kernel.js');
+const  {Kernel} = require('./kernel.js');
 module.exports.Matrix = class Matrix {
     constructor(width, height) {
         this.width = width;

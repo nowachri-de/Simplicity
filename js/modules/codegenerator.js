@@ -1,6 +1,6 @@
 const acorn = require('acorn');
 const Sqrl = require('squirrelly');
-const { Util } = require(__dirname + "\\util.js");
+const { Util } = require("./util.js");
 
 let space = 0;
 
@@ -8,9 +8,11 @@ String.prototype.replaceAll = function (search, replacement) {
     var target = this;
     return target.split(search).join(replacement);
 };
+
 function hasBeenDeclared(codeGen, name) {
     return codeGen.getType(name) !== null;
 }
+
 function genSpace(space) {
     let s = [];
     for (let i = 0; i < space; ++i) {
@@ -42,12 +44,15 @@ function checkAndReturnParameter(codeGen, node) {
 function getParameter(codeGen,name){
     return codeGen.parameters.get(name);
 }
+function setParameter(codeGen,name,type){
+    return  codeGen.parameters.set(name, type);
+}
 
-function storeParameter(codeGen, node, functionNode, name) {
+function storeArgument(codeGen, node, functionNode, name) {
     //store name and type of parameter, needed for later assertion
     let type = codeGen.type2String(node);
-    codeGen.getScope().variables.set(name, type);
-    codeGen.parameters.set(name, type);
+    codeGen.declareVariable(name, type);
+    setParameter(codeGen,name,type);
 
     //store parameter in processed node, needed for later processing
     functionNode.parameters.push({ node: functionNode, name: getFunctionName(codeGen) + '_' + name, type: type });
@@ -56,8 +61,9 @@ function storeParameter(codeGen, node, functionNode, name) {
 
 function processMainFunctionParameters(nodes, node, index, sb) {
     let name = checkAndReturnParameter(this.codeGen, node);
-    storeParameter(this.codeGen, node, this.functionNode, name);
-
+    //store the arguments of the function
+    
+    storeArgument(this.codeGen, node, this.functionNode, name);
     this.codeGen.handleType(node, sb);
 
     //check if there are more parameters to come
@@ -67,7 +73,7 @@ function processMainFunctionParameters(nodes, node, index, sb) {
 }
 function processAnyFunctionParameters(nodes, node, index, sb) {
     let name = checkAndReturnParameter(this.codeGen, node);
-    storeParameter(this.codeGen, node, this.functionNode, name);
+    storeArgument(this.codeGen, node, this.functionNode, name);
 
     let tmp = [];
     this.codeGen.handleType(node, tmp);
@@ -294,9 +300,11 @@ class CodeGenerator {
         }
         return type;
     }
-    addVariableType(name, type) {
+    
+    declareVariable(name, type) {
         this.getScope().variables.set(name, type);
     }
+
     iterate(codenodes, sb) {
         codenodes.forEach(node => {
             this.handleType(node, sb);
@@ -645,7 +653,7 @@ class CodeGenerator {
         if (Util.isArray(type) || Util.is2DArray(type)){
             throw formatThrowMessage(node,'assignment of array to variable not supported');
         }
-        this.addVariableType(node.id.name, type);
+        this.declareVariable(node.id.name, type);
         sb.push(type + ' ');
         sb.push(node.id.name);
         sb.push('=');
@@ -781,7 +789,4 @@ class CodeGenerator {
     }
 }
 
-function transformMemberAccess() {
-
-}
 module.exports.CodeGenerator = CodeGenerator

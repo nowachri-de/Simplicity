@@ -105,43 +105,53 @@ function setUniforms(program, width, height, args, options) {
   return textures;
 }
 
-//The functionsDescriptor is a map which is mapping function names to function code
-function setupFunctionsDescriptor() {
-  let functionsDescriptor = {};
-  functionsDescriptor.functionMap = new Map();
-  functionsDescriptor.getFunctionsExclusiveMain = function () {
+//The dictionary is a map which is mapping function names to function code
+function createFunctionDictonary() {
+  let dictionary = {};
+  
+  //add properties
+  dictionary.functionMap = new Map();
+  //function property that retrieves all dictionary excluding the main function
+  dictionary.getFunctionsExclusiveMain = function () {
     let result = [];
-    this.functionMap.forEach(function (functionDescriptor, nameKey) {
-      if (nameKey !== 'main') {
-        result.push(functionDescriptor);
+    this.functionMap.forEach(function (fnct, name) {
+      if (name !== 'main') {
+        result.push(fnct);
       }
     });
     return result;
   }
 
-  functionsDescriptor.getAll = function () {
+  //function property that retrieves all functions
+  dictionary.getAll = function () {
     let result = [];
-    this.functionMap.forEach(function (functionDescriptor, nameKey) {
-      result.push(functionDescriptor);
+    this.functionMap.forEach(function (fnct) {
+      result.push(fnct);
     });
     return result;
   }
 
-  functionsDescriptor.get = function (key) {
-    return this.functionMap.get(key);
+  //get function by name
+  dictionary.get = function (name) {
+    return this.functionMap.get(name);
   }
 
-  functionsDescriptor.set = function (key, value) {
-    this.functionMap.set(key, value);
+  //set function by name
+  dictionary.set = function (name, fnct) {
+    this.functionMap.set(name, fnct);
   }
-  return functionsDescriptor;
+
+  return dictionary;
 }
 
-/*
+/** 
   Create options to be passed to template engine. 
-  One set of options per function. 
+  One set of options per function.
+
+  @param functions functions that have been passed as arguments
+  @param dictionary dictionary to lookup functions
 */
-function setupOptions(functions, functionsDescriptor) {
+function setupTemplateOptions(functions, dictionary) {
   for (let i = 0; i < functions.length; ++i) {
     let options = {};
     options.samplers = [];
@@ -152,16 +162,16 @@ function setupOptions(functions, functionsDescriptor) {
     options.parameterMap = new Map();
 
     let codeGen = functions[i].codeGen;
-    let parameters = codeGen.function.parameters;
+    let parameters = codeGen.function.parameters; //parameters of function
 
     options.signature = codeGen.function.signature;
     options.functionName = codeGen.function.id.name;
 
-    if (typeof functionsDescriptor.get(codeGen.function.id.name) !== 'undefined') {
+    if (typeof dictionary.get(codeGen.function.id.name) !== 'undefined') {
       throw "function names must be unique. " + codeGen.function.id.name + " has already been defined";
     }
 
-    functionsDescriptor.set(codeGen.function.id.name, functions[i]);
+    dictionary.set(codeGen.function.id.name, functions[i]);
     let paramIndex = 0;
 
     parameters.forEach(param => {
@@ -190,10 +200,10 @@ function setupOptions(functions, functionsDescriptor) {
     functions[i].options = options;
   }
 
-  return functionsDescriptor;
+  return dictionary;
 }
-function setAdditionalOptions(mainOptions, functionsDescriptor) {
-  let functions = functionsDescriptor.getFunctionsExclusiveMain();
+function setAdditionalOptions(mainOptions, dictionary) {
+  let functions = dictionary.getFunctionsExclusiveMain();
   let i = 1;
   let numResultTextures = Math.floor((functions.length)/4)+1;
   mainOptions.numResults=numResultTextures;
@@ -205,11 +215,12 @@ function setAdditionalOptions(mainOptions, functionsDescriptor) {
     i++;
   });
 }
-function createFunctionsDescriptor(functions) {
-  let functionsDescriptor = setupFunctionsDescriptor();
-  functionsDescriptor = setupOptions(functions, functionsDescriptor);
 
-  let main = functionsDescriptor.get('main');
+function createdictionary(functions) {
+  let dictionary = createFunctionDictonary();
+  dictionary = setupTemplateOptions(functions, dictionary);
+
+  let main = dictionary.get('main');
   let mainOptions = main.options;
   mainOptions.main = (new Formatter()).format(main.glslCode);
   mainOptions['functions'] = [];
@@ -217,18 +228,22 @@ function createFunctionsDescriptor(functions) {
   mainOptions['preprocessor'] = [];
   mainOptions['targetIndex'] = 0;
 
-  setAdditionalOptions(mainOptions, functionsDescriptor);
+  setAdditionalOptions(mainOptions, dictionary);
 
-  return functionsDescriptor;
+  return dictionary;
 }
 
 
 class FunctionBuilder {
+  /**
+   * 
+   * 
+   * @param functions Multiple functions can be passed to the Kernel
+   */
   static buildFunction(functions) {
-
     //let options = createOptions(codeGen.function.parameters, glslCode);
-    let functionsDescriptor = createFunctionsDescriptor(functions);
-    let fragmentShaderCode = ShaderCode.generateFragmentShader(functionsDescriptor);
+    let dictionary = createdictionary(functions);
+    let fragmentShaderCode = ShaderCode.generateFragmentShader(dictionary);
     let vertexShaderCode = ShaderCode.generateVertexShaderCode();
     let inputTextures;
     let resultTextures;
@@ -236,7 +251,7 @@ class FunctionBuilder {
 
     function implementation(...args) {
       //check(implementation, args, implementation.options);
-      let options = functionsDescriptor.get('main').options;
+      let options = dictionary.get('main').options;
       checkDimensions(implementation);
       checkArguments(args, options);
 
@@ -260,7 +275,7 @@ class FunctionBuilder {
 
     implementation.fragmentShaderCode = fragmentShaderCode;
     implementation.vertexShaderCode = vertexShaderCode;
-    implementation.functionsDescriptor = functionsDescriptor;
+    implementation.dictionary = dictionary;
 
     implementation.getVertexShaderCode = function () {
       return implementation.vertexShaderCode;
@@ -274,7 +289,7 @@ class FunctionBuilder {
       if (typeof name === 'undefined') {
         name = 'main';
       }
-      let targetIndex = implementation.functionsDescriptor.get(name).options.targetIndex;
+      let targetIndex = implementation.dictionary.get(name).options.targetIndex;
 
       if (typeof targetIndex === 'undefined') {
         throw 'could not lookup result of function ' + name;
@@ -304,7 +319,6 @@ class FunctionBuilder {
   }
 }
 
-
 class Kernel {
   constructor() { }
 
@@ -323,9 +337,9 @@ module.exports = {
   Kernel,
   FunctionBuilder
 }
-const { CodeGenerator } = require(__dirname + '\\..\\modules\\codegenerator.js');
-const { Util } = require(__dirname + '\\..\\modules\\util.js');
-const { ShaderCode } = require(__dirname + '\\..\\modules\\shadercode.js');
-const { Program } = require(__dirname + '\\..\\modules\\program.js');
-const { TextureFactory } = require(__dirname + '\\..\\modules\\texturefactory.js');
-const { Formatter } = require(__dirname + "\\formatter.js");
+const { CodeGenerator } = require('./../modules/codegenerator.js');
+const { Util } = require( './../modules/util.js');
+const { ShaderCode } = require('./../modules\\shadercode.js');
+const { Program } = require('./../modules/program.js');
+const { TextureFactory } = require('./../modules\\texturefactory.js');
+const { Formatter } = require("./formatter.js");

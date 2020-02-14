@@ -1,7 +1,7 @@
 
 const acorn = require('acorn');
-const Interpreter = require(__dirname + "\\modules\\interpreter.js");
-const Visitor = require(__dirname + "\\modules\\visitor.js");
+const Interpreter = require("./modules/interpreter.js");
+const Visitor = require("./modules/visitor.js");
 
 
 let source = "for(let a=0; a < 1 ; ++a){let b = c[1.0];}";

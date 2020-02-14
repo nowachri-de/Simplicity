@@ -1,5 +1,5 @@
 var Sqrl = require('squirrelly');
-const { Formatter } = require(__dirname + "\\formatter.js");
+const { Formatter } = require("./formatter.js");
 
 class ShaderCode {
 

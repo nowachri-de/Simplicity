@@ -84,7 +84,7 @@ class ResultReader{
 }
 
 module.exports.ResultReader = ResultReader
-const {ShaderCode} = require(__dirname + "\\shadercode.js");
-const {Program} = require(__dirname + "\\program.js");
-const {FrameBufferFactory} = require(__dirname + "\\framebufferfactory.js");
-const Matrix = require(__dirname + "\\matrix.js");
+const {ShaderCode} = require("./shadercode.js");
+const {Program} = require("./program.js");
+const {FrameBufferFactory} = require("./framebufferfactory.js");
+const Matrix = require("./matrix.js");

@@ -1,6 +1,6 @@
-const { TextureFactory } = require(__dirname + "\\texturefactory.js");
-const { FrameBufferFactory } = require(__dirname + "\\framebufferfactory.js");
-const { ResultReader } = require(__dirname + "\\resultreader.js");
+const { TextureFactory } = require( "./texturefactory.js");
+const { FrameBufferFactory } = require("./framebufferfactory.js");
+const { ResultReader } = require("./resultreader.js");
 
 class Util {
     static isArray(value) {

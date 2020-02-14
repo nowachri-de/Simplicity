@@ -1,4 +1,5 @@
 var headlessGL = require('gl');
+
 function genTextures(gl,num,width,height) {
 	let textures = [];
 	for (let i=0; i < num;++i){
@@ -244,7 +245,7 @@ class Program {
 }
 
 module.exports.Program = Program
-const { FrameBufferFactory } = require(__dirname + "\\framebufferfactory.js");
-const { TextureFactory } = require(__dirname + "\\texturefactory.js");
-const { ShaderFactory } = require(__dirname + "\\shader.js");
-const { Util } = require(__dirname + "\\util.js");
+const { FrameBufferFactory } = require("./framebufferfactory.js");
+const { TextureFactory } = require("./texturefactory.js");
+const { ShaderFactory } = require("./shader.js");
+const { Util } = require("./util.js");
