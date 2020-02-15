@@ -1,24 +1,53 @@
 const { Matrix } = require('./modules/matrix');
-const assert = require('assert');
+const { matrix, index, multiply } = require('mathjs');
 
 window.test =function test(){
-    var matrixA = new Matrix(2, 2);
-    matrixA.insertColumn(0, [0, 0]);
-    matrixA.insertColumn(1, [1, 1]);
-    let col0 = matrixA.getColumn(0);
-    let col1 = matrixA.getColumn(1);
-    let row0 = matrixA.getRow(0);
-    let row1 = matrixA.getRow(1);
+    var matrixA = new Matrix(4, 4);
+    var matrixB = new Matrix(4, 4);
 
-    assert.equal(col0[0], 0);
-    assert.equal(col0[1], 0);
-    assert.equal(col1[0], 1);
-    assert.equal(col1[1], 1);
-
-    assert.equal(row0[0], 0);
-    assert.equal(row0[1], 1);
-    assert.equal(row1[0], 0);
-    assert.equal(row1[1], 1);
-    console.log(matrixA.print(3));
+    matrixA.sequenzeInitialize();
+    matrixB.oneInitialize();
+    validateMultiplicationResult(matrixA, matrixB, matrixA.multiply(matrixB));
+    console.log(matrixA.multiply(matrixB).print(3));
 }
-test();
+function jsMatMul(matrixA, matrixB) {
+    var mat1 = matrix(matrixA.as2DArray());
+    var mat2 = matrix(matrixB.as2DArray());
+  
+    var result = multiply(mat1, mat2);
+    return result;
+  }
+  
+  function validateMultiplicationResult(matrixA, matrixB, result) {
+    var outputDimensions = matrixA.getResultMatrixDimensions(matrixB);
+    var TOLERANCE = 0.001;
+    if (outputDimensions.height != result.height) {
+      throw "result row dimension " + "does not match expected dimension";
+    }
+    var jsResult = jsMatMul(matrixA, matrixB);
+    for (var row = 0; row < result.height; ++row) {
+      for (var column = 0; column < result.width; ++column) {
+        var jsValue = jsResult.subset(index(row, column));
+        var value = result.getValue(row, column);
+  
+        if (Math.abs(jsValue - value) > TOLERANCE) {
+          throw "matrix multiplication result is wrong " + value + " does not match math.js matric multiplication value of " + jsValue;
+        }
+      }
+    }
+  }
+  
+  function isEqual(matrixA, matrixB) {
+    var TOLERANCE = 0.001;
+    var jsResult = matrix(matrixB.as2DArray());
+    for (var row = 0; row < matrixA.height; ++row) {
+      for (var column = 0; column < matrixA.width; ++column) {
+        var jsValue = jsResult.subset(index(row, column));
+        var value = matrixA.getValue(row, column);
+  
+        if (Math.abs(jsValue - value) > TOLERANCE) {
+          throw "not equal. " + value + " does not match value " + jsValue;
+        }
+      }
+    }
+  }

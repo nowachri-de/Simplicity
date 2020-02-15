@@ -1,5 +1,5 @@
-var headlessGL = require('gl');
-
+//var headlessGL = require('gl');
+var headlessGL = require('browser-gl');
 function genTextures(gl,num,width,height) {
 	let textures = [];
 	for (let i=0; i < num;++i){

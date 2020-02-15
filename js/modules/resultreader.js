@@ -66,10 +66,10 @@ class ResultReader{
 		 // extract the product and return in new matrix
         var rawBuffer = new ArrayBuffer(dimension.height * dimension.width * 4);
 		var glresult = new Uint8Array(rawBuffer);
-		//gl.bindFramebuffer(gl.FRAMEBUFFER, textureA.frameBuffer);
-		//gl.readBuffer(ext.COLOR_ATTACHMENT1_WEBGL);
+
 		gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.glFrameBuffer);
-        gl.readPixels(0, 0,  dimension.width,dimension.height, gl.RGBA, gl.UNSIGNED_BYTE, glresult);
+		gl.readPixels(0, 0,  dimension.width,dimension.height, gl.RGBA, gl.UNSIGNED_BYTE, glresult);
+		//gl.readPixels(0, 0,  dimension.width,dimension.height, gl.RGBA, gl.FLOAT, glresult);
         
 		frameBuffer.delete();
 		return new Float32Array(rawBuffer);

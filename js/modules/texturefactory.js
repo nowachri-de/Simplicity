@@ -43,7 +43,7 @@ class TextureFactory {
 		usedIndices.push(index);
 	}
 
-	static createReadableTexture(gl,name, outputdimensions) {
+	static createReadableTexture1(gl,name, outputdimensions) {
 		var texture = gl.createTexture();
 		
 		let index = TextureFactory.fetchFreeIndex();
@@ -86,7 +86,8 @@ class TextureFactory {
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.FLOAT, data);
-
+		//gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, data);
+		
 		return (new Texture(gl,texture,index,name,width, height));
 	}
 

@@ -51,7 +51,6 @@ class ShaderCode {
             uniform int					uTargetIndex;       // index where to read result;
 
             highp float readValue(highp float col,highp float row,int targetIndex){
-                
                 highp vec4 result = texture2D(usamplerA, vec2(col,row));
                 
                 /*if (targetIndex == 0) return result.x;
@@ -345,6 +344,8 @@ void main(void) {
 /**
 * This is a generated fragment shader.
 */
+//
+
 #extension GL_EXT_draw_buffers : require        
 #ifdef GL_ES 
   precision highp float; 
@@ -389,34 +390,59 @@ float readTexture(int x, float y,float width,float height, in sampler2D sampler)
 float readTexture(float x, int y,float width,float height, in sampler2D sampler);
 float readTexture(int x, int y,float width,float height, in sampler2D sampler);
 
+vec4 getResultVector(int index){
+    for (int x = 0; x < 128; ++x){
+        if (x == index){
+            return vResults[x];
+        }
+    }
+}
+
+void setResultVector(int index, vec4 vector2set){
+    for (int x = 0; x < 128; ++x){
+        if (x == index){
+            vResults[x] = vector2set;
+        }
+    }
+}
+
+void setFragData(int index,vec4 vector2set){
+    for (int x = 0; x < 128; ++x){
+        if (x == index){
+            gl_FragData[x] = vector2set;
+        }
+    }
+}
 float write (float value, int index){
     int vecIndex = index / 4;
     int vecComponentIndex = int(mod(float(index),4.0));
-    vec4 vector2set = vResults[vecIndex];
-
+    vec4 vector2set = getResultVector(vecIndex);
     if (vecComponentIndex == 0) { vector2set = vec4(value,vector2set.y,vector2set.z,vector2set.w); }
     if (vecComponentIndex == 1) { vector2set = vec4(vector2set.x,value,vector2set.z,vector2set.w); }
     if (vecComponentIndex == 2) { vector2set = vec4(vector2set.x,vector2set.y,value,vector2set.w); }
     if (vecComponentIndex == 3) { vector2set = vec4(vector2set.x,vector2set.y,vector2set.z,value); }
 
-    vResults[vecIndex] = vector2set;
-    gl_FragData[vecIndex] = vector2set;
+    //vResults[vecIndex] = vector2set;
+    setResultVector(vecIndex,vector2set);
+    //gl_FragData[vecIndex] = vector2set;
+    setFragData(vecIndex,vector2set);
     return value;
 }
 
 float write (int value, int index){
     int vecIndex = index / 4;
     int vecComponentIndex = int(mod(float(index),4.0));
-    vec4 vector2set = vResults[vecIndex];
-
+    //vec4 vector2set = vResults[vecIndex];
+    vec4 vector2set = getResultVector(vecIndex);
     if (vecComponentIndex == 0) { vector2set = vec4(float(value),vector2set.y,vector2set.z,vector2set.w); }
     if (vecComponentIndex == 1) { vector2set = vec4(vector2set.x,float(value),vector2set.z,vector2set.w); }
     if (vecComponentIndex == 2) { vector2set = vec4(vector2set.x,vector2set.y,float(value),vector2set.w); }
     if (vecComponentIndex == 3) { vector2set = vec4(vector2set.x,vector2set.y,vector2set.z,float(value)); }
 
-    vResults[vecIndex] = vector2set;
-    gl_FragData[vecIndex] = vector2set;
-
+    //vResults[vecIndex] = vector2set;
+    setResultVector(vecIndex,vector2set);
+    //gl_FragData[vecIndex] = vector2set;
+    setFragData(vecIndex,vector2set);
     return float(value);
 }
 
@@ -528,7 +554,8 @@ float readTexture(int x, int y,float width,float height, in sampler2D sampler){
             let result = "void init(){\r\n";
             if (args[0] > 0){
                 for (let i =0; i < args[0];++i){
-                    result+="   vResults[" + i + "] = vec4(0.,0.,0.,0.);\r\n";
+                    //result+="   vResults[" + i + "] = vec4(0.,0.,0.,0.);\r\n";
+                    result+="   setResultVector("+i+",vec4(0.,0.,0.,0.));\r\n";
                 }
             }
             result += "}\r\n";
