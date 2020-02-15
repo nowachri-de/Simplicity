@@ -43,7 +43,7 @@ class TextureFactory {
 		usedIndices.push(index);
 	}
 
-	static createReadableTexture1(gl,name, outputdimensions) {
+	static createReadableTexture(gl,name, outputdimensions) {
 		var texture = gl.createTexture();
 		
 		let index = TextureFactory.fetchFreeIndex();
@@ -60,13 +60,6 @@ class TextureFactory {
         return new Texture(gl,texture,index,name,outputdimensions.width, outputdimensions.height);
 	}
 
-	static createTexture(gl, name, matrix, component) {
-		return this.createTextureByDimension(gl,name, matrix.width, matrix.height, matrix.getTexels(component));
-	}
-
-	static createReadableTexture(gl, name, outputdimensions) {
-		return this.createTextureByDimension(gl,name, outputdimensions.width, outputdimensions.height, null);
-	}
 
 	static createTextureByDimension(gl, name, width, height, data) {
 		var texture = gl.createTexture();

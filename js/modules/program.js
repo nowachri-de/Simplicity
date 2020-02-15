@@ -1,9 +1,9 @@
-//var headlessGL = require('gl');
-var headlessGL = require('browser-gl');
+var headlessGL = require('gl');
+//var headlessGL = require('browser-gl');
 function genTextures(gl,num,width,height) {
 	let textures = [];
 	for (let i=0; i < num;++i){
-		textures.push(TextureFactory.createReadableTexture(gl, 'resultTexture', { width: width, height: height }));
+		textures.push(TextureFactory.createTextureByDimension(gl, 'resultTexture', width,height,null));
 	}
 	return textures;
 }

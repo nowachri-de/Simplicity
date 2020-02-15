@@ -3,6 +3,7 @@ const { TestUtil } = require(__dirname + '\\..\\modules\\testutil.js');
 
 describe('Test multiple function definitions - call function in function', function () {
   it('Test multiple functions', function () {
+    this.timeout(0);//disable timeout
     let test = Kernel.create(function main() {
       return test(this.thread.x);
     }, function test(a = 0.0) {
