@@ -209,14 +209,20 @@ function setAdditionalOptions(mainOptions, dictionary) {
   mainOptions.numResults=numResultTextures;
   functions.forEach(funct => {
     mainOptions.functions.push((new Formatter()).format(funct.glslCode));
+    /*signatures array is used by shadercode template. For each function a signature will be
+      generated in the shader*/
     mainOptions.signatures.push(funct.options.signature);
+    /*preprocessor array is used by shadercode template. For each function a preprocessor
+      declarative will be created in the shader*/
     mainOptions.preprocessor.push({ name: funct.options.functionName.toUpperCase(), id: i });
+    
+    /*targetIndex is reflecting R,G,B,A component within the shader */
     funct.options.targetIndex = i; //used for result lookup
     i++;
   });
 }
 
-function createdictionary(functions) {
+function createDictionary(functions) {
   let dictionary = createFunctionDictonary();
   dictionary = setupTemplateOptions(functions, dictionary);
 
@@ -242,7 +248,7 @@ class FunctionBuilder {
    */
   static buildFunction(functions) {
     //let options = createOptions(codeGen.function.parameters, glslCode);
-    let dictionary = createdictionary(functions);
+    let dictionary = createDictionary(functions);
     let fragmentShaderCode = ShaderCode.generateFragmentShader(dictionary);
     let vertexShaderCode = ShaderCode.generateVertexShaderCode();
     let inputTextures;

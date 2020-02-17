@@ -48,6 +48,6 @@
   "author": "Christian Nowak (nowachri-de)",
   "license": "ISC",
   "browser": {
-    "headlessGL": "browser-gl"
+    "gl": "./browser/module.js"
   }
 }

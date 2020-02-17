@@ -162,6 +162,7 @@ describe('Test multiple function definitions - call function in function', funct
   });
 
   it('Validate individual function results of 16 functions in total', function () {
+    this.timeout(0);//disable timeout
     let test = Kernel.create(
       function main() {
         test2();
