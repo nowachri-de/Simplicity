@@ -203,10 +203,21 @@ function setupTemplateOptions(functions, dictionary) {
   return dictionary;
 }
 function setAdditionalOptions(mainOptions, dictionary) {
+  //set object (mainOptions) keys dynamically
+  mainOptions['functions'] = []; //same as { functions: [] }
+  mainOptions['signatures'] = []; //same as { signatures: [] }
+  mainOptions['preprocessor'] = []; //same as { preprocessor: [] }
+  mainOptions['targetIndex'] = 0; //same as { targetIndex: [] }
+
+  //functions array contains all functions exclusive main function
   let functions = dictionary.getFunctionsExclusiveMain();
-  let i = 1;
+  /*
+  * Compute the number of actually required textures.
+  * Since a texture can store channels (R,G,B,A)
+  */
   let numResultTextures = Math.floor((functions.length)/4)+1;
   mainOptions.numResults=numResultTextures;
+  let i = 1;
   functions.forEach(funct => {
     mainOptions.functions.push((new Formatter()).format(funct.glslCode));
     /*signatures array is used by shadercode template. For each function a signature will be
@@ -215,7 +226,7 @@ function setAdditionalOptions(mainOptions, dictionary) {
     /*preprocessor array is used by shadercode template. For each function a preprocessor
       declarative will be created in the shader*/
     mainOptions.preprocessor.push({ name: funct.options.functionName.toUpperCase(), id: i });
-    
+
     /*targetIndex is reflecting R,G,B,A component within the shader */
     funct.options.targetIndex = i; //used for result lookup
     i++;
@@ -229,10 +240,7 @@ function createDictionary(functions) {
   let main = dictionary.get('main');
   let mainOptions = main.options;
   mainOptions.main = (new Formatter()).format(main.glslCode);
-  mainOptions['functions'] = [];
-  mainOptions['signatures'] = [];
-  mainOptions['preprocessor'] = [];
-  mainOptions['targetIndex'] = 0;
+ 
 
   setAdditionalOptions(mainOptions, dictionary);
 
