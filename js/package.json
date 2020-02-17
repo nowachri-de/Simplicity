@@ -18,6 +18,7 @@
     "squirrelly": "^7.7.0"
   },
   "devDependencies": {
+    "conditionalify": "^1.1.0",
     "mocha": "^6.2.1",
     "should": "^13.2.3"
   },

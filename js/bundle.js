@@ -5,8 +5,8 @@ const { Matrix } = require('./modules/matrix');
 const { matrix, index, multiply } = require('mathjs');
 
 window.test =function test(){
-    var matrixA = new Matrix(4, 4);
-    var matrixB = new Matrix(4, 4);
+    var matrixA = new Matrix(16, 16);
+    var matrixB = new Matrix(16, 16);
 
     matrixA.sequenzeInitialize();
     matrixB.oneInitialize();
@@ -1792,7 +1792,7 @@ var headlessGL = require('browser-gl');
 function genTextures(gl,num,width,height) {
 	let textures = [];
 	for (let i=0; i < num;++i){
-		textures.push(TextureFactory.createReadableTexture(gl, 'resultTexture', { width: width, height: height }));
+		textures.push(TextureFactory.createTextureByDimension(gl, 'resultTexture', width,height,null));
 	}
 	return textures;
 }
@@ -2775,7 +2775,7 @@ class TextureFactory {
 		usedIndices.push(index);
 	}
 
-	static createReadableTexture1(gl,name, outputdimensions) {
+	static createReadableTexture(gl,name, outputdimensions) {
 		var texture = gl.createTexture();
 		
 		let index = TextureFactory.fetchFreeIndex();
@@ -2792,13 +2792,6 @@ class TextureFactory {
         return new Texture(gl,texture,index,name,outputdimensions.width, outputdimensions.height);
 	}
 
-	static createTexture(gl, name, matrix, component) {
-		return this.createTextureByDimension(gl,name, matrix.width, matrix.height, matrix.getTexels(component));
-	}
-
-	static createReadableTexture(gl, name, outputdimensions) {
-		return this.createTextureByDimension(gl,name, outputdimensions.width, outputdimensions.height, null);
-	}
 
 	static createTextureByDimension(gl, name, width, height, data) {
 		var texture = gl.createTexture();
@@ -2930,7 +2923,7 @@ class Util {
    */
     static texture2array(gl, texture, sourceIndex) {
         let dimension = { width: texture.width, height: texture.height };
-        let readableTexture = TextureFactory.createReadableTexture1(gl, 'readableTexture', dimension);
+        let readableTexture = TextureFactory.createReadableTexture(gl, 'readableTexture', dimension);
         let resultReader = new ResultReader(gl, texture.width, texture.height);
         let result = resultReader.readResult2Array(texture, readableTexture, dimension, sourceIndex);
         let finalResult = [];

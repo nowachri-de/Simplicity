@@ -2,8 +2,8 @@ const { Matrix } = require('./modules/matrix');
 const { matrix, index, multiply } = require('mathjs');
 
 window.test =function test(){
-    var matrixA = new Matrix(4, 4);
-    var matrixB = new Matrix(4, 4);
+    var matrixA = new Matrix(16, 16);
+    var matrixB = new Matrix(16, 16);
 
     matrixA.sequenzeInitialize();
     matrixB.oneInitialize();

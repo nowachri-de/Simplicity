@@ -116,7 +116,7 @@ function handleMemberExpression(codeGen, node, sb) {
         return sb.push(result);
     }
 
-    //check if variable has been defined
+    //check if variable has been declared
     if (!hasBeenDeclared(codeGen, object.name)) {
         throw formatThrowMessage(object, object.name + " has not been declared");
     }

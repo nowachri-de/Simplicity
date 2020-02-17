@@ -402,8 +402,3 @@ module.exports.Matrix = class Matrix {
         return result;
     }
 }
-
-
-
-
-

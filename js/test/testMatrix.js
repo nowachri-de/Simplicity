@@ -1,4 +1,4 @@
-const { Matrix } = require(__dirname + '\\..\\modules\\matrix.js');
+const { Matrix } = require('./../modules/matrix.js');
 const { matrix, index, multiply } = require('mathjs');
 var assert = require('assert');
 
