@@ -1,6 +1,23 @@
 var assert = require('assert');
-const { Kernel } = require(__dirname + '\\..\\modules\\kernel.js');
-const { TestUtil } = require(__dirname + '\\..\\modules\\testutil.js');
+const { Kernel } = require('./../modules/kernel.js');
+const { TestUtil } = require('./../modules/testutil.js');
+
+/**
+ * Make test ready for browser
+ */
+
+
+if (typeof document !== 'undefined'){
+  describe = function(description,fnct){
+    console.log(description);
+    window.describeContent= fnct;
+  }
+
+  it = function(description,fnct){
+    console.log(description);
+    fnct();
+  }
+}
 
 describe('Kernel functional tests', function () {
 

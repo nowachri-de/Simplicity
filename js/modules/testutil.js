@@ -1,6 +1,6 @@
 class TestUtil {
     static compare1DArray(a1, a2) {
-        let FIXED = 5;
+        let FIXED = 4;
         if (a1.length !== a2.length) {
             throw 'array length mistmatch ' + a1.length + ' ' + a2.length;
         }
@@ -12,7 +12,7 @@ class TestUtil {
     }
 
     static compare2DArray(a1, a2) {
-        let FIXED = 5;
+        let FIXED = 4;
         let height = a1.length;
         let width = a1[0].length;
 

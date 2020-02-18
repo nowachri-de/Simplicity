@@ -11,15 +11,17 @@
     "acorn-walk": "^7.0.0",
     "browser": "file:browser",
     "browser-gl": "file:browser",
+    "browserify": "^16.5.0",
     "expect.js": "^0.3.1",
     "gl": "^4.4.0",
     "js-beautify": "^1.10.2",
     "mathjs": "^6.2.2",
+    "node-gyp": "^6.1.0",
     "squirrelly": "^7.7.0"
   },
   "devDependencies": {
     "conditionalify": "^1.1.0",
-    "mocha": "^6.2.1",
+    "mocha": "^6.2.2",
     "should": "^13.2.3"
   },
   "scripts": {
@@ -48,6 +50,6 @@
   "author": "Christian Nowak (nowachri-de)",
   "license": "ISC",
   "browser": {
-    "headlessGL": "browser-gl"
+    "gl": "./browser/module.js"
   }
 }
