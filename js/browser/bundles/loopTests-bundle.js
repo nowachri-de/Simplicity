@@ -23,23 +23,42 @@ module.exports.browserReady = function (msg) {
             window.testFunctions = [];
             window.testCounter = 0;
             window.numTests = 0;
-
-            window.executeTests = function (){
-                for(let i=0; i < window.numTests;++i){
+            //required to handle call of function timout in it function
+            window.timeout = function (param) { }
+            window.executeTests = function () {
+                for (let i = 0; i < window.numTests; ++i) {
                     window.testFunctions[i]();
                 }
             }
-        }
-        describe = function (description, fnct) {
-            console.log("Added to testfunctions: " + description);
-            window.testFunctions.push(fnct);
-            window.numTests ++;
+
+            describe = function (description, fnct) {
+                console.log("Added to testfunctions: " + description);
+                window.testFunctions.push(fnct);
+                window.numTests++;
+            }
+
+            it = function (description, fnct) {
+                console.log(description);
+                fnct();
+            }
+
+            if (typeof console != "undefined")
+                if (typeof console.log != 'undefined')
+                    console.olog = console.log;
+                else
+                    console.olog = function () { };
+
+            console.log = function (message) {
+                console.olog(message);
+                var p = document.createElement("P");                 // Create a <li> node
+                var textnode = document.createTextNode(message);         // Create a text node
+                p.appendChild(textnode);
+
+                document.getElementById("log").appendChild(p);
+            };
+            console.error = console.debug = console.info = console.log
         }
 
-        it = function (description, fnct) {
-            console.log(description);
-            fnct();
-        }
     }
 };
 },{}],4:[function(require,module,exports){
@@ -13666,11 +13685,14 @@ const { browserReady} = require('../modules/browserReady.js');
 
 browserReady();
 describe('Test loops', function () {
-  it('Test if while loop gets translated to glsl syntax propperly', function () {
+  /*it('Test if while loop gets translated to glsl syntax propperly', function () {
     let test = Kernel.create(function main() {
       let a = 10;
       let b = 0;
-      while (b < a) {
+      while (b < 2048) {
+        if (b >= a){
+          break;
+        }
         b += 2;
       }
       return b;
@@ -13678,19 +13700,22 @@ describe('Test loops', function () {
 
     TestUtil.compare2DArray(test.result(),[ [ 10, 10 ], [ 10, 10 ] ]);
     test.delete();
-  });
+  });*/
 
   it('Test if while loop gets translated to glsl propperly', function () {
    let test = Kernel.create(function main() {
       let a = 10;
       let b = 0;
-      for (let i = 0; i < a; i++) {
+      for (let i = 0; i < 2048; i++) {
+        if (b >= a){
+          break;
+        }
         b += 2;
       }
       return b;
     }).setOutput([2, 2])();
 
-    TestUtil.compare2DArray(test.result(),[ [ 20, 20 ], [ 20, 20 ] ]);
+    TestUtil.compare2DArray(test.result(),[ [ 10, 10 ], [ 10, 10 ] ]);
     test.delete();
   });
 

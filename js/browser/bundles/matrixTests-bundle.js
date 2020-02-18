@@ -1433,23 +1433,42 @@ module.exports.browserReady = function (msg) {
             window.testFunctions = [];
             window.testCounter = 0;
             window.numTests = 0;
-
-            window.executeTests = function (){
-                for(let i=0; i < window.numTests;++i){
+            //required to handle call of function timout in it function
+            window.timeout = function (param) { }
+            window.executeTests = function () {
+                for (let i = 0; i < window.numTests; ++i) {
                     window.testFunctions[i]();
                 }
             }
-        }
-        describe = function (description, fnct) {
-            console.log("Added to testfunctions: " + description);
-            window.testFunctions.push(fnct);
-            window.numTests ++;
+
+            describe = function (description, fnct) {
+                console.log("Added to testfunctions: " + description);
+                window.testFunctions.push(fnct);
+                window.numTests++;
+            }
+
+            it = function (description, fnct) {
+                console.log(description);
+                fnct();
+            }
+
+            if (typeof console != "undefined")
+                if (typeof console.log != 'undefined')
+                    console.olog = console.log;
+                else
+                    console.olog = function () { };
+
+            console.log = function (message) {
+                console.olog(message);
+                var p = document.createElement("P");                 // Create a <li> node
+                var textnode = document.createTextNode(message);         // Create a text node
+                p.appendChild(textnode);
+
+                document.getElementById("log").appendChild(p);
+            };
+            console.error = console.debug = console.info = console.log
         }
 
-        it = function (description, fnct) {
-            console.log(description);
-            fnct();
-        }
     }
 };
 },{}],10:[function(require,module,exports){
@@ -99152,7 +99171,7 @@ describe('Matrix', function () {
     var matrixB = new Matrix(200, 200);//rows, columns
     
     matrixA.sequenzeInitialize(10000); //the given parameter is used as a factor and causes the sequence numbers to be devided by the given number 
-    matrixB.sequenzeInitialize(10000); //the given parameter is used as a factor and causes the sequence numbers to be devided by the given number
+    matrixB.sequenzeInitialize(10000); 
     validateMultiplicationResult(matrixA, matrixB, matrixA.multiply(matrixB));
   });
 

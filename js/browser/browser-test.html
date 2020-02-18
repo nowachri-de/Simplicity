@@ -6,18 +6,19 @@
 </head>
 
 <body>
-
     <h2>GPU Test page</h2>
-
-    <p>A Paragraph.</p>
-
-    <button type="button" onclick="test()">Try it</button>
-
-    
-    <canvas id="canvas" width="4" height="4" style="border:1px solid #000000;">
-    </canvas>
-    <script src="./bundle.js"></script>
-
+    <button type="button" onclick="executeTests()">Execute Tests</button>
+    <canvas id="canvas" width="4" height="4"></canvas>
+    <div id="log"></div>
+    <script src="./bundles/functionalTests-bundle.js"></script>
+    <script src="./bundles/glslfuntionsTests-bundle.js"></script>
+    <script src="./bundles/iterationTests-bundle.js"></script>
+    <script src="./bundles/loopTests-bundle.js"></script>
+    <script src="./bundles/matrixTests-bundle.js"></script>
+    <script src="./bundles/multipleFunctionsTests-bundle.js"></script>
+    <script src="./bundles/operatorTests-bundle.js"></script>
+    <script src="./bundles/parameterAndArgumentTests-bundle.js"></script>
+    <script src="./bundles/utilTests-bundle.js"></script>
 </body>
 
 </html>
