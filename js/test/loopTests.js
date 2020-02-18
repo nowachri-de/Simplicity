@@ -1,12 +1,17 @@
-const { Kernel } = require(__dirname + '\\..\\modules\\kernel.js');
-const { TestUtil } = require(__dirname + '\\..\\modules\\testutil.js');
+const { Kernel } = require('../modules/kernel.js');
+const { TestUtil } = require('../modules/testutil.js');
+const { browserReady} = require('../modules/browserReady.js');
 
+browserReady();
 describe('Test loops', function () {
-  it('Test if while loop gets translated to glsl syntax propperly', function () {
+  /*it('Test if while loop gets translated to glsl syntax propperly', function () {
     let test = Kernel.create(function main() {
       let a = 10;
       let b = 0;
-      while (b < a) {
+      while (b < 2048) {
+        if (b >= a){
+          break;
+        }
         b += 2;
       }
       return b;
@@ -14,19 +19,22 @@ describe('Test loops', function () {
 
     TestUtil.compare2DArray(test.result(),[ [ 10, 10 ], [ 10, 10 ] ]);
     test.delete();
-  });
+  });*/
 
   it('Test if while loop gets translated to glsl propperly', function () {
    let test = Kernel.create(function main() {
       let a = 10;
       let b = 0;
-      for (let i = 0; i < a; i++) {
+      for (let i = 0; i < 2048; i++) {
+        if (b >= a){
+          break;
+        }
         b += 2;
       }
       return b;
     }).setOutput([2, 2])();
 
-    TestUtil.compare2DArray(test.result(),[ [ 20, 20 ], [ 20, 20 ] ]);
+    TestUtil.compare2DArray(test.result(),[ [ 10, 10 ], [ 10, 10 ] ]);
     test.delete();
   });
 

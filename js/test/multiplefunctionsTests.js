@@ -1,6 +1,8 @@
-const { Kernel } = require(__dirname + '\\..\\modules\\kernel.js');
-const { TestUtil } = require(__dirname + '\\..\\modules\\testutil.js');
+const { Kernel } = require('../modules/kernel.js');
+const { TestUtil } = require('../modules/testutil.js');
+const { browserReady} = require('../modules/browserReady.js');
 
+browserReady();
 describe('Test multiple function definitions - call function in function', function () {
   it('Test multiple functions', function () {
     this.timeout(0);//disable timeout

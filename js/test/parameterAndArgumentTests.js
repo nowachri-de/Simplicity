@@ -1,7 +1,9 @@
 var assert = require('assert');
-const { Kernel } = require(__dirname + '\\..\\modules\\kernel.js');
-const { TestUtil } = require(__dirname + '\\..\\modules\\testutil.js');
+const { Kernel } = require('../modules/kernel.js');
+const { TestUtil } = require('../modules/testutil.js');
+const { browserReady} = require('../modules/browserReady.js');
 
+browserReady();
 describe('Test parameters and arguments', function () {
     it('Validate exception if kernel is called with too many parameters - zero input parameters', function () {
         try {

@@ -1,7 +1,9 @@
-const { Matrix } = require('./../modules/matrix.js');
+const { Matrix } = require('../modules/matrix.js');
 const { matrix, index, multiply } = require('mathjs');
 var assert = require('assert');
+const { browserReady} = require('../modules/browserReady.js');
 
+browserReady();
 describe('Matrix', function () {
   it('should add a column to matrix', function () {
     var matrixA = new Matrix(2, 2);
@@ -148,7 +150,7 @@ describe('Matrix', function () {
     var matrixB = new Matrix(200, 200);//rows, columns
     
     matrixA.sequenzeInitialize(10000); //the given parameter is used as a factor and causes the sequence numbers to be devided by the given number 
-    matrixB.sequenzeInitialize(10000); //the given parameter is used as a factor and causes the sequence numbers to be devided by the given number
+    matrixB.sequenzeInitialize(10000); 
     validateMultiplicationResult(matrixA, matrixB, matrixA.multiply(matrixB));
   });
 

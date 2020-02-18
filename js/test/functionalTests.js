@@ -1,23 +1,9 @@
-var assert = require('assert');
 const { Kernel } = require('./../modules/kernel.js');
 const { TestUtil } = require('./../modules/testutil.js');
+var assert = require('assert');
+const { browserReady} = require('./../modules/browserReady.js');
 
-/**
- * Make test ready for browser
- */
-
-
-if (typeof document !== 'undefined'){
-  describe = function(description,fnct){
-    console.log(description);
-    window.describeContent= fnct;
-  }
-
-  it = function(description,fnct){
-    console.log(description);
-    fnct();
-  }
-}
+browserReady();
 
 describe('Kernel functional tests', function () {
 

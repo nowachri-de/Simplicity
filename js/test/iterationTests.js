@@ -1,7 +1,8 @@
-var assert = require('assert');
-const { Kernel } = require(__dirname + '\\..\\modules\\kernel.js');
-const { TestUtil } = require(__dirname + '\\..\\modules\\testutil.js');
+const { Kernel } = require('../modules/kernel.js');
+const { TestUtil } = require('../modules/testutil.js');
+const { browserReady} = require('../modules/browserReady.js');
 
+browserReady();
 
 describe('Test iterations', function () {
     it('Test iterating 2d array', function () {

@@ -1,7 +1,8 @@
 var assert = require('assert');
-const { TestUtil } = require(__dirname + '\\..\\modules\\testutil.js');
+const { TestUtil } = require('../modules/testutil.js');
+const { browserReady} = require('../modules/browserReady.js');
 
-
+browserReady();
 describe('Test TestUtil - Verify that comparison functions work as expected', function () {
   it('Test compare2DArray', function () {
     TestUtil.compare2DArray([[1,2,3,4,5],[1,2,3,4,5]],[[1,2,3,4,5],[1,2,3,4,5]]);

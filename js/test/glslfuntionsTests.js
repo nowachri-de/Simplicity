@@ -1,6 +1,8 @@
-const { Kernel } = require(__dirname + '\\..\\modules\\kernel.js');
-const { TestUtil } = require(__dirname + '\\..\\modules\\testutil.js');
+const { Kernel } = require('../modules/kernel.js');
+const { TestUtil } = require('../modules/testutil.js');
+const { browserReady} = require('../modules/browserReady.js');
 
+browserReady();
 describe('Test GLSL build in functions', function () {
   
   it('Test GLSL build in radians function', function () {
