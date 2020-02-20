@@ -334,8 +334,7 @@ class FunctionBuilder {
 }
 
 class Kernel {
-  constructor() { }
-
+  constructor() {}
   static create(...fncts) {
     let functions = [];
     for (let i = 0; i < fncts.length; ++i) {
@@ -343,10 +342,22 @@ class Kernel {
       let glslCode = codeGen.translate(fncts[i].toString());
       functions.push({ codeGen: codeGen, glslCode: glslCode });
     }
+
+    for (let i = 0; i < Kernel.helperFunctions.length; ++i) {
+      let codeGen = new CodeGenerator(true); //true in constructor means, helperFunction is generated
+      let glslCode = codeGen.translate( Kernel.helperFunctions[i].toString());
+      functions.push({ codeGen: codeGen, glslCode: glslCode, isHelper:true });
+    }
+
     let result = FunctionBuilder.buildFunction(functions);
     return result;
   }
+  static addFunction(fnct){
+    Kernel.helperFunctions.push(fnct);
+  }
 }
+//helperfunctions will be transformed to glsl functions but will generate no result (texture)
+Kernel.helperFunctions = [];
 module.exports = {
   Kernel,
   FunctionBuilder

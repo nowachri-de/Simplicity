@@ -251,7 +251,7 @@ function deleteTransformationRequest(codeGen,key){
 
 class CodeGenerator {
 
-    constructor() {
+    constructor(isHelper) {
         this.scopes = [];
         this.code = "";
         this.function = null;
@@ -259,6 +259,9 @@ class CodeGenerator {
         this.scopeIndex = -1;
         this.parameters = new Map();
         this.transformationRequests = new Map();
+        if (typeof isHelper !== 'undefined'){
+            this.isHelper = isHelper;
+        }
     }
 
     translate(source) {
@@ -352,7 +355,6 @@ class CodeGenerator {
         this.handleType(node.left, sb);
     }
     genReturnStatement(node, sb) {
-
         let tmp = [];
         if (node.argument.type === 'MemberExpression') {
             handleMemberExpression(this, node.argument, tmp);
@@ -361,7 +363,6 @@ class CodeGenerator {
         }
 
         if ( getTransformationRequest(this,'replaceReturnStatement')  === true) {
-            //sb.push(Sqrl.Render('gl_FragData[0] = vec4({{returnValue}},0.,0.,0.);', { returnValue: tmp.join('') }));
             sb.push(Sqrl.Render('write({{returnValue}},{{functionName}});', { returnValue: tmp.join(''),functionName: getFunctionName(this).toUpperCase() }));
             deleteTransformationRequest(this,'replaceReturnStatement');
         } else {
