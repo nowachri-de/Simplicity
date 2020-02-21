@@ -380,8 +380,8 @@ class CodeGenerator {
         this.function = node;
 
         let signature = [];
-        
         let tmp = [];
+
         this.handleType(node.id, tmp);
         let name = tmp.join('');
 
@@ -416,6 +416,9 @@ class CodeGenerator {
 
         signature.push(')');
         this.function.signature = signature.join('');
+        setTransformationRequest(this,'skipIdentifier', true);
+        this.function.preprocessorSignature = genFunctionDeclaration(node, []);
+        deleteTransformationRequest(this,'replaceReturnStatement');
 
         sb.push(signature.join(''));
         if(isMainFunction(this)){
@@ -425,6 +428,8 @@ class CodeGenerator {
        
         deleteTransformationRequest(this,'replaceReturnStatement');
         node.code = sb.join('');
+        
+        return signature;
     }
     
     genParenthesizedExpression(node, sb) {
@@ -437,7 +442,6 @@ class CodeGenerator {
         sb.push(node.operator);
         this.handleType(node.argument, sb);
     }
-
     genAssignmentExpression(node, sb) {
         this.handleType(node.left, sb);
         sb.push(node.operator);
@@ -446,7 +450,6 @@ class CodeGenerator {
         } else {
             this.handleType(node.right, sb);
         }
-        
     }
     genWhileStatement(node, sb) {
         sb.push('while (')
@@ -767,6 +770,10 @@ class CodeGenerator {
     }
 
     genIdentifier(node, sb) {
+        if(getTransformationRequest(this,'skipIdentifier') === true){
+            return
+        }
+
         let type = this.parameters.get(node.name);
 
         //if its not an array type and main function is processed then it is a uniform 
