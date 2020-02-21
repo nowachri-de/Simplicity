@@ -1,6 +1,6 @@
 const { Matrix } = require('../modules/matrix.js');
 const { matrix, index, multiply } = require('mathjs');
-const { browserReady} = require('../modules/browserReady.js');
+const { browserReady} = require('../modules/browserready.js');
 const assert = require('assert');
 
 browserReady();

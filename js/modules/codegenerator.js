@@ -379,6 +379,7 @@ class CodeGenerator {
         this.function = node;
 
         let signature = [];
+        
         let tmp = [];
         this.handleType(node.id, tmp);
         let name = tmp.join('');
@@ -392,7 +393,7 @@ class CodeGenerator {
         }
         signature.push(name);
         signature.push('(');
-      
+        
         //process function parameters 
         tmp = [];
         node.parameters = [];

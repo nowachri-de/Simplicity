@@ -1,7 +1,7 @@
 const { Kernel } = require('./../modules/kernel.js');
 const { TestUtil } = require('./../modules/testutil.js');
 var assert = require('assert');
-const { browserReady} = require('./../modules/browserReady.js');
+const { browserReady} = require('./../modules/browserready.js');
 
 browserReady();
 

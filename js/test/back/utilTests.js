@@ -1,6 +1,6 @@
 var assert = require('assert');
 const { TestUtil } = require('../modules/testutil.js');
-const { browserReady} = require('../modules/browserReady.js');
+const { browserReady} = require('../modules/browserready.js');
 
 browserReady();
 describe('Test TestUtil - Verify that comparison functions work as expected', function () {

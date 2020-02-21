@@ -1,6 +1,6 @@
 const { Kernel } = require('../modules/kernel.js');
 const { TestUtil } = require('../modules/testutil.js');
-const { browserReady} = require('../modules/browserReady.js');
+const { browserReady} = require('../modules/browserready.js');
 
 browserReady();
 describe('Test mathematical operators', function () {
