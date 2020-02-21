@@ -233,11 +233,18 @@ function setAdditionalOptions(mainOptions, dictionary) {
   });
 }
 
+function checkMain(main){
+  if (typeof main === 'undefined')
+    throw 'no function with name main found'
+  
+  return main;
+}
+
 function createDictionary(functions) {
   let dictionary = createFunctionDictonary();
   dictionary = setupTemplateOptions(functions, dictionary);
 
-  let main = dictionary.get('main');
+  let main = checkMain(dictionary.get('main'));
   let mainOptions = main.options;
   mainOptions.main = (new Formatter()).format(main.glslCode);
  

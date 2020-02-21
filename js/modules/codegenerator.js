@@ -342,7 +342,8 @@ class CodeGenerator {
             case 'ThisExpression': return this.genThisExpression(node, sb);
             case 'ReturnStatement': return this.genReturnStatement(node, sb);
             case 'AssignmentPattern': return this.genAssignmentPattern(node, sb);
-            case 'ParenthesizedExpression': return this.getParenthesizedExpression(node, sb);
+            case 'ParenthesizedExpression': return this.genParenthesizedExpression(node, sb);
+            case 'UnaryExpression': return this.genUnaryExpression(node, sb);
         }
     }
     genAssignmentPattern(node, sb) {
@@ -426,11 +427,17 @@ class CodeGenerator {
         node.code = sb.join('');
     }
     
-    getParenthesizedExpression(node, sb) {
+    genParenthesizedExpression(node, sb) {
         sb.push('(');
         this.handleType(node.expression, sb);
         sb.push(')');
     }
+
+    genUnaryExpression(node, sb){
+        sb.push(node.operator);
+        this.handleType(node.argument, sb);
+    }
+
     genAssignmentExpression(node, sb) {
         this.handleType(node.left, sb);
         sb.push(node.operator);

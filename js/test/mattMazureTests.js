@@ -7,20 +7,47 @@ const { TestUtil } = require('../modules/testutil.js');
 browserReady();
 
 describe('Matt Mazure Test', function () {
-    it('Test M', function () {
-        Kernel.addFunction(function test(e = 0.0) {
-            return 1 / (1 + exp(e));
-        });
-        let test = Kernel.create(function main(out = 0.0) {
-            return 1 / (1 + exp(out));
-        }
-
+    it('Test sigmoidActivation function', function () {
+        Kernel.addFunction(
+            function sigmoidActivation(i = 0.) {
+                return 1 / (1 + pow(2.71828182845904523536, -i));
+            }
+        );
+        let test = Kernel.create(
+            function main(i = 0.0) {
+              return sigmoidActivation(i);
+            }
         ).setOutput([3, 1]);
-        console.log(test.fragmentShaderCode);
-        TestUtil.compare1DArray(test(5).result(), [0.006692850962281227, 0.006692850962281227, 0.006692850962281227]);
+        TestUtil.compare1DArray(test(5).result(), [0.9933071136474609, 0.9933071136474609, 0.9933071136474609]);
+        test.delete();
+    });
+    function derivativeSigmoid(out) {
+       
+    }
+    it('Test derivativeSigmoid function', function () {
+        Kernel.addFunction(
+            function derivativeSigmoid(i = 0.) {
+                return i - pow(i, 2.);
+            }
+        );
+        let test = Kernel.create(
+            function main(i = 0.0) {
+              return derivativeSigmoid(i);
+            }
+        ).setOutput([3, 1]);
+        TestUtil.compare1DArray(test(5).result(), [-20 ,-20, -20]);
         test.delete();
     });
 
+    it('Test derivativeSigmoid computation in function', function () {
+        let test = Kernel.create(
+            function main(i = 0.0) {
+                return i - pow(i, 2.);
+            }
+        ).setOutput([3, 1]);
+        TestUtil.compare1DArray(test(5).result(), [-20 ,-20, -20]);
+        test.delete();
+    });
     /* it('It should create backPropOutput Kernel', function () {
          const backPropOutput = Kernel.create(
              function main(weights = [[]], dEtot2dOut = [], dOut2dNet= [], prevOutput= [], learningRate = 0.) {
