@@ -4,6 +4,12 @@ const { Util } = require("./util.js");
 
 let space = 0;
 
+/**
+ * Replace all occurences of the given search term by the given replacement
+ * @param search string to be replaced
+ * @param replacement replacement for seach term
+ * @return string where all occurences of search term are replaced with value of replacement
+ */
 String.prototype.replaceAll = function (search, replacement) {
     var target = this;
     return target.split(search).join(replacement);
@@ -363,11 +369,19 @@ class CodeGenerator {
             this.handleType(node.argument, tmp);
         }
 
-        if ( getTransformationRequest(this,'replaceReturnStatement')  === true) {
+        if ( getTransformationRequest(this,'isMainFunction')  === true) {
             sb.push(Sqrl.Render('write({{returnValue}},{{functionName}});', { returnValue: tmp.join(''),functionName: getFunctionName(this).toUpperCase() }));
-            deleteTransformationRequest(this,'replaceReturnStatement');
+            deleteTransformationRequest(this,'isMainFunction');
         } else {
-            sb.push(Sqrl.Render('return write({{returnValue}},{{functionName}});', { returnValue: tmp.join(''),functionName: getFunctionName(this).toUpperCase() }));
+            /**
+             * A helper function can compute something but the result of the function will not be stored.
+             * For that reason the result is directly returned and not wrapped with a write call.
+             */
+            if (this.isHelper === true){
+                sb.push(Sqrl.Render('return {{returnValue}};', { returnValue: tmp.join('') }));    
+            }else{
+                sb.push(Sqrl.Render('return write({{returnValue}},{{functionName}});', { returnValue: tmp.join(''),functionName: getFunctionName(this).toUpperCase() }));
+            }
         }
     }
     genArrayExpression(node, sb) {
@@ -376,6 +390,7 @@ class CodeGenerator {
     genThisExpression(node, sb) {
         sb.push('this');
     }
+
     genFunctionDeclaration(node, sb) {
         this.function = node;
 
@@ -388,7 +403,7 @@ class CodeGenerator {
         //if the function has the name 'main' it needs to be handled specially
         if (name === 'main') {
             signature.push('void ');
-            setTransformationRequest(this,'replaceReturnStatement', true);
+            setTransformationRequest(this,'isMainFunction', true);
         } else {
             signature.push('float ');
         }
@@ -416,20 +431,31 @@ class CodeGenerator {
 
         signature.push(')');
         this.function.signature = signature.join('');
-        setTransformationRequest(this,'skipIdentifier', true);
-        this.function.preprocessorSignature = genFunctionDeclaration(node, []);
-        deleteTransformationRequest(this,'replaceReturnStatement');
 
+        /* Get function signature for GLSL preprocessor signature declaration.
+        *  The GLSL preprocessor signature declaration does not contain paramater names.
+        *  E.g. "float myfunction (float a)" will be turned into "float myfunction (float)"
+        *  To get the preprocessor function signature call genFunctionDeclaration recursively
+        *  but with transformation request "skipIdentifier" set. This is done in 
+        *  genPreprocessorSignature();
+        
+        if (getTransformationRequest(this,'skipIdentifier') !== true){
+            //check value of transformation request "isMainFunction"
+            let repalceReturnStatement = getTransformationRequest(this,'isMainFunction');
+            this.function.preprocessorSignature = this.genPreprocessorSignature(node);
+            setTransformationRequest(this,'isMainFunction',repalceReturnStatement);
+        }*/
+        
         sb.push(signature.join(''));
         if(isMainFunction(this)){
             setTransformationRequest(this,'mainBody', true);
         }
         this.handleType(node.body, sb);
        
-        deleteTransformationRequest(this,'replaceReturnStatement');
+        deleteTransformationRequest(this,'isMainFunction');
         node.code = sb.join('');
         
-        return signature;
+        return signature.join('');
     }
     
     genParenthesizedExpression(node, sb) {
@@ -770,9 +796,7 @@ class CodeGenerator {
     }
 
     genIdentifier(node, sb) {
-        if(getTransformationRequest(this,'skipIdentifier') === true){
-            return
-        }
+        
 
         let type = this.parameters.get(node.name);
 

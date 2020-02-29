@@ -11,7 +11,7 @@ module.exports.browserReady = function (msg) {
                     window.testFunctions[i]();
                 }
             }
-
+            
             describe = function (description, fnct) {
                 console.log("Added to testfunctions: " + description);
                 window.testFunctions.push(fnct);

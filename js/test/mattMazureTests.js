@@ -18,12 +18,11 @@ describe('Matt Mazure Test', function () {
               return sigmoidActivation(i);
             }
         ).setOutput([3, 1]);
+        //console.log(test.fragmentShaderCode);
         TestUtil.compare1DArray(test(5).result(), [0.9933071136474609, 0.9933071136474609, 0.9933071136474609]);
         test.delete();
     });
-    function derivativeSigmoid(out) {
-       
-    }
+    
     it('Test derivativeSigmoid function', function () {
         Kernel.addFunction(
             function derivativeSigmoid(i = 0.) {
@@ -38,35 +37,6 @@ describe('Matt Mazure Test', function () {
         TestUtil.compare1DArray(test(5).result(), [-20 ,-20, -20]);
         test.delete();
     });
-
-    it('Test derivativeSigmoid computation in function', function () {
-        let test = Kernel.create(
-            function main(i = 0.0) {
-                return i - pow(i, 2.);
-            }
-        ).setOutput([3, 1]);
-        TestUtil.compare1DArray(test(5).result(), [-20 ,-20, -20]);
-        test.delete();
-    });
-    /* it('It should create backPropOutput Kernel', function () {
-         const backPropOutput = Kernel.create(
-             function main(weights = [[]], dEtot2dOut = [], dOut2dNet= [], prevOutput= [], learningRate = 0.) {
-                 //X,Y   W    dETot2dOut  dNet2dWeight
-                 //0,0  0,0        0           0
-                 //1,0  0,1        1           1
-                 //0,1  1,0        0           0
-                 //1,1  1,1        1           1
-                 //0,2  2,0        0           0
-                 //1,2  2,1        1           1
-         
-                 let weight = weights[this.thread.y][this.thread.x]; //this is the weight betwenn output layer neuron and hidden layer neuron
-                 let dETot2dOut = dEtot2dOut[this.thread.x]; //this is dEOut2dOut
-                 let dOut2dNet_ = dOut2dNet[this.thread.x];  //this is dOut2dNet
-                 let dNet2dWeight = prevOutput[this.thread.x];  //this is dNetOut2dWeight
-                 return weight - (learningRate * (dETot2dOut * dOut2dNet_ * dNet2dWeight)); //updated weight
-             }
-         );
-     });
  
      it('It should create feed forward Kernel', function () {
          const KernelFeedForward = Kernel.create(
@@ -83,5 +53,5 @@ describe('Matt Mazure Test', function () {
                  return out;
              }
          );
-     });*/
+     });
 });
