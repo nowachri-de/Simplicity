@@ -5,10 +5,10 @@ const { Util } = require("./util.js");
 let space = 0;
 
 /**
- * Replace all occurences of the given search term by the given replacement
+ * Replace all occurences of the given search argument by the given replacement argument
  * @param search string to be replaced
- * @param replacement replacement for seach term
- * @return string where all occurences of search term are replaced with value of replacement
+ * @param replacement replacement for search 
+ * @return string where all occurences of search argument are replaced with value of replacement argument
  */
 String.prototype.replaceAll = function (search, replacement) {
     var target = this;
@@ -580,11 +580,10 @@ class CodeGenerator {
                 } else {
                     sb.push(tmp.join(''));
                 }
-
-                //be ready for next argument
-                if ((index + 1) < nodes.length) {
-                    sb.push(',');
-                }
+            }
+            //be ready for next argument
+            if ((index + 1) < nodes.length) {
+                sb.push(',');
             }
 
         })
@@ -712,10 +711,11 @@ class CodeGenerator {
         this.iterate(node.declarations, sb);
     }
     genForStatement(node, sb) {
+        
         sb.push(genSpace(space));
         sb.push('for(');
         this.handleType(node.init, sb);
-        //sb.push(';');
+        //exit criteria
         this.handleType(node.test, sb);
         sb.push(';');
         this.handleType(node.update, sb);

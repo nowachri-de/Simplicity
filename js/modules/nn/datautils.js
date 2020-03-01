@@ -2,22 +2,18 @@
 const { Kernel } = require('./../kernel.js');
 const fs = require("fs");
 
-const Kernel = new Kernel({
-    mode: 'headlessgl'
-});
 
-function sigmoidActivation(i) {
-    return 1 / (1 + Math.pow(Math.E, -i));
+function sigmoidActivation(i = 0.) {
+    return 1. / (1. + pow(2.71828182845904523536, -i));
 }
-
-function derivativeSigmoid(out) {
-    return out - Math.pow(out, 2);
+function derivativeSigmoid(i = 0.) {
+    return i - pow(i, 2.);
 }
 
 Kernel.addFunction(sigmoidActivation);
 Kernel.addFunction(derivativeSigmoid);
 
-const backPropOutput = Kernel.createKernel(
+const backPropOutput = Kernel.create(
     function main(weights = [[]], dEtot2dOut = [], dOut2dNet = [], prevOutput = [], learningRate = 0.) {
         //X,Y   W    dETot2dOut  dNet2dWeight
         //0,0  0,0        0           0
@@ -35,70 +31,69 @@ const backPropOutput = Kernel.createKernel(
     }
 );//[num output neurons, num output neurons + 1 bias]
 
-const KernelFeedForward = Kernel.createKernelMap({
-    dOut2dNet: function dOut2dNet(out) {
-        return derivativeSigmoid(out);
-    }
-}, function (dataIn, weights, numInputs, bias) {
-    let sum = 0;
-    for (let i = 0; i < numInputs; i++) {
+const KernelFeedForward = Kernel.create(
+    function dOut2dNet(outt=0.) {
+        return derivativeSigmoid(outt);
+    },
+    function main(dataIn=[], weights=[[]], numInputs = 0, bias=[]) {
+        let sum = 0.;
+        let max = numInputs;
+        let i = 0;
         sum += dataIn[i] * weights[i][this.thread.x];
+        for (let i = 0; i < 4096; i++) {
+            //if (i >= max){break;}
+            //sum += dataIn[i] * weights[i][this.thread.x];
+        }/*
+        let outt = sigmoidActivation(sum + bias[this.thread.x]);
+        dOut2dNet(outt); //store for later use in backpropagation
+        return outt;*/
+        let a = dataIn[this.thread.x];
+        let b = weights[this.thread.y][this.thread.x];
+        let c = numInputs;
+        let d = bias[this.thread.x];
+        return sum;
     }
-    let out = sigmoidActivation(sum + bias[this.thread.x]);
-    dOut2dNet(out); //store for later use in backpropagation
-    return out;
-})
-
-
-
+);
 
 function data2Texture1D(data, length) {
     kernelData2Texture1D.setOutput([length]);
-    return kernelData2Texture1D(data);
+    return kernelData2Texture1D(data).result();
 }
 
-const kernelData2Texture2D = Kernel.createKernel(function (dataIn) {
-    return dataIn[this.thread.y][this.thread.x];
-});
-
-kernelData2Texture2D.setDynamicArguments(true);
-kernelData2Texture2D.setDynamicOutput(true);
-kernelData2Texture2D.setPipeline(true);
-
-const kernelData2Texture1D = Kernel.createKernel(function (dataIn) {
-    return dataIn[this.thread.x];
-});
-kernelData2Texture1D.setDynamicArguments(true);
-kernelData2Texture1D.setDynamicOutput(true);
-kernelData2Texture1D.setPipeline(true);
-
-
-
-const error = Kernel.createKernelMap({
-    dEtot2dOut: function derivative(out, target) {
-        return -(target - out);
+const kernelData2Texture2D = Kernel.create(
+    function main(dataIn=[[]]) {
+        return dataIn[this.thread.y][this.thread.x];
     }
-}, function (outputs, targets) {
-    derivative(outputs[this.thread.x], targets[this.thread.x]);
-    return Math.pow(targets[this.thread.x] - outputs[this.thread.x], 2) * 0.5;
-}
-); //num output neurons
-error.setDynamicArguments(true);
-error.setDynamicOutput(true);
-error.setPipeline(true);
+);
 
-const errorTot = Kernel.createKernel(function (dError, lenght) {
-    let total = 0;
-    for (let index = 0; index < lenght; index++) {
-        total += dError[index];
+const kernelData2Texture1D = Kernel.create(
+    function main(dataIn=[]) {
+        return dataIn[this.thread.x];
     }
-    return total;
-}).setOutput([1]); //single value
-errorTot.setDynamicArguments(true);
-errorTot.setDynamicOutput(true);
+);
 
-const updateBias = Kernel.createKernel(
-    function (bias, dEtot2dOut, dOut2dNet, learningRate) {
+const error = Kernel.create(
+    function derivative(outt =0., target=0.) {
+        return -(target - outt);
+    },
+    function main(outputs=[], targets=[]) {
+        derivative(outputs[this.thread.x], targets[this.thread.x]);
+        return pow(targets[this.thread.x] - outputs[this.thread.x], 2.0) * 0.5;
+    }
+);
+const errorTot = Kernel.create(
+    function main (dError=[], length=0) {
+        let total = 0;
+        for (let index = 0; index < 4096; index++) {
+            if (index >= length){break;}
+            total += dError[index];
+        }
+        return total;
+    }
+).setOutput([1]); //single value
+
+const updateBias = Kernel.create(
+    function main(bias=[], dEtot2dOut=[], dOut2dNet=[], learningRate=0.) {
         //X,Y  O   W    Err
         //0,0  0  0,0    0
         //1,0  1  0,1    1
@@ -111,12 +106,11 @@ const updateBias = Kernel.createKernel(
         let dETot2dOut = dEtot2dOut[this.thread.x]; //this is dEOut2dOut
         let dOut2dNet_ = dOut2dNet[this.thread.x];  //this is dOut2dNet
         return biasWeight - (learningRate * (dETot2dOut * dOut2dNet_ * 1)); //updated bias
-    }) //num Bias
-updateBias.setDynamicOutput(true);
-updateBias.setDynamicArguments(true);
-updateBias.setPipeline(true);
+    }
+) //num Bias
 
-const backPropHidden = Kernel.createKernel(function (sums, dOut2dNet, prevOutput, weights, learningRate) {
+const backPropHidden = Kernel.create(
+    function main(sums=[], dOut2dNet=[], prevOutput=[], weights=[[]], learningRate=0.) {
     //X,Y   W       dETot     dOut2dNet     prevOutput
     //0,0  0,0        0           0             0
     //1,0  0,1        0           0             0
@@ -130,40 +124,36 @@ const backPropHidden = Kernel.createKernel(function (sums, dOut2dNet, prevOutput
     let updatedWeight = weights[this.thread.y][this.thread.x] - (learningRate * dETot2dOutPre);
     return updatedWeight;
 });
-backPropHidden.setDynamicOutput(true);
-backPropHidden.setDynamicArguments(true);
-backPropHidden.setPipeline(true);
 
+const computeDerivatives = Kernel.create(
+    function main(weights=[[]], dEtot2dOut=[], dOut2dNet=[]) {
+        //X,Y  O   W    Err
+        //0,0  0  0,0    0         
+        //1,0  1  0,1    1
+        //0,1  0  1,0    0
+        //1,1  1  1,1    1
+        //0,2  0  2,0    0
+        //1,2  1  2,1    1
 
-const computeDerivatives = Kernel.createKernel(function (weights, dEtot2dOut, dOut2dNet) {
-    //X,Y  O   W    Err
-    //0,0  0  0,0    0         
-    //1,0  1  0,1    1
-    //0,1  0  1,0    0
-    //1,1  1  1,1    1
-    //0,2  0  2,0    0
-    //1,2  1  2,1    1
+        let dEtot2dOut_ = dEtot2dOut[this.thread.x];
+        let dOut2dNet_ = dOut2dNet[this.thread.x];
+        let dNet2dOprev_ = weights[this.thread.y][this.thread.x];
 
-    let dEtot2dOut_ = dEtot2dOut[this.thread.x];
-    let dOut2dNet_ = dOut2dNet[this.thread.x];
-    let dNet2dOprev_ = weights[this.thread.y][this.thread.x];
-
-    return dEtot2dOut_ * dOut2dNet_ * dNet2dOprev_;
-}); //[num output neurons, num output neurons + 1 bias] 
-computeDerivatives.setDynamicOutput(true);
-computeDerivatives.setDynamicArguments(true);
-computeDerivatives.setPipeline(true);
-
-const sumUp = Kernel.createKernel(function (derivatives, numTargets) {
-    let sum = 0;
-    for (let i = 0; i < numTargets; ++i) {
-        sum += derivatives[this.thread.x][i];
+        return dEtot2dOut_ * dOut2dNet_ * dNet2dOprev_;
     }
-    return sum;
-}); //num neurons in current layer
-sumUp.setDynamicOutput(true);
-sumUp.setDynamicArguments(true);
-sumUp.setPipeline(true);
+); //[num output neurons, num output neurons + 1 bias] 
+
+const sumUp = Kernel.create(
+    function main(derivatives=[[]], numTargets = 0) {
+        let sum = 0;
+        for (let i = 0; i < 4096; ++i) {
+            if (i >= numTargets){break;}
+            sum += derivatives[this.thread.x][i];
+        }
+        return sum;
+    }
+); //num neurons in current layer
+
 
 function getTotalError(error, length) {
     return errorTot(error, length);
@@ -210,7 +200,7 @@ function randomWeights(x, y, divisor) {
 }
 function feedForward(dataIn, weights, biasWeights, numberOfNeurons) {
     KernelFeedForward.setOutput([numberOfNeurons]);
-    return KernelFeedForward(dataIn, weights, numberOfNeurons, biasWeights);
+    return KernelFeedForward(dataIn, weights, numberOfNeurons, biasWeights).result();
 }
 function backpropagateOutput(numberOfNeurons, numberOfInputNeurons, weights, biasWeights, dEtot2dOut, dOut2dNet, input, learningRate) {
     backPropOutput.setOutput([numberOfNeurons, numberOfInputNeurons]);

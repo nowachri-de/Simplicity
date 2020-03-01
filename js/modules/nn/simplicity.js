@@ -1,5 +1,5 @@
 "use strict";
-const UTILS = require(__dirname + '/datautils.js');
+const UTILS = require( './datautils.js');
 
 function checkType(obj, type2check) {
     if (typeof obj.result !== 'undefined') {
@@ -62,11 +62,12 @@ module.exports.Layer = function (numberOfNeurons, activation, numInputValues) {
     this.dataIn = null; // only used for input layer
 
     this.setWeights = function (weights) {
-        if (!isGLTextureFloat2D(weights)){
+        /*if (!isGLTextureFloat2D(weights)){
             this.weights = UTILS.data2Texture2D(weights,weights[0].length,weights.length);
         }else{
             this.weights = weights;
-        }
+        }*/
+        this.weights = weights;
         
     }
 
@@ -133,10 +134,7 @@ module.exports.Layer = function (numberOfNeurons, activation, numInputValues) {
 
         return "layer " + this.layerIndex + ":  #inputs: " + this.numberOfInputNeurons + " #neurons: " + this.numberOfNeurons + " activation: " + this.activation + " weights: " + this.weights.output + "\r\n";
     };
-    this.backPropagate = function () {
-
-    }
-
+    
     this.backPropagate = function (error, learningRate) {
         let input = null;
         if (this.prevLayer !== null) {
@@ -182,7 +180,7 @@ module.exports.Layer = function (numberOfNeurons, activation, numInputValues) {
         this.output = UTILS.feedForward(dataIn, this.weights, this.biasWeights, this.numberOfNeurons);
        
         if (this.nextLayer !== null ) {
-            return this.nextLayer.feedForward(this.output.result);
+            return this.nextLayer.feedForward(this.output);
         } else {
             return this.output;
         }
@@ -190,9 +188,9 @@ module.exports.Layer = function (numberOfNeurons, activation, numInputValues) {
 
 
     function verifyGLTextureFloat2D(obj) {
-        if (!isGLTextureFloat2D(obj)) {
+        /*if (!isGLTextureFloat2D(obj)) {
             throw "object not of type GLTextureFloat2D";
-        }
+        }*/
     }
 
     function verifyGLTextureFloat(obj) {
@@ -205,19 +203,19 @@ module.exports.Layer = function (numberOfNeurons, activation, numInputValues) {
 
 
     function verifyInputDimension(dataIn, reference) {
-        verifyGLTextureFloat(dataIn);
+        //verifyGLTextureFloat(dataIn);
 
-        if (dataIn.output[0] != reference.numberOfInputNeurons) {
+        if (dataIn.length != reference.numberOfInputNeurons) {
             throw "input data length does not match expected length. expected: " + reference.numberOfInputNeurons + " actual: " + dataIn.output[0];
         }
 
-        if (typeof dataIn.output[1] != 'undefined') {
+        /*if (typeof dataIn.output[1] !== 'undefined') {
             throw "input data must not have a y dimension but it has";
-        }
+        }*/
     };
 
     function verifyWeightDimension(weights, reference) {
-        verifyGLTextureFloat2D(weights);
+        /*verifyGLTextureFloat2D(weights);
         let dimensions = weights.output;
 
         if (dimensions[0] != reference.numberOfNeurons) {
@@ -226,7 +224,7 @@ module.exports.Layer = function (numberOfNeurons, activation, numInputValues) {
 
         if (dimensions[1] != reference.numberOfInputNeurons) {
             throw "weights y dimension mismatch. Should be equal to this number of input neurons. Expected: " + reference.numberOfInputNeurons + " actual: " + dimensions.y;
-        }
+        }*/
     }
 }
 
@@ -277,10 +275,6 @@ module.exports.Network = function () {
     }
 
     this.feedForward = function (dataIn, target) {
-        if (!isGLTextureFloat(dataIn)) {
-            dataIn = UTILS.data2Texture1D(dataIn, dataIn.length);
-        }
-
         if (this.isCompiled !== true) {
             this.compile();
         }
@@ -288,9 +282,9 @@ module.exports.Network = function () {
         let lastLayer = this.layers[this.layers.length - 1];
         this.feedForwardResult = this.layers[0].feedForward(dataIn);
         this.target = target2Texture(target, lastLayer.numberOfNeurons);
-        this.error = UTILS.computeError(this.feedForwardResult.result, target, lastLayer.numberOfNeurons);
+        this.error = UTILS.computeError(this.feedForwardResult, target, lastLayer.numberOfNeurons);
         return {
-            feedForwardResult: this.feedForwardResult.result,
+            feedForwardResult: this.feedForwardResult,
             error: this.error,
         }
     }

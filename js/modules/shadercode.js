@@ -344,7 +344,6 @@ void main(void) {
 /**
 * This is a generated fragment shader.
 */
-//
 
 #extension GL_EXT_draw_buffers : require        
 #ifdef GL_ES 
@@ -466,6 +465,7 @@ float readTexture(float x, float width, in sampler2D sampler){
 float readTexture(int x, float width, in sampler2D sampler){
     return readTexture(float(x),width,sampler);
 }
+
 
 float readTexture(float x, int width, in sampler2D sampler){
     return readTexture(x,float(width),sampler);

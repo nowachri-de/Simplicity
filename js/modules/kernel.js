@@ -278,6 +278,12 @@ class FunctionBuilder {
 
       let width = implementation.dimensions[0];
       let height = implementation.dimensions[1];
+      /**
+       * This allows definitions of setOuput([x]). Note that only one dimension is provided
+       */
+      if (typeof height === 'undefined'){
+        height = 1;
+      }
       program = new Program(width, height);
 
       //console.log(vertexShaderCode);
