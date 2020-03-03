@@ -16,7 +16,7 @@ describe('Test loops', function () {
        
         
         for (let i = 0; i < 2048; i++) {
-          dataIn[0.0][i] ;
+          dataIn[i] ;
           
         }/*
           let outt = sigmoidActivation(sum + bias[this.thread.x]);
@@ -32,7 +32,7 @@ describe('Test loops', function () {
       
     );
     test.setOutput([2,1]);
-    console.log(test.fragmentShaderCode);
+    //console.log(test.fragmentShaderCode);
     test([0.05, 0.1],[[0.15, 0.25],[0.2, 0.3]],2,[0.3499999940395355, 0.3499999940395355]).result()
     console.log();
   })

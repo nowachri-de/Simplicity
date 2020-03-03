@@ -298,4 +298,8 @@ module.exports.Network = function () {
     this.getTotalError = function(){
         return UTILS.getTotalError(this.error.result,this.error.result.output[0]);
     }
+
+    this.clear = function(){
+        UTILS.Kernel.removeFunctions();
+    }
 }

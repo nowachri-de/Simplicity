@@ -13,7 +13,11 @@ function sigmoidActivation(i) {
 function derivativeSigmoid(out) {
     return out - Math.pow(out, 2);
 }
-describe('Matt Mazure Test', function () {
+describe('Neuronal Network Tests', function () {
+    after(function() {
+        Kernel.removeFunctions();
+    });
+
     it('Test sigmoidActivation function', function () {
         Kernel.addFunction(
             function sigmoidActivation(i = 0.) {
@@ -56,4 +60,5 @@ describe('Matt Mazure Test', function () {
         TestUtil.compare1DArray(jsResult, [0 ,-2, -6]);
         test.delete();
     });
+   
 });

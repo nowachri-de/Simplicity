@@ -179,7 +179,8 @@ function setupTemplateOptions(functions, dictionary) {
       let value = { name: param.name, type: type, index: paramIndex };
 
       if (Util.isArray(type)) {
-        options.samplers.push(value);
+        //options.samplers.push(value);
+        options.samplers2D.push(value);
       }
 
       if (Util.is2DArray(type)) {
@@ -257,9 +258,10 @@ function createDictionary(functions) {
 
 class FunctionBuilder {
   /**
+   * Create an instance (function) of the kernel
    * 
-   * 
-   * @param functions Multiple functions can be passed to the Kernel
+   * @param functions Array of javascript functions. Multiple functions can be passed to the Kernel
+   * @return kernel. 
    */
   static buildFunction(functions) {
     //let options = createOptions(codeGen.function.parameters, glslCode);
@@ -367,6 +369,10 @@ class Kernel {
   }
   static addFunction(fnct){
     Kernel.helperFunctions.push(fnct);
+  }
+  static removeFunctions(){
+    //this is basically Kernel.helperFunctions.clear()
+    Kernel.helperFunctions = [];
   }
 }
 //helperfunctions will be transformed to glsl functions but will generate no result (texture)

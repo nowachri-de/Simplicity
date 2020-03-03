@@ -88,6 +88,8 @@ function processAnyFunctionParameters(nodes, node, index, sb) {
         sb.push('in sampler2D sampler_' + name);
         sb.push(',');
         sb.push('float sampler_' + name + '_width');
+        sb.push(',');
+        sb.push('float sampler_' + name + '_height');
     } else if (Util.is2DArray(tmp.join(''))) {
         sb.push('in sampler2D sampler_' + name);
         sb.push(',');
@@ -104,12 +106,13 @@ function processAnyFunctionParameters(nodes, node, index, sb) {
     }
 }
 /**
- * Translate the array access  into a glsl function
+ * Translate an array access into a glsl function
  */
 function handleMemberExpression(codeGen, node, sb) {
     let data = {};
     let object = node;
 
+    //traverse object structure until object.type === Identifier or object is undefined
     while (typeof object !== 'undefined' && object.type !== 'Identifier') {
         object = object.object;
     }
@@ -122,7 +125,7 @@ function handleMemberExpression(codeGen, node, sb) {
         return sb.push(result);
     }
 
-    //check if variable has been declared
+    //make sure that variable has been declared
     if (!hasBeenDeclared(codeGen, object.name)) {
         throw formatThrowMessage(object, object.name + " has not been declared");
     }
@@ -137,6 +140,13 @@ function handleMemberExpression(codeGen, node, sb) {
     //set name of glsl function
     sb.push('readTexture');
     sb.push('(');
+
+    /**
+     * This will turn a 1D array access into a 2D array access
+     */
+    if (data.properties.length == 1){
+        data.properties.unshift('0');
+    }
 
     //set parameters of function
     for (let i = 0; i < data.properties.length; i++) {
@@ -558,10 +568,14 @@ class CodeGenerator {
                         sb.push('uSampler_' + getFunctionName(self) + "_" + tmp.join(''));
                         sb.push(',');
                         sb.push('uSampler_' + getFunctionName(self) + "_" + tmp.join('') + '_width');
+                        sb.push(',');
+                        sb.push('uSampler_' + getFunctionName(self) + "_" + tmp.join('') + '_height');
                     }else{
                         sb.push('sampler_'+ tmp.join(''));
                         sb.push(',');
                         sb.push('sampler_'+ tmp.join('') + '_width');
+                        sb.push(',');
+                        sb.push('sampler_'+ tmp.join('') + '_height');
                     }
                 } else if (Util.is2DArray(type)) {
                     if (isMainFunction(self)) {
@@ -595,11 +609,11 @@ class CodeGenerator {
         this.handleType(node.property, sb);
 
         if (node.computed) {
-            //check that property (variable) has been defined.
+            //make sure that property (variable) has been declared.
             if (node.property.type === 'Identifier' && !hasBeenDeclared(this,node.property.name)) {
                 throw formatThrowMessage(node, node.property.name + ' undefined')
             }
-            if (typeof getTransformationRequest(this,'memberExpression')  != 'undefined') {
+            if (typeof getTransformationRequest(this,'memberExpression')  !== 'undefined') {
                 let tmp = [];
                 this.handleType(node.property, tmp);
                 getTransformationRequest(this,'memberExpression').properties.push(tmp.join(''));

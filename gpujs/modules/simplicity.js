@@ -1,5 +1,5 @@
 "use strict";
-const UTILS = require(__dirname + '/datautils.js');
+const UTILS = require('./datautils.js');
 
 function checkType(obj, type2check) {
     if (typeof obj.result !== 'undefined') {
@@ -171,8 +171,6 @@ module.exports.Layer = function (numberOfNeurons, activation, numInputValues) {
 
         verifyInputDimension(dataIn, this);
         verifyWeightDimension(this.weights, this);
-
-        
 
         //save the input data in case this is the input (first) layer
         if (this.prevLayer === null) {

@@ -24,7 +24,12 @@
 			"name": "render-to-multiple-textures.js",
 			"program": "${workspaceFolder}\\js\\examples\\render-to-multiple-textures.js"
 		},
-	
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "matt-mazure-test.js",
+			"program": "${workspaceFolder}\\gpujs\\test-matt-mazure.js"
+		},
 		{
 			// Name of configuration; appears in the launch configuration drop down menu.
 			"name": "testMatrix",
@@ -50,7 +55,7 @@
 		},
 		{
 			// Name of configuration; appears in the launch configuration drop down menu.
-			"name": "functional tests",
+			"name": "singleTest",
 			// Type of configuration. Possible values: "node", "mono".
 			"type": "node",
 			"request": "launch",
@@ -60,7 +65,7 @@
 			"stopOnEntry": false,
 			// Command line arguments passed to the program.
 			"args": [
-				"test/mattMazureTests.js"
+				"test/singleTest.js"
 			],
 			// Workspace relative or absolute path to the working directory of the program being debugged. Default is the current workspace.
 			"cwd": "${workspaceFolder}\\js",
@@ -73,7 +78,7 @@
 		},
 		{
 			// Name of configuration; appears in the launch configuration drop down menu.
-			"name": "MattMazureTest",
+			"name": "functional tests",
 			// Type of configuration. Possible values: "node", "mono".
 			"type": "node",
 			"request": "launch",
@@ -83,7 +88,30 @@
 			"stopOnEntry": false,
 			// Command line arguments passed to the program.
 			"args": [
-				"test/mattMazureTests.js"
+				"test/nnFunctionsTests.js"
+			],
+			// Workspace relative or absolute path to the working directory of the program being debugged. Default is the current workspace.
+			"cwd": "${workspaceFolder}\\js",
+			// Workspace relative or absolute path to the runtime executable to be used. Default is the runtime executable on the PATH.
+			"runtimeExecutable": null,
+			// Environment variables passed to the program.
+			"env": {
+				"NODE_ENV": "production"
+			}
+		},
+		{
+			// Name of configuration; appears in the launch configuration drop down menu.
+			"name": "SimplicityTests",
+			// Type of configuration. Possible values: "node", "mono".
+			"type": "node",
+			"request": "launch",
+			// Workspace relative or absolute path to the program.
+			"program": "${workspaceFolder}\\js\\node_modules\\mocha\\bin\\_mocha",
+			// Automatically stop program after launch.
+			"stopOnEntry": false,
+			// Command line arguments passed to the program.
+			"args": [
+				"test/simplicityTests.js"
 			],
 			// Workspace relative or absolute path to the working directory of the program being debugged. Default is the current workspace.
 			"cwd": "${workspaceFolder}\\js",

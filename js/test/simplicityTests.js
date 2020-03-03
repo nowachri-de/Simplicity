@@ -29,5 +29,6 @@ describe('Simplicity Test', function () {
        // network.backPropagate(0.5);
 
         console.log(inputLayer.weights);
+        network.clear();
     });
 });

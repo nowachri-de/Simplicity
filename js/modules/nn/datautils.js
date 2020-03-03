@@ -261,5 +261,4 @@ module.exports.updateBiasWeights = updateBiasWeights;
 module.exports.getTotalError = getTotalError;
 module.exports.readAsTexture1D = readAsTexture1D;
 module.exports.readAsTexture2D = readAsTexture2D;
-
 module.exports.Kernel = Kernel;
