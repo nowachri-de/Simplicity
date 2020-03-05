@@ -351,32 +351,32 @@ class FunctionBuilder {
 class Kernel {
   constructor() {}
   static create(...fncts) {
+    let supportFunctions = []; //support functions must be wrapped in array and do not generate result
     let functions = [];
     for (let i = 0; i < fncts.length; ++i) {
+      if (Array.isArray(fncts[i])){
+        for(let j=0;j < fncts[i].length; ++j){
+          supportFunctions.push(fncts[i][j]);
+        }
+        continue;
+      }
       let codeGen = new CodeGenerator();
       let glslCode = codeGen.translate(fncts[i].toString());
       functions.push({ codeGen: codeGen, glslCode: glslCode });
     }
 
-    for (let i = 0; i < Kernel.helperFunctions.length; ++i) {
-      let codeGen = new CodeGenerator(true); //true in constructor means, helperFunction is generated
-      let glslCode = codeGen.translate( Kernel.helperFunctions[i].toString());
+    for (let i = 0; i < supportFunctions.length; ++i) {
+      let codeGen = new CodeGenerator(true); //true in constructor means, supportFunction is generated
+      let glslCode = codeGen.translate( supportFunctions[i].toString());
       functions.push({ codeGen: codeGen, glslCode: glslCode, isHelper:true });
     }
 
     let result = FunctionBuilder.buildFunction(functions);
     return result;
   }
-  static addFunction(fnct){
-    Kernel.helperFunctions.push(fnct);
-  }
-  static removeFunctions(){
-    //this is basically Kernel.helperFunctions.clear()
-    Kernel.helperFunctions = [];
-  }
+
 }
-//helperfunctions will be transformed to glsl functions but will generate no result (texture)
-Kernel.helperFunctions = [];
+
 module.exports = {
   Kernel,
   FunctionBuilder

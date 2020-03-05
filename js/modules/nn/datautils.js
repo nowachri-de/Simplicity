@@ -9,9 +9,9 @@ function sigmoidActivation(i = 0.) {
 function derivativeSigmoid(i = 0.) {
     return i - pow(i, 2.);
 }
-
-Kernel.addFunction(sigmoidActivation);
-Kernel.addFunction(derivativeSigmoid);
+function dOut2dNet(outt=0.) {
+    return derivativeSigmoid(outt);
+}
 
 const backPropOutput = Kernel.create(
     function main(weights = [[]], dEtot2dOut = [], dOut2dNet = [], prevOutput = [], learningRate = 0.) {
@@ -32,9 +32,7 @@ const backPropOutput = Kernel.create(
 );//[num output neurons, num output neurons + 1 bias]
 
 const KernelFeedForward = Kernel.create(
-    function dOut2dNet(outt=0.) {
-        return derivativeSigmoid(outt);
-    },
+    [dOut2dNet,derivativeSigmoid],
     function main(dataIn=[], weights=[[]], numInputs = 0, bias=[]) {
         let sum = 0.;
         let max = numInputs;
