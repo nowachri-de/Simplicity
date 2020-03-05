@@ -264,13 +264,12 @@ class FunctionBuilder {
    * @return kernel. 
    */
   static buildFunction(functions) {
-    //let options = createOptions(codeGen.function.parameters, glslCode);
     let dictionary = createDictionary(functions);
     let fragmentShaderCode = ShaderCode.generateFragmentShader(dictionary);
     let vertexShaderCode = ShaderCode.generateVertexShaderCode();
-    let inputTextures;
-    let resultTextures;
-    let program;
+    let inputTextures =[];
+    let resultTextures =[];
+    let program = null;
 
     function implementation(...args) {
       //check(implementation, args, implementation.options);
@@ -295,10 +294,6 @@ class FunctionBuilder {
       inputTextures = setUniforms(program, width, height, args, options);
 
       resultTextures = program.execute(options.numResults);
-
-      /*resultTextures.forEach(texture => {
-        texture.delete();
-      })*/
       return implementation;
     }
 
@@ -329,8 +324,11 @@ class FunctionBuilder {
       return Util.texture2array(program.gl, resultTextures[textureIndex], targetIndex);
     }
 
+    /**
+     * Free the required gl memory
+     */
     implementation.delete = function () {
-      program.delete();
+      (program !== null) ? program.delete(): '';
       resultTextures.forEach(texture => {
         texture.delete();
       });
@@ -353,8 +351,19 @@ class Kernel {
   static create(...fncts) {
     let supportFunctions = []; //support functions must be wrapped in array and do not generate result
     let functions = [];
+
+    /**
+     * Process each function being passed to the kernel
+     */
     for (let i = 0; i < fncts.length; ++i) {
+      /**
+      * The subsequent statement will check if the given argument is an array.
+      * In case the argument is an array, this is indicating that the argument is a support function
+      * or a support function reference. Note that the array can contain multiple functions.
+      * The result of a support function will not be stored in texture.
+      */
       if (Array.isArray(fncts[i])){
+        //loop over values in array, each value represents a support function or a support function reference
         for(let j=0;j < fncts[i].length; ++j){
           supportFunctions.push(fncts[i][j]);
         }
@@ -365,12 +374,16 @@ class Kernel {
       functions.push({ codeGen: codeGen, glslCode: glslCode });
     }
 
+    /**
+     * Process all support functions
+     */
     for (let i = 0; i < supportFunctions.length; ++i) {
       let codeGen = new CodeGenerator(true); //true in constructor means, supportFunction is generated
       let glslCode = codeGen.translate( supportFunctions[i].toString());
       functions.push({ codeGen: codeGen, glslCode: glslCode, isHelper:true });
     }
 
+    // Do the magic
     let result = FunctionBuilder.buildFunction(functions);
     return result;
   }

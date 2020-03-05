@@ -185,4 +185,12 @@ describe('Kernel functional tests', function () {
     TestUtil.compare2DArray(test.result(), [[10, 10, 10], [10, 10, 10], [10, 10, 10]]);
     test.delete();
   });
+
+  it('Call delete without executing kernel', function () {
+    let test = Kernel.create(function main(x = []) {
+      return x[this.thread.x] - x[this.thread.x];
+    }).setOutput([5, 1]);
+    
+    test.delete();
+  });
 });
