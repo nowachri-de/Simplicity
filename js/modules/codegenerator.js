@@ -659,6 +659,7 @@ class CodeGenerator {
                 case '%': ;//we do not put a break here since we want + logic to be executed
                 case '/': ;//we do not put a break here since we want + logic to be executed
                 case '*': ;//we do not put a break here since we want + logic to be executed
+                case '-': ;//we do not put a break here since we want + logic to be executed
                 case '+': {
                     let left = this.type2String(node.left);
                     let right = this.type2String(node.right);

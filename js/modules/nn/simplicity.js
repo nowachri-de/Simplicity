@@ -23,26 +23,6 @@ function isGLTextureFloat1D(obj) {
     return checkType(obj, 'GLTextureFloat');
 }
 
-function debugLog(dataIn, weights, biasWeights) {
-    console.log("Input data");
-    if (typeof dataIn.result === 'undefined')
-        console.log(dataIn.toArray());
-    else
-        console.log(dataIn.result.toArray());
-
-    console.log("Weights");
-    if (typeof weights.result === 'undefined')
-        console.log(weights.toArray());
-    else
-        console.log(weights.result.toArray());
-
-    console.log("biasWeights");
-    if (typeof biasWeights.result === 'undefined')
-        console.log(biasWeights.toArray());
-    else
-        console.log(biasWeights.result.toArray());
-}
-
 module.exports.Layer = function (numberOfNeurons, activation, numInputValues) {
     let activation_ = activation;
     if (activation_ === null || typeof activation_ === 'undefined') {

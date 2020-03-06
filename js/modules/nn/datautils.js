@@ -226,7 +226,7 @@ function backpropagateHidden(numInputNeurons, numNeurons, dEtot2dOut, dOut2dNet,
 
     return {
         weights: backPropHidden(sumU.result(), dOut2dNet, input, weights, learningRate),
-        biasWeights: updateBias(biasWeights, sumU, dOut2dNet, learningRate),
+        biasWeights: updateBias(biasWeights, sumU.result(), dOut2dNet, learningRate),
     }
 }
 
