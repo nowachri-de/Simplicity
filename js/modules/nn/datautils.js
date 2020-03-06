@@ -168,13 +168,13 @@ function data2Texture2D(data, x, y) {
 }
 
 function randomNumbersAtScale1D(length, divisor) {
-    let matrix = [];
+    let array = [];
     for (let i = 0; i < length; i++) {
         for (var j = 0; j < length; j++) { // i++ needs to be j++
-            matrix[j] = (Math.random() / divisor);
+            array[j] = (Math.random() / divisor);
         }
     }
-    return matrix;
+    return array;
 }
 
 function randomNumbersAtScale2D(x, y, divisor) {
@@ -247,8 +247,21 @@ function readAsTexture1D(file, dimensions) {
     return data2Texture1D(readObject(file), dimensions);
 }
 
+function writeArray(file,array){
+    fs.writeFile(
+        file,
+        JSON.stringify(array),
+        function (err) {
+            if (err) {
+                console.error('Error while saving array');
+            }
+        }
+    );
+}
+
 module.exports.data2Texture1D = data2Texture1D;
 module.exports.data2Texture2D = data2Texture2D;
+module.exports.randomNumbersAtScale1D = randomNumbersAtScale1D;
 module.exports.feedForward = feedForward;
 module.exports.randomBias = randomBias;
 module.exports.randomWeights = randomWeights;
@@ -259,4 +272,5 @@ module.exports.updateBiasWeights = updateBiasWeights;
 module.exports.getTotalError = getTotalError;
 module.exports.readAsTexture1D = readAsTexture1D;
 module.exports.readAsTexture2D = readAsTexture2D;
+module.exports.writeArray = writeArray;
 module.exports.Kernel = Kernel;

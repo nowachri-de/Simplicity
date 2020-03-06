@@ -14,7 +14,6 @@ function derivativeSigmoid(out) {
     return out - Math.pow(out, 2);
 }
 describe('Neuronal Network functions tests', function () {
-
     it('Test sigmoidActivation function', function () {
         let test = Kernel.create(
             [function sigmoidActivation(i = 0.) {

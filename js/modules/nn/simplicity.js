@@ -206,7 +206,7 @@ module.exports.Layer = function (numberOfNeurons, activation, numInputValues) {
         //verifyGLTextureFloat(dataIn);
 
         if (dataIn.length != reference.numberOfInputNeurons) {
-            throw "input data length does not match expected length. expected: " + reference.numberOfInputNeurons + " actual: " + dataIn.output[0];
+            throw "input data length does not match expected length. expected: " + reference.numberOfInputNeurons + " actual: " + dataIn.length;
         }
 
         /*if (typeof dataIn.output[1] !== 'undefined') {
@@ -299,7 +299,4 @@ module.exports.Network = function () {
         return UTILS.getTotalError(this.error.result,this.error.result.output[0]);
     }
 
-    this.clear = function(){
-        UTILS.Kernel.removeFunctions();
-    }
 }

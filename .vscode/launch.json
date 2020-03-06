@@ -9,8 +9,8 @@
 		{
 			"type": "node",
 			"request": "launch",
-			"name": "experiments.js",
-			"program": "${workspaceFolder}\\gpujs\\experiments.js"
+			"name": "gpujs/autoEncoder",
+			"program": "${workspaceFolder}\\gpujs\\test-autoEncoder.js"
 		},
 		{
 			"type": "node",
