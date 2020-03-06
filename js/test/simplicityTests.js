@@ -1,9 +1,9 @@
 "use strict";
 const { browserReady } = require('../modules/browserready.js');
 const { TestUtil } = require('../modules/testutil.js');
-const { writeArray,randomNumbersAtScale1D } = require('../modules/nn/datautils.js');
+//const { writeArray,randomNumbersAtScale1D } = require('../modules/nn/datautils.js');
 const simplicity = require('../modules/nn/simplicity.js');
-
+const {vector1D128} = require('./data/vector1D128.js');
 
 browserReady();
 
@@ -25,10 +25,11 @@ describe('Simplicity Test', function () {
     });*/
 
     it('Test Autoencoder', function () {
+        let result;
         let nN = 128; //each layer has 128 neurons
         let nZ = 10;  //latent vector has 10 neurons
 
-        writeArray('./data/vector1D128.js',randomNumbersAtScale1D(128,100));
+        //writeArray('C:/nowak/development/git/Simplicity/js/test/data/vector1D128',randomNumbersAtScale1D(128,100));
         let dataIn = vector1D128;
         let target = dataIn;
 

@@ -32,7 +32,10 @@ const backPropOutput = Kernel.create(
 );//[num output neurons, num output neurons + 1 bias]
 
 const KernelFeedForward = Kernel.create(
-    [dOut2dNet,derivativeSigmoid],
+    [derivativeSigmoid],
+    function dOut2dNet(outt = 0.) {
+        return derivativeSigmoid(outt);
+    },
     function main(dataIn=[], weights=[[]], numInputs = 0, bias=[]) {
         let sum = 0.;
         let max = numInputs;
@@ -71,11 +74,11 @@ const kernelData2Texture1D = Kernel.create(
 );
 
 const error = Kernel.create(
-    function derivative(outt =0., target=0.) {
+    function dEtot2dOut(outt =0., target=0.) {
         return -(target - outt);
     },
     function main(outputs=[], targets=[]) {
-        derivative(outputs[this.thread.x], targets[this.thread.x]);
+        dEtot2dOut(outputs[this.thread.x], targets[this.thread.x]);
         return pow(targets[this.thread.x] - outputs[this.thread.x], 2.0) * 0.5;
     }
 );
@@ -143,7 +146,7 @@ const computeDerivatives = Kernel.create(
 
 const sumUp = Kernel.create(
     function main(derivatives=[[]], numTargets = 0) {
-        let sum = 0;
+        let sum = 0.;
         for (let i = 0; i < 4096; ++i) {
             if (i >= numTargets){break;}
             sum += derivatives[this.thread.x][i];
@@ -190,15 +193,14 @@ function randomNumbersAtScale2D(x, y, divisor) {
 }
 
 function randomBias(length, divisor) {
-    return data2Texture1D(randomNumbersAtScale1D(length, divisor), length);
+    return randomNumbersAtScale1D(length, divisor);
 }
-
 function randomWeights(x, y, divisor) {
-    return data2Texture2D(randomNumbersAtScale2D(x, y, divisor), x, y);
+    return randomNumbersAtScale2D(x, y, divisor);
 }
 function feedForward(dataIn, weights, biasWeights, numberOfNeurons) {
     KernelFeedForward.setOutput([numberOfNeurons]);
-    return KernelFeedForward(dataIn, weights, numberOfNeurons, biasWeights).result();
+    return KernelFeedForward(dataIn, weights, numberOfNeurons, biasWeights);
 }
 function backpropagateOutput(numberOfNeurons, numberOfInputNeurons, weights, biasWeights, dEtot2dOut, dOut2dNet, input, learningRate) {
     backPropOutput.setOutput([numberOfNeurons, numberOfInputNeurons]);
@@ -220,10 +222,10 @@ function backpropagateHidden(numInputNeurons, numNeurons, dEtot2dOut, dOut2dNet,
     /**
      * Sum all dEtot2dOut_ * dOut2dNet_ * dNet2dOprev_ per neuron
     */
-    let sumU = sumUp(computeDerivatives(weights, dEtot2dOut, dOut2dNet), numNeurons); //second parameter is the number of target neurons
+    let sumU = sumUp(computeDerivatives(weights, dEtot2dOut, dOut2dNet).result(), numNeurons); //second parameter is the number of target neurons
 
     return {
-        weights: backPropHidden(sumU, dOut2dNet, input, weights, learningRate),
+        weights: backPropHidden(sumU.result(), dOut2dNet, input, weights, learningRate),
         biasWeights: updateBias(biasWeights, sumU, dOut2dNet, learningRate),
     }
 }
@@ -248,15 +250,12 @@ function readAsTexture1D(file, dimensions) {
 }
 
 function writeArray(file,array){
-    fs.writeFile(
-        file,
-        JSON.stringify(array),
-        function (err) {
-            if (err) {
-                console.error('Error while saving array');
-            }
-        }
-    );
+    var filestr = fs.createWriteStream(file);
+    filestr.on('error', function(err) { /* error handling */ });
+    filestr.write('[');
+    array.forEach(function(v) { filestr.write(v+","); });
+    filestr.write(']');
+    filestr.end();
 }
 
 module.exports.data2Texture1D = data2Texture1D;

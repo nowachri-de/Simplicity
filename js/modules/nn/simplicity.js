@@ -132,22 +132,22 @@ module.exports.Layer = function (numberOfNeurons, activation, numInputValues) {
             this.weights = UTILS.randomWeights(this.numberOfNeurons, this.numberOfInputNeurons, this.scale);
         } 
 
-        return "layer " + this.layerIndex + ":  #inputs: " + this.numberOfInputNeurons + " #neurons: " + this.numberOfNeurons + " activation: " + this.activation + " weights: " + this.weights.output + "\r\n";
+        return "layer " + this.layerIndex + ":  #inputs: " + this.numberOfInputNeurons + " #neurons: " + this.numberOfNeurons + " activation: " + this.activation + " weights: " + this.weights + "\r\n";
     };
     
     this.backPropagate = function (error, learningRate) {
         let input = null;
         if (this.prevLayer !== null) {
-            input = this.prevLayer.output.result;
+            input = this.prevLayer.output;
         } else {
             input = this.dataIn;
         }
 
         //output layer
         if (this.nextLayer === null) {
-            this.feedForwardResult = UTILS.backpropagateOutput(this.numberOfNeurons, this.numberOfInputNeurons, this.weights, this.biasWeights, error.dEtot2dOut, this.output.dOut2dNet, input, learningRate);
+            this.feedForwardResult = UTILS.backpropagateOutput(this.numberOfNeurons, this.numberOfInputNeurons, this.weights, this.biasWeights, error.result('dEtot2dOut'), this.output.result('dOut2dNet'), input.result(), learningRate);
         } else {
-            this.feedForwardResult = UTILS.backpropagateHidden(this.numberOfInputNeurons, this.numberOfNeurons, error.dEtot2dOut, this.output.dOut2dNet, input, this.weights, this.biasWeights, learningRate);
+            this.feedForwardResult = UTILS.backpropagateHidden(this.numberOfInputNeurons, this.numberOfNeurons, error.result('dEtot2dOut'), this.output.result('dOut2dNet'), input.result(), this.weights, this.biasWeights, learningRate);
         }
         
         if (this.prevLayer !== null){
@@ -169,9 +169,6 @@ module.exports.Layer = function (numberOfNeurons, activation, numInputValues) {
 
         verifyInputDimension(dataIn, this);
         verifyWeightDimension(this.weights, this);
-
-        
-
         //save the input data in case this is the input (first) layer
         if (this.prevLayer === null) {
             this.dataIn = dataIn;
@@ -180,7 +177,7 @@ module.exports.Layer = function (numberOfNeurons, activation, numInputValues) {
         this.output = UTILS.feedForward(dataIn, this.weights, this.biasWeights, this.numberOfNeurons);
        
         if (this.nextLayer !== null ) {
-            return this.nextLayer.feedForward(this.output);
+            return this.nextLayer.feedForward(this.output.result());
         } else {
             return this.output;
         }
@@ -282,7 +279,7 @@ module.exports.Network = function () {
         let lastLayer = this.layers[this.layers.length - 1];
         this.feedForwardResult = this.layers[0].feedForward(dataIn);
         this.target = target2Texture(target, lastLayer.numberOfNeurons);
-        this.error = UTILS.computeError(this.feedForwardResult, target, lastLayer.numberOfNeurons);
+        this.error = UTILS.computeError(this.feedForwardResult.result(), target, lastLayer.numberOfNeurons);
         return {
             feedForwardResult: this.feedForwardResult,
             error: this.error,
