@@ -118,16 +118,16 @@ module.exports.Layer = function (numberOfNeurons, activation, numInputValues) {
     this.backPropagate = function (error, learningRate) {
         let input = null;
         if (this.prevLayer !== null) {
-            input = this.prevLayer.output;
+            input = this.prevLayer.output.result();
         } else {
             input = this.dataIn;
         }
 
         //output layer
         if (this.nextLayer === null) {
-            this.feedForwardResult = UTILS.backpropagateOutput(this.numberOfNeurons, this.numberOfInputNeurons, this.weights, this.biasWeights, error.result('dEtot2dOut'), this.output.result('dOut2dNet'), input.result(), learningRate);
+            this.feedForwardResult = UTILS.backpropagateOutput(this.numberOfNeurons, this.numberOfInputNeurons, this.weights, this.biasWeights, error.result('dEtot2dOut'), this.output.result('dOut2dNet'), input, learningRate);
         } else {
-            this.feedForwardResult = UTILS.backpropagateHidden(this.numberOfInputNeurons, this.numberOfNeurons, error.result('dEtot2dOut'), this.output.result('dOut2dNet'), input.result(), this.weights, this.biasWeights, learningRate);
+            this.feedForwardResult = UTILS.backpropagateHidden(this.numberOfInputNeurons, this.numberOfNeurons, error.result('dEtot2dOut'), this.output.result('dOut2dNet'), input, this.weights, this.biasWeights, learningRate);
         }
         
         if (this.prevLayer !== null){
@@ -137,8 +137,8 @@ module.exports.Layer = function (numberOfNeurons, activation, numInputValues) {
     }
 
     this.updateWeights = function(){
-        this.weights = this.feedForwardResult.weights;
-        this.biasWeights = this.feedForwardResult.biasWeights;
+        this.weights = this.feedForwardResult.weights.result();
+        this.biasWeights = this.feedForwardResult.biasWeights.result();
 
         if (this.prevLayer !== null){
             this.prevLayer.updateWeights();
