@@ -4052,9 +4052,8 @@ class Texture{
     }
 
     delete(){
-		this.gl.deleteTexture(this.texture);
-		removeFromArray(usedIndices,this.index);
-		
+		  this.gl.deleteTexture(this.texture);
+		  removeFromIndex(usedIndices,this.index);
     }
 };
 

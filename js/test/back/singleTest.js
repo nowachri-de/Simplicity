@@ -3,8 +3,6 @@ const { TestUtil } = require('../modules/testutil.js');
 const { browserReady } = require('../modules/browserready.js');
 
 browserReady();
-
-
 it('Test Autoencoder', function () {
   let result;
   let nN = 128; //each layer has 128 neurons

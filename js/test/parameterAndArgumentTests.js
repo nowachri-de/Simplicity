@@ -148,5 +148,16 @@ describe('Test parameters and arguments', function () {
         }
     });
 
+    it('Call kernel with texture as argument', function () {
+        try {
+            Kernel.create(function main(textureA = [[]], textureB =[[]]) {
+                return textureA[this.thread.x][this.thread.y] * textureB[this.thread.x][this.thread.y];
+            }).setOutput([2, 2])([[5, 5], [5, 5]]).delete();
+            assert.fail('expected exception not thrown'); // this throws an AssertionError
+        } catch (e) {
+            assert.equal(e, 'mismatch between number of declared function parameters and number of actually passed arguments');
+        }
+    });
+
 
 });

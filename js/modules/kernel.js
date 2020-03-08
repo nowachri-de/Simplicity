@@ -1,4 +1,4 @@
-function checkDimensions(impl) {
+function checkOutputDimensions(impl) {
   if (typeof impl.dimensions === 'undefined') {
     throw 'kernel has no dimensions specified. Use setOutput([x,y]) to specify kernel output dimensions';
   }
@@ -91,7 +91,6 @@ function setUniforms(program, width, height, args, options) {
       setUniformLocationInt(program, "uSampler_" + name, inputTexture.index);
 
     }
-
     if (Util.isInteger(type)) {
       setUniformLocationInt(program, "u_" + name, arg);
     }
@@ -99,9 +98,7 @@ function setUniforms(program, width, height, args, options) {
     if (Util.isFloat(type)) {
       setUniformLocationFloat(program, "u_" + name, arg);
     }
-
   }
-
   return textures;
 }
 
@@ -274,7 +271,8 @@ class FunctionBuilder {
     function implementation(...args) {
       //check(implementation, args, implementation.options);
       let options = dictionary.get('main').options;
-      checkDimensions(implementation);
+      //check if the outputdimensions of the result texture(s) have been set
+      checkOutputDimensions(implementation);
       checkArguments(args, options);
 
       let width = implementation.dimensions[0];
