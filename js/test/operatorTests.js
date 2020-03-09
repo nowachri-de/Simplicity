@@ -18,7 +18,6 @@ describe('Test mathematical operators', function () {
     [1.3333333730697632, 1.6666667461395264, 2],
     [2.3333334922790527, 2.6666667461395264, 3]]);
     test.delete();
-    TextureFactory.logReferenceCount();
   });
 
   it('Validate summation', function () {
@@ -28,7 +27,6 @@ describe('Test mathematical operators', function () {
 
     TestUtil.compare2DArray(test([[1, 2, 3], [4, 5, 6], [7, 8, 9]]).result(), [[2, 4, 6], [8, 10, 12], [14, 16, 18]]);
     test.delete();
-    TextureFactory.logReferenceCount();
   });
 
   it('Validate substraction', function () {
@@ -38,7 +36,6 @@ describe('Test mathematical operators', function () {
 
     TestUtil.compare2DArray(test([[1, 2, 3], [4, 5, 6], [7, 8, 9]]).result(), [[0, 0, 0], [0, 0, 0], [0, 0, 0]]);
     test.delete();
-    TextureFactory.logReferenceCount();
   });
 
   it('Validate modulo', function () {
@@ -48,7 +45,6 @@ describe('Test mathematical operators', function () {
 
     TestUtil.compare2DArray(test([[1, 2, 3], [4, 5, 6], [7, 8, 9]]).result(), [[1, 0, 1], [0, 1, 0], [1, 0, 1]]);
     test.delete();
-    TextureFactory.logReferenceCount();
   });
 
   it('Validate substraction - result < 0', function () {
@@ -58,7 +54,6 @@ describe('Test mathematical operators', function () {
 
     TestUtil.compare2DArray(test([[1, 2, 3], [4, 5, 6], [7, 8, 9]]).result(), [[-1, -2, -3], [-4, -5, -6], [-7, -8, -9]]);
     test.delete();
-    TextureFactory.logReferenceCount();
   });
 
   it('Validate summation - large results', function () {
@@ -69,7 +64,6 @@ describe('Test mathematical operators', function () {
     [1000000, 1000000, 1000000],
     [1000000, 1000000, 1000000]]);
     test.delete();
-    TextureFactory.logReferenceCount();
   });
 
   it('Result must be 7. This did not work propperly before the readable shader fix', function () {
@@ -80,7 +74,6 @@ describe('Test mathematical operators', function () {
 
     TestUtil.compare2DArray(test([[5, 5], [5, 5]]).result(), [[7, 7], [7, 7]]);
     test.delete();
-    TextureFactory.logReferenceCount();
   });
 
   it('Test binary division expression using 2D arrays as left hand and right hand operator', function () {
@@ -90,7 +83,6 @@ describe('Test mathematical operators', function () {
     
     TestUtil.compare2DArray(test([[3., 5.], [3., 5.]], [[3., 5.], [3., 5.]]).result(), [[1, 1], [1, 1]]);
     test.delete();
-    TextureFactory.logReferenceCount();
   });
 
   it('Test binary modulo expression using 2D arrays as left hand and right hand operator', function () {
@@ -100,7 +92,6 @@ describe('Test mathematical operators', function () {
 
     TestUtil.compare2DArray(test([[3., 5.], [3., 5.]], [[2., 2.], [2., 2.]]).result(), [[1, 1], [1, 1]]);
     test.delete();
-    TextureFactory.logReferenceCount();
   });
 
   it('Test binary substraction expression using 2D arrays as left hand and right hand operator', function () {
@@ -110,41 +101,35 @@ describe('Test mathematical operators', function () {
     
     TestUtil.compare2DArray(test ([[1., 2.], [3., 4.]], [[4., 5.], [6., 7.]]).result(), [[-3, -3], [-3, -3]]);
     test.delete();
-    TextureFactory.logReferenceCount();
   });
 
   it('Test multiple substraction expression using 2D arrays as left hand and right hand operator', function () {
     let test = Kernel.create(function main(x = [[]], y = [[]]) {
       return x[this.thread.x][this.thread.y] - y[this.thread.x][this.thread.y] - y[this.thread.x][this.thread.y];
     }).setOutput([2, 2])([[1., 2.], [3., 4.]], [[4., 5.], [6., 7.]]).delete();
-    TextureFactory.logReferenceCount();
   });
 
   it('Test self multiplication', function () {
     Kernel.create(function main(x = [[]]) {
       return x[this.thread.x][this.thread.y] * x[this.thread.x][this.thread.y];
     }).setOutput([2, 2])([[1., 2.], [3., 4.]]).delete();
-    TextureFactory.logReferenceCount();
   });
 
   it('Test self summation using 2D array', function () {
     Kernel.create(function main(x = [[]]) {
       return x[this.thread.x][this.thread.y] + x[this.thread.x][this.thread.y];
     }).setOutput([2, 2])([[1., 2.], [3., 4.]]).delete();
-    TextureFactory.logReferenceCount();
   });
 
   it('Test self summation using 1D array', function () {
     Kernel.create(function main(x = []) {
       return x[this.thread.x] + x[this.thread.x];
     }).setOutput([2, 2])([1., 2.]).delete();
-    TextureFactory.logReferenceCount();
   });
 
   it('Test self substraction 2D array', function () {
     Kernel.create(function main(x = [[]]) {
       return x[this.thread.x][this.thread.y] - x[this.thread.x][this.thread.y];
     }).setOutput([2, 2])([[1., 2.], [3., 4.]]).delete();
-    TextureFactory.logReferenceCount();
   });
 });

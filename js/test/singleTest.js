@@ -37,8 +37,6 @@ describe('', function () {
     }).setOutput([2, 2]);
     
     TestUtil.compare2DArray(test([[3., 5.], [3., 5.]], [[3., 5.], [3., 5.]]).result(), [[1, 1], [1, 1]]);
-    TextureFactory.logReferenceCount();
     test.delete();
-    TextureFactory.logReferenceCount();
   });
 });
