@@ -322,6 +322,21 @@ class FunctionBuilder {
       return Util.texture2array(program.gl, resultTextures[textureIndex], targetIndex);
     }
 
+    implementation.rawResult = function (name) {
+      if (typeof name === 'undefined') {
+        name = 'main';
+      }
+      let targetIndex = implementation.dictionary.get(name).options.targetIndex;
+
+      if (typeof targetIndex === 'undefined') {
+        throw 'could not lookup raw result of function ' + name;
+      }
+
+      let textureIndex = Math.floor(targetIndex/4);
+      targetIndex = targetIndex % 4;
+      return resultTextures[textureIndex];
+    }
+
     /**
      * Free the required gl memory
      */

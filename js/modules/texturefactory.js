@@ -1,33 +1,6 @@
-/**
- * The array 'usedIndices' and the map 'referenceCount' form kind of a trivial garbage collector.
- * Each texture beeing created will get assigned a unique index. This means, at any given time
- * no textures do exist that have the same index. When the texture is deleted, the texture's
- * index must be reused by any texture beeing newly created. 
- * When a texture is newly created it will  get assigned a unique index and will
- * have a reference count of 1. When a texture is passed as argument to another kernel, the texture 
- * may not be deleted by the originating kernel. For that reason the reference count of the texture's
- * index will be incremented. Only textures which do have an index with a reference count of zero will be removed
- * from the list of used indices.
- */
-
-let usedIndices = new Array();
-/** 
- * each index has a reference count, which is usually one expect a result texture is passed to another kernel, 
- * in this case the index's reference count get's increased.
-*/ 
 let referenceCount = new Map();
 
-/**
- * This function removes the given index (value) from the index array
- * or reduces it`s count in case the reference count of this index is greater than one.
- * 
- * @param array array from which index has to be removed
- * @param value index which needs to be removed
- * @return 0: index was removed, -1: index was not removed since referenceCount was >1
- */
-function removeFromIndex(array,value){
-	var index = array.indexOf(value);
-
+function removeFromReferenceCount(index){
 	//delete reference count if it is <=1
 	if (getReferenceCount(index)<=1){
 		referenceCount.delete(index);
@@ -35,10 +8,6 @@ function removeFromIndex(array,value){
 		//decrease reference count in case it is >= 1
 		setReferenceCount(index,getReferenceCount(index)-1);
 		return -1;
-	}
-
-	if (index > -1) {
-		array.splice(index, 1);
 	}
 	return 0;
 }
@@ -69,7 +38,7 @@ class Texture{
 	 * Only do so in case the textures referenceCount !>1
 	 */
     delete(){
-		if (removeFromIndex(usedIndices,this.index) === 0){
+		if (removeFromReferenceCount(this.index) === 0){
 			this.gl.deleteTexture(this.texture);
 		}
     }
@@ -80,14 +49,15 @@ class TextureFactory {
 	//returns the next free index
 	static fetchFreeIndex(){
 		//There are no used indexes yet, so return index 0
-		if ( usedIndices.length === 0){
+		if ( referenceCount.size === 0){
 			return 0;
 		}
 
+		let indices = Array.from( referenceCount.keys() );
 		//Sort the usedIndices array ascending (or descending?)
-		usedIndices.sort(function(a, b){return a - b});
+		indices.sort(function(a, b){return a - b});
 		let i = 0;
-		while(usedIndices.includes(i)){
+		while(indices.includes(i)){
 			++i;
 		}
 		return i;
@@ -95,15 +65,13 @@ class TextureFactory {
 
 	//add the given index to the list of used indexes
 	static useIndex(index){
-		//test if the index is already used
-		if(usedIndices.indexOf(index) !== -1){
-			//if this is the case increase it's reference count
-			setReferenceCount(index,getReferenceCount(index)++);
+		//if the index is not yet in use
+		if(typeof getReferenceCount(index) === 'undefined'){
+			setReferenceCount(index,1);
 			return;
 		}
-		//if the index is not already used, add it to the list of used indices
-		setReferenceCount(index,1);
-		usedIndices.push(index);
+		//if the index is already in use, increase reference count
+		setReferenceCount(index,getReferenceCount(index)++);
 	}
 
 	static createReadableTexture(gl,name, outputdimensions) {
@@ -147,10 +115,12 @@ class TextureFactory {
 		return (new Texture(gl,texture,index,name,width, height));
 	}
 
-	static debugPrint(message) {
-		if (this.debug === true) {
-			console.log(message);
+	static logReferenceCount() {
+		function logMapElements(value, key, map) {
+			console.log('key: ' + key +'; ' + value + '(count)');
 		}
+		referenceCount.forEach(logMapElements);
+		console.log('reference list size ' + referenceCount.size);
 	}
 }
 

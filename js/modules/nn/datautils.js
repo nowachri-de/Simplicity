@@ -56,22 +56,6 @@ const KernelFeedForward = Kernel.create(
     }
 );
 
-function data2Texture1D(data, length) {
-    kernelData2Texture1D.setOutput([length]);
-    return kernelData2Texture1D(data).result();
-}
-
-const kernelData2Texture2D = Kernel.create(
-    function main(dataIn=[[]]) {
-        return dataIn[this.thread.y][this.thread.x];
-    }
-);
-
-const kernelData2Texture1D = Kernel.create(
-    function main(dataIn=[]) {
-        return dataIn[this.thread.x];
-    }
-);
 
 const error = Kernel.create(
     function dEtot2dOut(outt =0., target=0.) {
@@ -166,9 +150,31 @@ function computeError(result, target, numNeurons) {
 }
 
 function data2Texture2D(data, x, y) {
+    const kernelData2Texture2D = Kernel.create(
+        function main(dataIn=[[]]) {
+            return dataIn[this.thread.y][this.thread.x];
+        }
+    );
+
     kernelData2Texture2D.setOutput([x, y]);
-    return kernelData2Texture2D(data);
+    let result =  kernelData2Texture2D(data);
+    kernelData2Texture2D.delete();
+    return result;
 }
+
+function data2Texture1D(data, length) {
+    const kernelData2Texture1D = Kernel.create(
+        function main(dataIn=[]) {
+            return dataIn[this.thread.x];
+        }
+    );
+    
+    kernelData2Texture1D.setOutput([length]);
+    let result =  kernelData2Texture1D(data);
+    kernelData2Texture1D.delete();
+    return result;
+}
+
 
 function randomNumbersAtScale1D(length, divisor) {
     let array = [];
