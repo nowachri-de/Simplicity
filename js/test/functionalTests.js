@@ -1,17 +1,19 @@
 const { Kernel } = require('./../modules/kernel.js');
 const { TestUtil } = require('./../modules/testutil.js');
-const { browserReady} = require('./../modules/browserready.js');
-const { TextureFactory} = require('./../modules/texturefactory.js');
+const { browserReady } = require('./../modules/browserready.js');
+const { TextureFactory } = require('./../modules/texturefactory.js');
 var assert = require('assert');
 
 browserReady();
 
 describe('Kernel functional tests', function () {
 
-  after(function() {
-    TextureFactory.logReferenceCount();
+  after(function () {
+    if (TextureFactory.getReferenceCount() !== 0) {
+      throw 'Expected reference count to be zero'
+    }
   });
- 
+
   it('Test variable declaration using expression as assigment pattern - 1', function () {
     let test = Kernel.create(function main() {
       let a = (2. * 3. * 4.) / 120.0;
@@ -195,7 +197,7 @@ describe('Kernel functional tests', function () {
     let test = Kernel.create(function main(x = []) {
       return x[this.thread.x] - x[this.thread.x];
     }).setOutput([5, 1]);
-    
+
     test.delete();
   });
 });

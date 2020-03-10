@@ -6,8 +6,10 @@ const assert = require('assert');
 
 browserReady();
 describe('Matrix', function () {
-  after(function() {
-    TextureFactory.logReferenceCount();
+  after(function () {
+    if (TextureFactory.getReferenceCount() !== 0) {
+      throw 'Expected reference count to be zero'
+    }
   });
   it('should add a column to matrix', function () {
     var matrixA = new Matrix(2, 2);

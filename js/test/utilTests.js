@@ -6,8 +6,10 @@ const { TextureFactory} = require('./../modules/texturefactory.js');
 browserReady();
 describe('Test TestUtil - Verify that comparison functions work as expected', function () {
   
-  after(function() {
-    TextureFactory.logReferenceCount();
+  after(function () {
+    if (TextureFactory.getReferenceCount() !== 0) {
+      throw 'Expected reference count to be zero'
+    }
   });
   
   it('Test compare2DArray', function () {

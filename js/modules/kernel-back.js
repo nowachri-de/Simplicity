@@ -22,7 +22,7 @@ function checkArguments(args, options) {
     }
 
     if (Util.is2DArray(type)) {
-      if (!Array.isArray(arg[0]) && !ArrayBuffer.isView(arg[0])) {
+      if (!Array.isArray(arg[0])  && !ArrayBuffer.isView(arg[0])) {
         throw 'expected function argument ' + i + ' to be of type two dimensional array';
       }
     }
@@ -105,7 +105,7 @@ function setUniforms(program, width, height, args, options) {
 //The dictionary is a map which is mapping function names to function code
 function createFunctionDictonary() {
   let dictionary = {};
-
+  
   //add properties
   dictionary.functionMap = new Map();
   //function property that retrieves all dictionary excluding the main function
@@ -213,8 +213,8 @@ function setAdditionalOptions(mainOptions, dictionary) {
   * Compute the number of actually required textures.
   * Since a texture can store channels (R,G,B,A)
   */
-  let numResultTextures = Math.floor((functions.length) / 4) + 1;
-  mainOptions.numResults = numResultTextures;
+  let numResultTextures = Math.floor((functions.length)/4)+1;
+  mainOptions.numResults=numResultTextures;
   let i = 1;
   functions.forEach(funct => {
     mainOptions.functions.push((new Formatter()).format(funct.glslCode));
@@ -231,10 +231,10 @@ function setAdditionalOptions(mainOptions, dictionary) {
   });
 }
 
-function checkMain(main) {
+function checkMain(main){
   if (typeof main === 'undefined')
     throw 'no function with name main found'
-
+  
   return main;
 }
 
@@ -245,7 +245,7 @@ function createDictionary(functions) {
   let main = checkMain(dictionary.get('main'));
   let mainOptions = main.options;
   mainOptions.main = (new Formatter()).format(main.glslCode);
-
+ 
 
   setAdditionalOptions(mainOptions, dictionary);
 
@@ -261,7 +261,12 @@ class FunctionBuilder {
    * @return kernel. 
    */
   static buildFunction(functions) {
-
+    let dictionary = createDictionary(functions);
+    let fragmentShaderCode = ShaderCode.generateFragmentShader(dictionary);
+    let vertexShaderCode = ShaderCode.generateVertexShaderCode();
+    let inputTextures =[];
+    let resultTextures =[];
+    let program = null;
 
     function implementation(...args) {
       //check(implementation, args, implementation.options);
@@ -275,49 +280,34 @@ class FunctionBuilder {
       /**
        * This allows definitions of setOuput([x]). Note that only one dimension is provided
        */
-      if (typeof height === 'undefined') {
+      if (typeof height === 'undefined'){
         height = 1;
       }
-      implementation.program = new Program(width, height);
+      program = new Program(width, height);
 
       //console.log(vertexShaderCode);
       //console.log(fragmentShaderCode);
 
-      implementation.program.buildProgram(implementation.vertexShaderCode, implementation.fragmentShaderCode);
+      program.buildProgram(vertexShaderCode, fragmentShaderCode);
 
       /*
       * If the kernel is called for the first time there will be no input textures.
       * If the kernel is called multiple times, the previously used input textures 
       * need to be deleted.
       */
-      implementation.inputTextures.forEach(texture => {
+      inputTextures.forEach(texture => {
         texture.delete();
       });
 
-      implementation.inputTextures = setUniforms(implementation.program, width, height, args, options);
+      inputTextures = setUniforms(program, width, height, args, options);
 
-      /*
-      * If the kernel is called for the first time there will be no result textures.
-      * If the kernel is called multiple times, the previously used result textures 
-      * need to be deleted.
-      */
-      implementation.resultTextures.forEach(texture => {
-        texture.delete();
-      });
-
-      implementation.resultTextures = implementation.program.execute(options.numResults);
+      resultTextures = program.execute(options.numResults);
       return implementation;
     }
 
-    let dictionary = createDictionary(functions);
-
-    implementation.fragmentShaderCode = ShaderCode.generateFragmentShader(dictionary);;
-    implementation.vertexShaderCode = ShaderCode.generateVertexShaderCode();
+    implementation.fragmentShaderCode = fragmentShaderCode;
+    implementation.vertexShaderCode = vertexShaderCode;
     implementation.dictionary = dictionary;
-    implementation.inputTextures = [];
-    implementation.resultTextures = [];
-    implementation.program = null;
-
 
     implementation.getVertexShaderCode = function () {
       return implementation.vertexShaderCode;
@@ -337,9 +327,9 @@ class FunctionBuilder {
         throw 'could not lookup result of function ' + name;
       }
 
-      let textureIndex = Math.floor(targetIndex / 4);
+      let textureIndex = Math.floor(targetIndex/4);
       targetIndex = targetIndex % 4;
-      return Util.texture2array(implementation.program.gl, implementation.resultTextures[textureIndex], targetIndex);
+      return Util.texture2array(program.gl, resultTextures[textureIndex], targetIndex);
     }
 
     implementation.rawResult = function (name) {
@@ -352,7 +342,7 @@ class FunctionBuilder {
         throw 'could not lookup raw result of function ' + name;
       }
 
-      let textureIndex = Math.floor(targetIndex / 4);
+      let textureIndex = Math.floor(targetIndex/4);
       targetIndex = targetIndex % 4;
       return resultTextures[textureIndex];
     }
@@ -361,11 +351,11 @@ class FunctionBuilder {
      * Free the required gl memory
      */
     implementation.delete = function () {
-      (implementation.program !== null) ? implementation.program.delete() : '';
-      implementation.resultTextures.forEach(texture => {
+      (program !== null) ? program.delete(): '';
+      resultTextures.forEach(texture => {
         texture.delete();
       });
-      implementation.inputTextures.forEach(texture => {
+      inputTextures.forEach(texture => {
         texture.delete();
       });
     }
@@ -380,7 +370,7 @@ class FunctionBuilder {
 }
 
 class Kernel {
-  constructor() { }
+  constructor() {}
   static create(...fncts) {
     let supportFunctions = []; //support functions must be wrapped in array and do not generate result
     let functions = [];
@@ -395,9 +385,9 @@ class Kernel {
       * or a support function reference. Note that the array can contain multiple functions.
       * The result of a support function will not be stored in texture.
       */
-      if (Array.isArray(fncts[i])) {
+      if (Array.isArray(fncts[i])){
         //loop over values in array, each value represents a support function or a support function reference
-        for (let j = 0; j < fncts[i].length; ++j) {
+        for(let j=0;j < fncts[i].length; ++j){
           supportFunctions.push(fncts[i][j]);
         }
         continue;
@@ -412,8 +402,8 @@ class Kernel {
      */
     for (let i = 0; i < supportFunctions.length; ++i) {
       let codeGen = new CodeGenerator(true); //true in constructor means, supportFunction is generated
-      let glslCode = codeGen.translate(supportFunctions[i].toString());
-      functions.push({ codeGen: codeGen, glslCode: glslCode, isHelper: true });
+      let glslCode = codeGen.translate( supportFunctions[i].toString());
+      functions.push({ codeGen: codeGen, glslCode: glslCode, isHelper:true });
     }
 
     // Do the magic
@@ -428,7 +418,7 @@ module.exports = {
   FunctionBuilder
 }
 const { CodeGenerator } = require('./../modules/codegenerator.js');
-const { Util } = require('./../modules/util.js');
+const { Util } = require( './../modules/util.js');
 const { ShaderCode } = require('./../modules\\shadercode.js');
 const { Program } = require('./../modules/program.js');
 const { TextureFactory } = require('./../modules\\texturefactory.js');

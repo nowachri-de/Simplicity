@@ -6,7 +6,9 @@ const { TextureFactory } = require('./../modules/texturefactory.js');
 browserReady();
 describe('Test loops', function () {
   after(function () {
-    TextureFactory.logReferenceCount();
+    if (TextureFactory.getReferenceCount() !== 0) {
+      throw 'Expected reference count to be zero'
+    }
   });
   it('Test if while loop gets translated to glsl syntax propperly', function () {
     const test = Kernel.create(
@@ -37,7 +39,8 @@ describe('Test loops', function () {
     );
     test.setOutput([2, 1]);
     //console.log(test.fragmentShaderCode);
-    test([0.05, 0.1], [[0.15, 0.25], [0.2, 0.3]], 2, [0.3499999940395355, 0.3499999940395355]).result()
+    test([0.05, 0.1], [[0.15, 0.25], [0.2, 0.3]], 2, [0.3499999940395355, 0.3499999940395355]).result();
+    test.delete();
     console.log();
   })
 

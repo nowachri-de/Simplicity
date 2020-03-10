@@ -6,8 +6,10 @@ const { TextureFactory} = require('./../modules/texturefactory.js');
 browserReady();
 describe('Test GLSL build in functions', function () {
   
-  after(function() {
-    TextureFactory.logReferenceCount();
+  after(function () {
+    if (TextureFactory.getReferenceCount() !== 0) {
+      throw 'Expected reference count to be zero'
+    }
   });
 
   it('Test GLSL build in radians function', function () {

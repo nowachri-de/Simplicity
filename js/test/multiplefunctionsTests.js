@@ -5,8 +5,10 @@ const { TextureFactory } = require('./../modules/texturefactory.js');
 
 browserReady();
 describe('Test multiple function definitions - call function in function', function () {
-  after(function() {
-    TextureFactory.logReferenceCount();
+  after(function () {
+    if (TextureFactory.getReferenceCount() !== 0) {
+      throw 'Expected reference count to be zero'
+    }
   });
   it('Test multiple functions', function () {
     this.timeout(0);//disable timeout
@@ -91,11 +93,12 @@ describe('Test multiple function definitions - call function in function', funct
   });
 
   it('Passing this.thread.x to internal function - output dimension [5,2]', function () {
-    let test = Kernel.create(function main() {
-      return test(this.thread.x);
-    }, function test(a = 0.0) {
-      return a;
-    }
+    let test = Kernel.create(
+      function main() {
+        return test(this.thread.x);
+      }, function test(a = 0.0) {
+        return a;
+      }
     ).setOutput([5, 2]);
 
     TestUtil.compare2DArray(test().result(), [[0, 1, 2, 3, 4], [0, 1, 2, 3, 4]]);
@@ -103,11 +106,12 @@ describe('Test multiple function definitions - call function in function', funct
   });
 
   it('Passing this.thread.x to internal function - output dimension [5,5]', function () {
-    let test = Kernel.create(function main() {
-      return test(this.thread.x);
-    }, function test(a = 0.0) {
-      return a;
-    }
+    let test = Kernel.create(
+      function main() {
+        return test(this.thread.x);
+      } , function test(a = 0.0) {
+        return a;
+      }
     ).setOutput([5, 5]);
 
     TestUtil.compare2DArray(test().result(), [[0, 1, 2, 3, 4], [0, 1, 2, 3, 4], [0, 1, 2, 3, 4], [0, 1, 2, 3, 4], [0, 1, 2, 3, 4]]);
@@ -115,11 +119,12 @@ describe('Test multiple function definitions - call function in function', funct
   });
 
   it('Validate that update operation can be performed on inner function parameter', function () {
-    let test = Kernel.create(function main() {
-      return test(this.thread.x);
-    }, function test(a = 0.0) {
-      return a++;
-    }
+    let test = Kernel.create(
+      function main() {
+        return test(this.thread.x);
+      }, function test(a = 0.0) {
+        return a++;
+      }
     ).setOutput([5, 5]);
 
     TestUtil.compare2DArray(test().result(), [[0, 1, 2, 3, 4], [0, 1, 2, 3, 4], [0, 1, 2, 3, 4], [0, 1, 2, 3, 4], [0, 1, 2, 3, 4]]);
@@ -127,11 +132,12 @@ describe('Test multiple function definitions - call function in function', funct
   });
 
   it('Passing this.thread.x to internal function - output dimension [5,5]', function () {
-    let test = Kernel.create(function main() {
-      return test(this.thread.x);
-    }, function test(a = 0.0) {
-      return a;
-    }
+    let test = Kernel.create(
+      function main() {
+        return test(this.thread.x);
+      }, function test(a = 0.0) {
+        return a;
+      }
     ).setOutput([5, 5]);
 
     TestUtil.compare2DArray(test().result(), [[0, 1, 2, 3, 4], [0, 1, 2, 3, 4], [0, 1, 2, 3, 4], [0, 1, 2, 3, 4], [0, 1, 2, 3, 4]]);

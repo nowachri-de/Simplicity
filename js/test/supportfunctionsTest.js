@@ -30,7 +30,9 @@ function derivativeSigmoid(i = 0.) {
 
 describe('Support Functions Tests', function () {
   after(function () {
-    TextureFactory.logReferenceCount();
+    if (TextureFactory.getReferenceCount() !== 0) {
+      throw 'Expected reference count to be zero'
+    }
   });
   it('Test sigmoidActivation support function passed as function reference', function () {
     let test = Kernel.create([sigmoidActivation],

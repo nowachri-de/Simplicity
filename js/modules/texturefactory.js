@@ -117,10 +117,14 @@ class TextureFactory {
 
 	static logReferenceCount() {
 		function logMapElements(value, key, map) {
-			console.log('key: ' + key +'; ' + value + '(count)');
+			console.log('index: ' + key +'; ' + value + '(count)');
 		}
 		referenceCount.forEach(logMapElements);
 		console.log('reference list size ' + referenceCount.size);
+	}
+
+	static getReferenceCount(){
+		return referenceCount.size;
 	}
 }
 

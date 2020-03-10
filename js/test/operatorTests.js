@@ -5,8 +5,10 @@ const { TextureFactory} = require('./../modules/texturefactory.js');
 
 browserReady();
 describe('Test mathematical operators', function () {
-  after(function() {
-    TextureFactory.logReferenceCount();
+  after(function () {
+    if (TextureFactory.getReferenceCount() !== 0) {
+      throw 'Expected reference count to be zero'
+    }
   });
   
   it('Validate division', function () {
