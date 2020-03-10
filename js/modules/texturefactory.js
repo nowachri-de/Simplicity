@@ -1,9 +1,13 @@
 let referenceCount = new Map();
 
 function removeFromReferenceCount(index){
+	if (typeof getReferenceCount(index) === 'undefined'){
+		return 0;
+	}
 	//delete reference count if it is <=1
 	if (getReferenceCount(index)<=1){
 		referenceCount.delete(index);
+		console.log('delete texture with index ' + index);
 	}else{
 		//decrease reference count in case it is >= 1
 		setReferenceCount(index,getReferenceCount(index)-1);
@@ -30,7 +34,8 @@ class Texture{
         this.index =  index;
         this.name= name;
         this.width = width;
-        this.height= height;
+		this.height= height;
+		this.isRaw = false;
     }
 
 	/**
@@ -68,10 +73,12 @@ class TextureFactory {
 		//if the index is not yet in use
 		if(typeof getReferenceCount(index) === 'undefined'){
 			setReferenceCount(index,1);
+			console.log('set reference count of index ' + index +' to ' + 1);
 			return;
 		}
 		//if the index is already in use, increase reference count
 		setReferenceCount(index,getReferenceCount(index)++);
+		console.log('set reference count of index ' + index +' to ' + getReferenceCount(index));
 	}
 
 	static createReadableTexture(gl,name, outputdimensions) {
@@ -129,3 +136,4 @@ class TextureFactory {
 }
 
 module.exports.TextureFactory = TextureFactory
+module.exports.Texture = Texture

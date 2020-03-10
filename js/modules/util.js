@@ -1,8 +1,16 @@
-const { TextureFactory } = require( "./texturefactory.js");
+const { TextureFactory,Texture } = require( "./texturefactory.js");
 const { FrameBufferFactory } = require("./framebufferfactory.js");
 const { ResultReader } = require("./resultreader.js");
 
 class Util {
+
+    static isTexture(value) {
+        if (value instanceof Texture) {
+            return true;
+        }
+        return false;
+    }
+
     static isArray(value) {
         if (Util.is2DArray(value)) {
             return false;

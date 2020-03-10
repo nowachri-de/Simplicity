@@ -3,6 +3,7 @@ const { Kernel } = require('../modules/kernel.js');
 const { TestUtil } = require('../modules/testutil.js');
 const { browserReady} = require('../modules/browserready.js');
 const { TextureFactory } = require('./../modules/texturefactory.js');
+const { Util } = require('./../modules/util.js');
 
 browserReady();
 describe('Test parameters and arguments', function () {
@@ -164,9 +165,34 @@ describe('Test parameters and arguments', function () {
 
     it('Call kernel with texture as argument', function () {
         try {
-            Kernel.create(function main(a = [[]], b =[[]]) {
+            let mixedInput = Kernel.create(function main(a = [[]], b =[[]]) {
                 return a[this.thread.x][this.thread.y] * b[this.thread.x][this.thread.y];
-            }).setOutput([2, 2])([[1,1],[1,1]],[[1,1],[1,1]]).delete();
+            }).setOutput([2, 2]);
+
+            let abc = Kernel.create(function main(a = [[]]) {
+                return a[this.thread.x][this.thread.y] ;
+            }).setOutput([2, 2]);
+
+            let a = mixedInput([[5,5],[5,5]],[[5,5],[5,5]]).result();
+            let b = mixedInput([[5,5],[5,5]],[[5,5],[5,5]]).result();
+
+            TestUtil.compare2DArray(a, [[25,25],[25,25]]);
+            TestUtil.compare2DArray(b, [[25,25],[25,25]]);
+
+            let c = mixedInput([[5,5],[5,5]],[[5,5],[5,5]]).rawResult();
+            TextureFactory.logReferenceCount();
+
+            console.log(abc(c).result());
+            console.log( Util.texture2array(abc.program.gl, c, 0));
+            console.log( Util.texture2array(abc.program.gl, c, 1));
+            console.log( Util.texture2array(abc.program.gl, c, 2));
+            console.log( Util.texture2array(abc.program.gl, c, 2));
+           ;
+          
+            abc.delete();
+            mixedInput.delete();
+           
+
         } catch (e) {
             assert.equal(e, '');
         }

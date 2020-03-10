@@ -22,6 +22,10 @@ function checkArguments(args, options) {
     let arg = args[i];
     let type = options.parameterMap.get(i).type;
 
+    if (Util.isTexture(arg)){
+      continue;
+    }
+
     if (Util.isArray(type)) {
       if (Array.isArray(arg[0])) {
         throw 'expected function argument ' + i + ' to be of type 1d array but is 2d array';
@@ -96,6 +100,17 @@ function setUniforms(program, width, height, args, options) {
     let arg = args[i];
     let type = options.parameterMap.get(i).type;
     let name = options.parameterMap.get(i).name;
+
+    if (Util.isTexture(arg)){
+      let width = arg.width;
+      let height = arg.height;
+
+      setUniformLocationFloat(program, "uSampler_" + name + "_height", height);
+      setUniformLocationFloat(program, "uSampler_" + name + "_width", width);
+      textures.push(arg);
+      setUniformLocationInt(program, "uSampler_" + name, arg.index);
+      continue;
+    }
 
     if (Util.isArray(type) || Util.is2DArray(type)) {
       //width and height of inputTexture not required to be same dimensions as resultTexture
@@ -317,6 +332,7 @@ class FunctionBuilder {
       implementation.inputTextures.forEach(texture => {
         texture.delete();
       });
+     
 
       implementation.inputTextures = setUniforms(implementation.program, width, height, args, options);
 
@@ -326,8 +342,11 @@ class FunctionBuilder {
       * need to be deleted.
       */
       implementation.resultTextures.forEach(texture => {
-        texture.delete();
+        if (!texture.isRaw){
+          texture.delete();
+        }
       });
+      
 
       implementation.resultTextures = implementation.program.execute(options.numResults);
       return implementation;
@@ -378,7 +397,10 @@ class FunctionBuilder {
 
       let textureIndex = Math.floor(targetIndex / 4);
       targetIndex = targetIndex % 4;
-      return resultTextures[textureIndex];
+
+      let texture = implementation.resultTextures[textureIndex];
+      texture.isRaw = true; //prevent deletion of texture by next call to kernel
+      return texture;
     }
 
     /**
@@ -392,6 +414,8 @@ class FunctionBuilder {
       implementation.inputTextures.forEach(texture => {
         texture.delete();
       });
+      implementation.resultTextures=[];
+      implementation.inputTextures=[];
     }
 
     implementation.setOutput = function (dimensions) {
@@ -453,7 +477,7 @@ module.exports = {
 }
 const { CodeGenerator } = require('./../modules/codegenerator.js');
 const { Util } = require('./../modules/util.js');
-const { ShaderCode } = require('./../modules\\shadercode.js');
+const { ShaderCode } = require('./../modules/shadercode.js');
 const { Program } = require('./../modules/program.js');
-const { TextureFactory } = require('./../modules\\texturefactory.js');
+const { TextureFactory } = require('./../modules/texturefactory.js');
 const { Formatter } = require("./formatter.js");
