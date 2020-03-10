@@ -7,7 +7,7 @@ function removeFromReferenceCount(index){
 	//delete reference count if it is <=1
 	if (getReferenceCount(index)<=1){
 		referenceCount.delete(index);
-		console.log('delete texture with index ' + index);
+		
 	}else{
 		//decrease reference count in case it is >= 1
 		setReferenceCount(index,getReferenceCount(index)-1);
@@ -73,12 +73,28 @@ class TextureFactory {
 		//if the index is not yet in use
 		if(typeof getReferenceCount(index) === 'undefined'){
 			setReferenceCount(index,1);
-			console.log('set reference count of index ' + index +' to ' + 1);
 			return;
 		}
 		//if the index is already in use, increase reference count
 		setReferenceCount(index,getReferenceCount(index)++);
-		console.log('set reference count of index ' + index +' to ' + getReferenceCount(index));
+		
+	}
+
+	static setActiveTexture(texture){
+		let gl = texture.gl;
+
+		gl.activeTexture(gl.TEXTURE0 + texture.index );
+		gl.bindTexture(gl.TEXTURE_2D, texture.texture);
+
+		// clamp to edge to support non-power of two textures
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+		// don't interpolate when getting data from texture
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, texture.width, texture.height, 0, gl.RGBA, gl.FLOAT, null);
+
 	}
 
 	static createReadableTexture(gl,name, outputdimensions) {
@@ -98,6 +114,7 @@ class TextureFactory {
         return new Texture(gl,texture,index,name,outputdimensions.width, outputdimensions.height);
 	}
 
+	
 
 	static createTextureByDimension(gl, name, width, height, data) {
 		var texture = gl.createTexture();

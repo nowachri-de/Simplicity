@@ -104,11 +104,12 @@ function setUniforms(program, width, height, args, options) {
     if (Util.isTexture(arg)){
       let width = arg.width;
       let height = arg.height;
-
+      Util.setActiveTexture(arg);
       setUniformLocationFloat(program, "uSampler_" + name + "_height", height);
       setUniformLocationFloat(program, "uSampler_" + name + "_width", width);
       textures.push(arg);
       setUniformLocationInt(program, "uSampler_" + name, arg.index);
+      
       continue;
     }
 

@@ -124,5 +124,9 @@ class Util {
         return finalResult;
     }
 
+    static setActiveTexture(texture){
+        TextureFactory.setActiveTexture(texture);
+    }
+
 }
 module.exports.Util = Util;
