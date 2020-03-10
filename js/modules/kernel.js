@@ -1,8 +1,18 @@
+/**
+ * Validate that outputdimensions have been specified
+ * @param {implementation function} impl 
+ */
+
 function checkOutputDimensions(impl) {
   if (typeof impl.dimensions === 'undefined') {
     throw 'kernel has no dimensions specified. Use setOutput([x,y]) to specify kernel output dimensions';
   }
 }
+/**
+ * Validate that passed arguments have type/dimension as specified
+ * @param {function arguments} args 
+ * @param {options} options 
+ */
 function checkArguments(args, options) {
   if (options.parameterMap.size !== args.length) {
     throw "mismatch between number of declared function parameters and number of actually passed arguments"
@@ -40,7 +50,11 @@ function checkArguments(args, options) {
     }
   }
 }
-
+/**
+ * Get the uniform location from the given program using the given id
+ * @param {program instance} program 
+ * @param {id of unifrom location} id 
+ */
 function getUniformLocation(program, id) {
   let location = program.gl.getUniformLocation(program.glProgram, id);
 
@@ -50,12 +64,22 @@ function getUniformLocation(program, id) {
 
   return location;
 }
-
+/**
+ * Set the value of uniform location with the given id
+ * @param {program instance} program 
+ * @param {id of unifrom location} id 
+ * @param {value to be set} value 
+ */
 function setUniformLocationFloat(program, id, value) {
   let gl = program.gl;
   gl.uniform1f(getUniformLocation(program, id), value);
 }
-
+/**
+ * Set the value of uniform location with the given id
+ * @param {program instance} program 
+ * @param {id of unifrom location} id 
+ * @param {value to be set} value 
+ */
 function setUniformLocationInt(program, id, value) {
   let gl = program.gl;
   gl.uniform1i(getUniformLocation(program, id), value);
