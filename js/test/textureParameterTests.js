@@ -194,4 +194,32 @@ describe('', function () {
         matrixMultiplicationKernel.delete();
     });
 
+    it('Test if large matrix (500x500) multiplication using textures as parameters works and validate result', function () {
+        this.timeout(0);//disable timeout;
+
+        let sharedGL = Program.createGl(500,500);
+        let matrixMultiplicationKernel = Kernel.create(function main(a = [[]], b = [[]], width = 0) {
+            let result = 0.;
+            for (let j = 0; j < 2048; j++) {
+                if (j == width) break;
+                result += a[this.thread.y][j] * b[j][this.thread.x];
+            }
+            return result;
+        }).setOutput([500, 500]).setGL(sharedGL);
+
+        var matrixA = new Matrix(500, 500);
+        var matrixB = new Matrix(500, 500);
+
+        matrixA.randomInitialize();
+        matrixB.randomInitialize();
+
+        let textureMatrixA = Util.data2Texture2D(matrixA.data,500,500,sharedGL);
+        let textureMatrixB = Util.data2Texture2D(matrixB.data,500,500,sharedGL);
+        validateMultiplicationResult(matrixA, matrixB, matrixA.multiply(matrixB));
+        TestUtil.compare2DArray(matrixA.multiply(matrixB).data,matrixMultiplicationKernel(textureMatrixA,textureMatrixB,textureMatrixA.width).result());
+        textureMatrixA.delete();
+        textureMatrixB.delete();
+        matrixMultiplicationKernel.delete();
+    });
+
 });

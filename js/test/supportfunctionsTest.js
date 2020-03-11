@@ -28,7 +28,7 @@ function derivativeSigmoid(i = 0.) {
   return i - pow(i, 2.);
 }
 
-describe('Support Functions Tests', function () {
+describe('Test support functions', function () {
   after(function () {
     if (TextureFactory.getReferenceCount() !== 0) {
       throw 'Expected reference count to be zero'
