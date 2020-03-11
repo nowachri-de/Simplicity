@@ -385,9 +385,8 @@ module.exports.Matrix = class Matrix {
      * @return {Texture} - The result of the matrix multiplication stored in a texture
     */
     multiply(matrixB) {
-
         let dimension = this.getResultMatrixDimensions(matrixB);
-        let test = Kernel.create(function main(a=[[]],b=[[]],width = 0) {
+        let matrixMultiplication = Kernel.create(function main(a=[[]],b=[[]],width = 0) {
             let result = 0.;
             for(let j=0; j < 2048;j++){
                 if (j == width) break;
@@ -397,8 +396,8 @@ module.exports.Matrix = class Matrix {
         }).setOutput([dimension.width, dimension.height]);
         
         let result = new Matrix(dimension.width, dimension.height);
-        result.setData(test(this.data,matrixB.data,this.width).result());
-        test.delete();
+        result.setData(matrixMultiplication(this.data,matrixB.data,this.width).result());
+        matrixMultiplication.delete();
         return result;
     }
 }

@@ -3,7 +3,6 @@ const { Kernel } = require('../modules/kernel.js');
 const { TestUtil } = require('../modules/testutil.js');
 const { browserReady} = require('../modules/browserready.js');
 const { TextureFactory } = require('./../modules/texturefactory.js');
-const { Util } = require('./../modules/util.js');
 
 browserReady();
 describe('Test parameters and arguments', function () {

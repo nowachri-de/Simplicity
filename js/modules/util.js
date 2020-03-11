@@ -1,4 +1,4 @@
-const { TextureFactory,Texture } = require( "./texturefactory.js");
+const { TextureFactory, Texture } = require("./texturefactory.js");
 const { FrameBufferFactory } = require("./framebufferfactory.js");
 const { ResultReader } = require("./resultreader.js");
 const { Kernel } = require("./kernel.js");
@@ -45,31 +45,30 @@ class Util {
         return argument === 'float';
     }
 
-    static data2Texture2D(data, dimensionX, dimensionY,gl) {
+    static data2Texture2D(data, dimensionX, dimensionY, gl) {
+      
+
         const kernelData2Texture2D = Kernel.create(
-            function main(dataIn=[[]]) {
+            function main(dataIn = [[]]) {
                 return dataIn[this.thread.y][this.thread.x];
             }
         );
 
-        if (typeof gl !== 'undefined'){
-            kernelData2Texture2D.setGL(gl);
-        }
-    
+        kernelData2Texture2D.setGL(gl);
         kernelData2Texture2D.setOutput([dimensionX, dimensionY]);
         let rawResult = kernelData2Texture2D(data).rawResult();
         kernelData2Texture2D.delete();
         return rawResult;
     }
-    
-    static data2Texture1D(data, length) {
+
+    static data2Texture1D(data, length, gl) {
+      
         const kernelData2Texture1D = Kernel.create(
-            function main(dataIn=[]) {
+            function main(dataIn = []) {
                 return dataIn[this.thread.x];
             }
-        );
-        
-        kernelData2Texture1D.setOutput([length]);
+        ).setOutput([length]).setGL(gl);
+
         let rawResult = kernelData2Texture1D(data).rawResult();
         kernelData2Texture1D.delete();
         return rawResult;
@@ -142,11 +141,11 @@ class Util {
         for (let row = 0; row < texture.height; row++) {
             finalResult[row] = [];
             for (let col = 0; col < texture.width; col++) {
-                finalResult[row].push(result[(row * texture.width)+col]);
+                finalResult[row].push(result[(row * texture.width) + col]);
             }
         }
 
-        if (texture.height === 1){
+        if (texture.height === 1) {
             finalResult = finalResult[0];
         }
 
@@ -154,11 +153,11 @@ class Util {
         return finalResult;
     }
 
-    static setActiveTexture(gl,texture){
-		gl.activeTexture(gl.TEXTURE0 + texture.index );
-		gl.bindTexture(gl.TEXTURE_2D, texture.texture);
-		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, texture.width, texture.height, 0, gl.RGBA, gl.FLOAT, null);
-	}
+    static setActiveTexture(gl, texture) {
+        gl.activeTexture(gl.TEXTURE0 + texture.index);
+        gl.bindTexture(gl.TEXTURE_2D, texture.texture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, texture.width, texture.height, 0, gl.RGBA, gl.FLOAT, null);
+    }
 
 }
 module.exports.Util = Util;
