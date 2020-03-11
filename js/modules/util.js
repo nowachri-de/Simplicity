@@ -1,6 +1,7 @@
 const { TextureFactory,Texture } = require( "./texturefactory.js");
 const { FrameBufferFactory } = require("./framebufferfactory.js");
 const { ResultReader } = require("./resultreader.js");
+const { Kernel } = require("./kernel.js");
 
 class Util {
 
@@ -44,6 +45,36 @@ class Util {
         return argument === 'float';
     }
 
+    static data2Texture2D(data, dimensionX, dimensionY,gl) {
+        const kernelData2Texture2D = Kernel.create(
+            function main(dataIn=[[]]) {
+                return dataIn[this.thread.y][this.thread.x];
+            }
+        );
+
+        if (typeof gl !== 'undefined'){
+            kernelData2Texture2D.setGL(gl);
+        }
+    
+        kernelData2Texture2D.setOutput([dimensionX, dimensionY]);
+        let rawResult = kernelData2Texture2D(data).rawResult();
+        kernelData2Texture2D.delete();
+        return rawResult;
+    }
+    
+    static data2Texture1D(data, length) {
+        const kernelData2Texture1D = Kernel.create(
+            function main(dataIn=[]) {
+                return dataIn[this.thread.x];
+            }
+        );
+        
+        kernelData2Texture1D.setOutput([length]);
+        let rawResult = kernelData2Texture1D(data).rawResult();
+        kernelData2Texture1D.delete();
+        return rawResult;
+    }
+
     static data2Texel(width, height, data, component) {
         let result = new Float32Array(4 * height * width);
         let cnt = 0;
@@ -51,7 +82,6 @@ class Util {
         if (component === undefined) {
             component = "R";
         }
-
 
         for (let row = 0; row < height; row++) {
             for (let col = 0; col < width; col++) {
@@ -124,9 +154,11 @@ class Util {
         return finalResult;
     }
 
-    static setActiveTexture(texture){
-        TextureFactory.setActiveTexture(texture);
-    }
+    static setActiveTexture(gl,texture){
+		gl.activeTexture(gl.TEXTURE0 + texture.index );
+		gl.bindTexture(gl.TEXTURE_2D, texture.texture);
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, texture.width, texture.height, 0, gl.RGBA, gl.FLOAT, null);
+	}
 
 }
 module.exports.Util = Util;

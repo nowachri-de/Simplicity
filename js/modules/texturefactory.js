@@ -80,23 +80,6 @@ class TextureFactory {
 		
 	}
 
-	static setActiveTexture(texture){
-		let gl = texture.gl;
-
-		gl.activeTexture(gl.TEXTURE0 + texture.index );
-		gl.bindTexture(gl.TEXTURE_2D, texture.texture);
-
-		// clamp to edge to support non-power of two textures
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-		// don't interpolate when getting data from texture
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, texture.width, texture.height, 0, gl.RGBA, gl.FLOAT, null);
-
-	}
-
 	static createReadableTexture(gl,name, outputdimensions) {
 		var texture = gl.createTexture();
 		

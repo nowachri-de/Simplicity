@@ -1,12 +1,14 @@
 var headlessGL = require('gl');
-//var headlessGL = require('browser-gl');
-function genTextures(gl,num,width,height) {
+
+
+function genResultTextures(gl,num,width,height) {
 	let textures = [];
 	for (let i=0; i < num;++i){
 		textures.push(TextureFactory.createTextureByDimension(gl, 'resultTexture', width,height,null));
 	}
 	return textures;
 }
+
 class Program {
 
 	constructor(width, height, gl) {
@@ -22,6 +24,7 @@ class Program {
 		} else {
 			this.gl = gl;
 		}
+		this.gl.resize(width,height);
 	}
 
 	static createGl(width, height) {
@@ -133,7 +136,7 @@ class Program {
 			numTextures = 1;
 		}
 
-		let textures = genTextures(this.gl,numTextures,this.width,this.height);
+		let textures = genResultTextures(this.gl,numTextures,this.width,this.height);
 		return this.executeUsingTextures(textures);
 	}
 
@@ -149,10 +152,6 @@ class Program {
 
 		frameBuffer.delete();
 		return textures;
-	}
-
-	getResult(texture) {
-		Util.texture2array(texture);
 	}
 
 	buildProgram(vertexShaderCode, fragmentShaderCode) {
@@ -248,4 +247,3 @@ module.exports.Program = Program
 const { FrameBufferFactory } = require("./framebufferfactory.js");
 const { TextureFactory } = require("./texturefactory.js");
 const { ShaderFactory } = require("./shader.js");
-const { Util } = require("./util.js");

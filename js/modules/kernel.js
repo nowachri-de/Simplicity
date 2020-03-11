@@ -14,6 +14,7 @@ function checkOutputDimensions(impl) {
  * @param {options} options 
  */
 function checkArguments(args, options) {
+
   if (options.parameterMap.size !== args.length) {
     throw "mismatch between number of declared function parameters and number of actually passed arguments"
   }
@@ -22,7 +23,7 @@ function checkArguments(args, options) {
     let arg = args[i];
     let type = options.parameterMap.get(i).type;
 
-    if (Util.isTexture(arg)){
+    if (Util.isTexture(arg)) {
       continue;
     }
 
@@ -101,15 +102,15 @@ function setUniforms(program, width, height, args, options) {
     let type = options.parameterMap.get(i).type;
     let name = options.parameterMap.get(i).name;
 
-    if (Util.isTexture(arg)){
+    if (Util.isTexture(arg)) {
       let width = arg.width;
       let height = arg.height;
-      Util.setActiveTexture(arg);
+      //Util.setActiveTexture(program.gl,arg);
       setUniformLocationFloat(program, "uSampler_" + name + "_height", height);
       setUniformLocationFloat(program, "uSampler_" + name + "_width", width);
       textures.push(arg);
       setUniformLocationInt(program, "uSampler_" + name, arg.index);
-      
+
       continue;
     }
 
@@ -126,10 +127,9 @@ function setUniforms(program, width, height, args, options) {
       }
       setUniformLocationFloat(program, "uSampler_" + name + "_width", width);
 
-      let inputTexture = TextureFactory.createTextureByDimension(gl, "texture_uSampler_" + name, width, height, Util.data2Texel(width, height, arg, 'R'));
+      let inputTexture = TextureFactory.createTextureByDimension(gl, "inputTexture_" + name, width, height, Util.data2Texel(width, height, arg, 'R'));
       textures.push(inputTexture);
       setUniformLocationInt(program, "uSampler_" + name, inputTexture.index);
-
     }
     if (Util.isInteger(type)) {
       setUniformLocationInt(program, "u_" + name, arg);
@@ -318,12 +318,6 @@ class FunctionBuilder {
       if (typeof height === 'undefined') {
         height = 1;
       }
-      implementation.program = new Program(width, height);
-
-      //console.log(vertexShaderCode);
-      //console.log(fragmentShaderCode);
-
-      implementation.program.buildProgram(implementation.vertexShaderCode, implementation.fragmentShaderCode);
 
       /*
       * If the kernel is called for the first time there will be no input textures.
@@ -331,23 +325,27 @@ class FunctionBuilder {
       * need to be deleted.
       */
       implementation.inputTextures.forEach(texture => {
-        texture.delete();
+        if (!texture.isRaw) {
+          texture.delete();
+        }
       });
-     
 
+      implementation.program = new Program(width, height, implementation.gl);
+      implementation.gl = implementation.program.gl;
+      implementation.program.buildProgram(implementation.vertexShaderCode, implementation.fragmentShaderCode);
       implementation.inputTextures = setUniforms(implementation.program, width, height, args, options);
 
       /*
       * If the kernel is called for the first time there will be no result textures.
       * If the kernel is called multiple times, the previously used result textures 
-      * need to be deleted.
+      * need to be deleted. However, only delete the texture in case it is not a raw texture.
       */
       implementation.resultTextures.forEach(texture => {
-        if (!texture.isRaw){
+        if (!texture.isRaw) {
           texture.delete();
         }
       });
-      
+
 
       implementation.resultTextures = implementation.program.execute(options.numResults);
       return implementation;
@@ -361,10 +359,19 @@ class FunctionBuilder {
     implementation.inputTextures = [];
     implementation.resultTextures = [];
     implementation.program = null;
-
+    implementation.gl;
 
     implementation.getVertexShaderCode = function () {
       return implementation.vertexShaderCode;
+    }
+
+    implementation.setGL = function (gl) {
+      implementation.gl = gl;
+      return implementation;
+    }
+
+    implementation.getGL = function (gl) {
+      return implementation.gl;
     }
 
     implementation.getFragmentShaderCode = function () {
@@ -410,13 +417,17 @@ class FunctionBuilder {
     implementation.delete = function () {
       (implementation.program !== null) ? implementation.program.delete() : '';
       implementation.resultTextures.forEach(texture => {
-        texture.delete();
+        if (!texture.isRaw) {
+          texture.delete();
+        }
       });
       implementation.inputTextures.forEach(texture => {
-        texture.delete();
+        if (!texture.isRaw) {
+          texture.delete();
+        }
       });
-      implementation.resultTextures=[];
-      implementation.inputTextures=[];
+      implementation.resultTextures = [];
+      implementation.inputTextures = [];
     }
 
     implementation.setOutput = function (dimensions) {

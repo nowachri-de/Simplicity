@@ -6,6 +6,7 @@ const { MatrixStorage } = require(__dirname + "\\..\\modules\\matrixstorage.js")
 const { TextureFactory } = require(__dirname + "\\..\\modules\\texturefactory.js");
 const { FrameBufferFactory } = require(__dirname + "\\..\\modules\\framebufferfactory.js");
 const { Matrix } = require(__dirname + "\\..\\modules\\matrix.js");
+const { Util } = require(__dirname + "\\..\\modules\\Util.js");
 
 let resultTexture;
 let testTexture;
@@ -50,7 +51,7 @@ function test(matrixA, matrixB) {
     inputTexture.delete();
     program.delete();
 
-    console.log(Matrix.texture2matrix(gl,testTexture,0));
+    console.log(Util.texture2array(gl,testTexture,0));
 }
 
 var matrixA = new Matrix(4, 4).randomInitialize();

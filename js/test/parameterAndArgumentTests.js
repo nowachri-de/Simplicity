@@ -162,24 +162,4 @@ describe('Test parameters and arguments', function () {
             assert.equal(e, 'mismatch between number of declared function parameters and number of actually passed arguments');
         }
     });
-
-    it('Call kernel with texture as argument', function () {
-        try {
-            let rawKernel = Kernel.create(function main(a = [[]], b =[[]]) {
-                return a[this.thread.x][this.thread.y] * b[this.thread.x][this.thread.y];
-            }).setOutput([2, 2]);
-
-            let textureKernel = Kernel.create(function main(a = [[]]) {
-                return a[this.thread.x][this.thread.y] ;
-            }).setOutput([2, 2]);
-
-            let texture = rawKernel([[5,5],[5,5]],[[5,5],[5,5]]).rawResult();
-            TestUtil.compare2DArray(Util.texture2array(rawKernel.program.gl, texture, 0), [ [ 25, 25 ], [ 25, 25 ] ]);
-            console.log(textureKernel(texture).result());
-            rawKernel.delete();
-            textureKernel.delete();
-        } catch (e) {
-            assert.equal(e, '');
-        }
-    });
 });
