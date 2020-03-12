@@ -200,4 +200,73 @@ describe('Kernel functional tests', function () {
 
     test.delete();
   });
+
+  it('Change output size of kernel using integer as input', function () {
+    let test = Kernel.create(function main(i = 0) {
+      return i + this.thread.x;
+    }).setOutput([2, 2]);
+    
+    TestUtil.compare2DArray(test(1).result(), [[1, 2], [1, 2]]);
+    
+    test.setOutput([10, 10]);
+    TestUtil.compare2DArray(test(1).result(), [
+      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]]
+    );
+
+    test.setOutput([5, 5]);
+    TestUtil.compare2DArray(test(5).result(), [
+      [5, 6, 7, 8, 9],
+      [5, 6, 7, 8, 9],
+      [5, 6, 7, 8, 9],
+      [5, 6, 7, 8, 9],
+      [5, 6, 7, 8, 9]]
+    );
+    test.delete();
+  });
+
+  it('Change output size of kernel using two integer as input', function () {
+
+    let test = Kernel.create(function main(x = 0.,y= 0.) {
+      return (this.thread.x /x) + y;
+    }).setOutput([2, 2]);
+
+    //TestUtil.compare2DArray(test(1,1).result(), [[1, 2], [1, 2]]);
+    test.setOutput([10,10]);
+
+    TestUtil.compare2DArray(test(1,1).result(), [
+      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]]
+    );
+    
+    test.setOutput([5, 5]);
+    TestUtil.compare2DArray(test(5.0,5.0).result(),
+      [
+        [5,5.2,5.4,5.6,5.8],
+        [5,5.2,5.4,5.6,5.8],
+        [5,5.2,5.4,5.6,5.8],
+        [5,5.2,5.4,5.6,5.8],
+        [5,5.2,5.4,5.6,5.8]
+      ]
+    );
+    test.delete();
+  });
+
+ 
 });

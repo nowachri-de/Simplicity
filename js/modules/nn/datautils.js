@@ -1,5 +1,6 @@
 "use strict";
 const { Kernel } = require('./../kernel.js');
+const { Program } = require('./../program.js');
 const fs = require("fs");
 
 
@@ -12,6 +13,8 @@ function derivativeSigmoid(i = 0.) {
 function dOut2dNet(outt=0.) {
     return derivativeSigmoid(outt);
 }
+
+const sharedGL = Program.createGl(100,100);
 
 const backPropOutput = Kernel.create(
     function main(weights = [[]], dEtot2dOut = [], dOut2dNet = [], prevOutput = [], learningRate = 0.) {
@@ -29,10 +32,10 @@ const backPropOutput = Kernel.create(
         let dNet2dWeight = prevOutput[this.thread.x];  //this is dNetOut2dWeight
         return weight - (learningRate * (dETot2dOut * dOut2dNet_ * dNet2dWeight)); //updated weight
     }
-);//[num output neurons, num output neurons + 1 bias]
+).setGL(sharedGL);//[num output neurons, num output neurons + 1 bias]
 
 const KernelFeedForward = Kernel.create(
-    [derivativeSigmoid],
+    [derivativeSigmoid,sigmoidActivation],
     function dOut2dNet(outt = 0.) {
         return derivativeSigmoid(outt);
     },
@@ -42,19 +45,14 @@ const KernelFeedForward = Kernel.create(
         let i = 0;
         sum += dataIn[i] * weights[i][this.thread.x];
         for (let i = 0; i < 4096; i++) {
-            //if (i >= max){break;}
-            //sum += dataIn[i] * weights[i][this.thread.x];
-        }/*
+            if (i >= max){break;}
+            sum += dataIn[i] * weights[i][this.thread.x];
+        }
         let outt = sigmoidActivation(sum + bias[this.thread.x]);
         dOut2dNet(outt); //store for later use in backpropagation
-        return outt;*/
-        let a = dataIn[this.thread.x];
-        let b = weights[this.thread.y][this.thread.x];
-        let c = numInputs;
-        let d = bias[this.thread.x];
-        return sum;
+        return outt;
     }
-);
+).setGL(sharedGL);
 
 
 const error = Kernel.create(
@@ -65,7 +63,8 @@ const error = Kernel.create(
         dEtot2dOut(outputs[this.thread.x], targets[this.thread.x]);
         return pow(targets[this.thread.x] - outputs[this.thread.x], 2.0) * 0.5;
     }
-);
+).setGL(sharedGL);
+
 const errorTot = Kernel.create(
     function main (dError=[], length=0) {
         let total = 0;
@@ -75,7 +74,7 @@ const errorTot = Kernel.create(
         }
         return total;
     }
-).setOutput([1]); //single value
+).setOutput([1]).setGL(sharedGL);; //single value
 
 const updateBias = Kernel.create(
     function main(bias=[], dEtot2dOut=[], dOut2dNet=[], learningRate=0.) {
@@ -90,9 +89,9 @@ const updateBias = Kernel.create(
         let biasWeight = bias[this.thread.x]; //this is the weight betwenn output layer neuron and hidden layer neuron
         let dETot2dOut = dEtot2dOut[this.thread.x]; //this is dEOut2dOut
         let dOut2dNet_ = dOut2dNet[this.thread.x];  //this is dOut2dNet
-        return biasWeight - (learningRate * (dETot2dOut * dOut2dNet_ * 1)); //updated bias
+        return biasWeight - (learningRate * (dETot2dOut * dOut2dNet_ * 1.0)); //updated bias
     }
-) //num Bias
+).setGL(sharedGL); //num Bias
 
 const backPropHidden = Kernel.create(
     function main(sums=[], dOut2dNet=[], prevOutput=[], weights=[[]], learningRate=0.) {
@@ -108,7 +107,7 @@ const backPropHidden = Kernel.create(
     let dETot2dOutPre = dETot * dOut2dNet[this.thread.y] * prevOutput[this.thread.y];
     let updatedWeight = weights[this.thread.y][this.thread.x] - (learningRate * dETot2dOutPre);
     return updatedWeight;
-});
+}).setGL(sharedGL);
 
 const computeDerivatives = Kernel.create(
     function main(weights=[[]], dEtot2dOut=[], dOut2dNet=[]) {
@@ -120,13 +119,13 @@ const computeDerivatives = Kernel.create(
         //0,2  0  2,0    0
         //1,2  1  2,1    1
 
-        let dEtot2dOut_ = dEtot2dOut[this.thread.x];
+        /*let dEtot2dOut_ = dEtot2dOut[this.thread.x];
         let dOut2dNet_ = dOut2dNet[this.thread.x];
-        let dNet2dOprev_ = weights[this.thread.y][this.thread.x];
+        let dNet2dOprev_ = weights[this.thread.y][this.thread.x];*/
 
-        return dEtot2dOut_ * dOut2dNet_ * dNet2dOprev_;
+        return dEtot2dOut[this.thread.x] * dOut2dNet[this.thread.x] * weights[this.thread.y][this.thread.x];
     }
-); //[num output neurons, num output neurons + 1 bias] 
+).setGL(sharedGL); //[num output neurons, num output neurons + 1 bias] 
 
 const sumUp = Kernel.create(
     function main(derivatives=[[]], numTargets = 0) {
@@ -137,7 +136,7 @@ const sumUp = Kernel.create(
         }
         return sum;
     }
-); //num neurons in current layer
+).setGL(sharedGL); //num neurons in current layer
 
 
 function getTotalError(error, length) {
@@ -154,7 +153,7 @@ function data2Texture2D(data, x, y) {
         function main(dataIn=[[]]) {
             return dataIn[this.thread.y][this.thread.x];
         }
-    );
+    ).setGL(sharedGL);
 
     kernelData2Texture2D.setOutput([x, y]);
     let result =  kernelData2Texture2D(data);
@@ -167,7 +166,7 @@ function data2Texture1D(data, length) {
         function main(dataIn=[]) {
             return dataIn[this.thread.x];
         }
-    );
+    ).setGL(sharedGL);;
     
     kernelData2Texture1D.setOutput([length]);
     let result =  kernelData2Texture1D(data);

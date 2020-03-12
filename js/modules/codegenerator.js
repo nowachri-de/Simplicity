@@ -119,7 +119,9 @@ function handleMemberExpression(codeGen, node, sb) {
 
     if (typeof object === 'undefined') {
         let tmp = [];
+        setTransformationRequest(codeGen,'memberExpression',data);
         codeGen.handleType(node, tmp);
+        deleteTransformationRequest(codeGen,'memberExpression');
         let result = tmp.join('').replaceAll('this.thread.x', 'vKernelX');
         result = result.replaceAll('this.thread.y', 'vKernelY');
         return sb.push(result);
@@ -263,6 +265,10 @@ function getTransformationRequest(codeGen,key){
 
 function deleteTransformationRequest(codeGen,key){
     codeGen.transformationRequests.delete(key);
+}
+
+function isTransformationRequestSet(codeGen,type){
+    return typeof getTransformationRequest(codeGen,type) === 'undefined' ? false:true;
 }
 
 class CodeGenerator {
@@ -603,6 +609,7 @@ class CodeGenerator {
         })
         sb.push(')');
     }
+
     genMemberExpression(node, sb) {
         this.handleType(node.object, sb);
         node.computed === false ? sb.push('.') : sb.push('[');
@@ -622,6 +629,7 @@ class CodeGenerator {
             sb.push(']');
         }
     }
+
     type2String(node) {
         if (node.type === 'MemberExpression') {
             return 'float';
@@ -811,12 +819,10 @@ class CodeGenerator {
     }
 
     genIdentifier(node, sb) {
-        
-
         let type = this.parameters.get(node.name);
-
+        
         //if its not an array type and main function is processed then it is a uniform 
-        if (type && !(Util.isArray(type) || Util.is2DArray(type)) && isMainFunction(this)) {
+        if (type && !(Util.isArray(type) || Util.is2DArray(type)) && isMainFunction(this) && !isTransformationRequestSet(this,"memberExpression")) {
             sb.push("u_" + getFunctionName(this) + "_" + node.name);
         } else {
             sb.push(node.name);

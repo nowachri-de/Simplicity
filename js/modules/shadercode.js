@@ -380,7 +380,7 @@ uniform float uSampler_{{@this.name}}_height;
 uniform int u_{{@this.name}};
 {{/each}}
 {{each(options.floats)}}
-uniform float u_{{@this.name}};
+uniform highp float u_{{@this.name}};
 {{/each}}
 float readTexture(int x, float width, in sampler2D sampler);
 float readTexture(float x, int width, in sampler2D sampler);
