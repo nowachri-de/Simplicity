@@ -148,43 +148,6 @@ function computeError(result, target, numNeurons) {
     return error(result, target);
 }
 
-function data2Texture2D(data, x, y) {
-    const kernelData2Texture2D = Kernel.create(
-        function main(dataIn=[[]]) {
-            return dataIn[this.thread.y][this.thread.x];
-        }
-    ).setGL(sharedGL);
-
-    kernelData2Texture2D.setOutput([x, y]);
-    let result =  kernelData2Texture2D(data);
-    kernelData2Texture2D.delete();
-    return result;
-}
-
-function data2Texture1D(data, length) {
-    const kernelData2Texture1D = Kernel.create(
-        function main(dataIn=[]) {
-            return dataIn[this.thread.x];
-        }
-    ).setGL(sharedGL);;
-    
-    kernelData2Texture1D.setOutput([length]);
-    let result =  kernelData2Texture1D(data);
-    kernelData2Texture1D.delete();
-    return result;
-}
-
-
-function randomNumbersAtScale1D(length, divisor) {
-    let array = [];
-    for (let i = 0; i < length; i++) {
-        for (var j = 0; j < length; j++) { // i++ needs to be j++
-            array[j] = (Math.random() / divisor);
-        }
-    }
-    return array;
-}
-
 function randomNumbersAtScale2D(x, y, divisor) {
     var matrix = []; // Initialize array
     var i;
@@ -197,9 +160,6 @@ function randomNumbersAtScale2D(x, y, divisor) {
     return matrix;
 }
 
-function randomBias(length, divisor) {
-    return randomNumbersAtScale1D(length, divisor);
-}
 function randomWeights(x, y, divisor) {
     return randomNumbersAtScale2D(x, y, divisor);
 }

@@ -1,6 +1,5 @@
 var headlessGL = require('gl');
 
-
 function genResultTextures(gl,num,width,height) {
 	let textures = [];
 	for (let i=0; i < num;++i){

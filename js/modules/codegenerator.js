@@ -1,7 +1,6 @@
 const acorn = require('acorn');
 const Sqrl = require('squirrelly');
-const { Util } = require("./util.js");
-
+const {Util} = require('./util');
 let space = 0;
 
 /**

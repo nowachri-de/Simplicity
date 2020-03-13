@@ -419,7 +419,7 @@ module.exports = {
 }
 const { CodeGenerator } = require('./../modules/codegenerator.js');
 const { Util } = require( './../modules/util.js');
-const { ShaderCode } = require('./../modules\\shadercode.js');
+const { ShaderCode } = require('./../modules/shadercode.js');
 const { Program } = require('./../modules/program.js');
-const { TextureFactory } = require('./../modules\\texturefactory.js');
+const { TextureFactory } = require('./../modules/texturefactory.js');
 const { Formatter } = require("./formatter.js");
