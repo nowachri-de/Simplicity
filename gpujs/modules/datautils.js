@@ -183,15 +183,6 @@ function data2Texture2D(data, x, y) {
     return kernelData2Texture2D(data);
 }
 
-function randomNumbersAtScale1D(length, divisor) {
-    let matrix = [];
-    for (let i = 0; i < length; i++) {
-        for (var j = 0; j < length; j++) { // i++ needs to be j++
-            matrix[j] = (Math.random() / divisor);
-        }
-    }
-    return matrix;
-}
 
 function randomNumbersAtScale2D(x, y, divisor) {
     var matrix = []; // Initialize array
@@ -205,13 +196,14 @@ function randomNumbersAtScale2D(x, y, divisor) {
     return matrix;
 }
 
+function randomWeights(x, y, divisor) {
+    return data2Texture2D(randomNumbersAtScale2D(x, y, divisor), x, y);
+}
+
 function randomBias(length, divisor) {
     return data2Texture1D(randomNumbersAtScale1D(length, divisor), length);
 }
 
-function randomWeights(x, y, divisor) {
-    return data2Texture2D(randomNumbersAtScale2D(x, y, divisor), x, y);
-}
 function feedForward(dataIn,weights,biasWeights,numberOfNeurons){
     GPUFeedForward.setOutput([numberOfNeurons]);
     return GPUFeedForward(dataIn,weights, numberOfNeurons, biasWeights);

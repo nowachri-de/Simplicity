@@ -90,7 +90,7 @@ class TextureUtil{
     }
 
     static getTotalError(error, length) {
-        return errorTot(error, length);
+        return errorTot(error, length).result();
     }
     
     static computeError(result, target, numNeurons) {
@@ -222,8 +222,8 @@ const error = Kernel.create(
 ).setGL(sharedGL);
 
 const errorTot = Kernel.create(
-    function main (dError=[], length=0) {
-        let total = 0;
+    function main (dError=[], length = 0) {
+        let total = 0.;
         for (let index = 0; index < 4096; index++) {
             if (index >= length){break;}
             total += dError[index];

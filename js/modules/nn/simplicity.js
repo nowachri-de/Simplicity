@@ -269,7 +269,7 @@ module.exports.Network = function (gl) {
     }
 
     this.getTotalError = function(){
-        return Util.getTotalError(this.error.result(),this.error.result()[0]);
+        return Util.getTotalError(this.error.rawResult(),this.error.rawResult().width);
     }
 
 }
