@@ -1,6 +1,7 @@
 const { TextureFactory, Texture } = require("./texturefactory.js");
 const { FrameBufferFactory } = require("./framebufferfactory.js");
 const { ResultReader } = require("./resultreader.js");
+const fs = require("fs");
 
 class Util {
 
@@ -44,8 +45,6 @@ class Util {
         return argument === 'float';
     }
 
-   
-
     static data2Texel(width, height, data, component) {
         let result = new Float32Array(4 * height * width);
         let cnt = 0;
@@ -86,8 +85,6 @@ class Util {
 
         return result;
     }
-
-
 
     static createReadableTexture(gl, name, width, height) {
         return TextureFactory.createReadableTexture(gl, name, { width: width, height: height });
@@ -131,6 +128,8 @@ class Util {
         gl.bindTexture(gl.TEXTURE_2D, texture.texture);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, texture.width, texture.height, 0, gl.RGBA, gl.FLOAT, null);
     }
+
+
 }
 
 

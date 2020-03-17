@@ -1,5 +1,6 @@
 var headlessGL = require('gl');
 const {Kernel} = require('./kernel.js');
+const fs = require("fs");
 
 function randomNumbersAtScale1D(length, divisor) {
     let matrix = [];
@@ -34,6 +35,18 @@ function dOut2dNet(outt=0.) {
 }
 
 class TextureUtil{
+    static readObject(fileName){
+        return JSON.parse(fs.readFileSync(fileName, 'utf8'));
+    }
+
+    static read2DDataFromFile(fileName,dimensionX,dimensionY,gl){
+        return TextureUtil.data2Texture2D(TextureUtil.readObject(fileName),dimensionX,dimensionY,gl);
+    }
+
+    static read1DDataFromFile(fileName,length,gl){
+        return TextureUtil.data2Texture1D(TextureUtil.readObject(fileName),length,gl);
+    }
+
     static data2Texture2D(data, dimensionX, dimensionY, gl) {
         const kernelData2Texture2D = Kernel.create(
             function main(dataIn = [[]]) {

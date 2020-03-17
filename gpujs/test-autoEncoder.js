@@ -61,7 +61,6 @@ for(let j=0; j < 100;++j){
     for(let i=0; i < 50;++i){
         result = network.feedForward(dataIn,target).feedForwardResult;
         network.backPropagate(0.5);
-        
     }
     /*console.log("target");
     console.log(dataIn.toArray());

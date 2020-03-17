@@ -7,32 +7,29 @@ const {Util} = require('./../modules/textureUtil.js');
 browserReady();
 
 describe('Simplicity Test', function () {
-  /*  it('Test Matt Mazure values', function () {
-        let inputLayer = new simplicity.Layer(2, 'sigmoid');
-        inputLayer.setWeights([[.15, .25], [.20, .30]]);
-        inputLayer.setBiasWeights([.35, .35]);
-
-        let outputLayer = new simplicity.Layer(2, 'sigmoid');
-        outputLayer.setWeights([[.40, .50], [.45, .55]]);
-        outputLayer.setBiasWeights([.60, .60]);
-
-        let network = new simplicity.Network();
-        network.addLayer(inputLayer).addLayer(outputLayer);
-
-        network.feedForward([.05, .10], [0.01, 0.99]);
-        TestUtil.compare2DArray(inputLayer.weights, [[0.15, 0.25], [0.2, 0.3]]);
-    });*/
 
     it('Test Autoencoder', function () {
 
         let gl = Util.createGL();
         let nN = 128; //each layer has 128 neurons
         let nZ = 10;  //latent vector has 10 neurons
+        
+        let w1 = Util.read2DDataFromFile(process.cwd() + "\\..\\gpujs\\data\\w1", nN, nN,gl);
+        let w2 = Util.read2DDataFromFile(process.cwd() + "\\..\\gpujs\\data\\w2", nN, nN,gl);
+        let w3 = Util.read2DDataFromFile(process.cwd() + "\\..\\gpujs\\data\\w3", nN, nN,gl);
+        let w4 = Util.read2DDataFromFile(process.cwd() + "\\..\\gpujs\\data\\w4", nN, nN,gl);
+
+        let b1 = Util.read2DDataFromFile(process.cwd() + "\\..\\gpujs\\data\\b1", nN, nN,gl);
+        let b2 = Util.read2DDataFromFile(process.cwd() + "\\..\\gpujs\\data\\b2", nN, nN,gl);
+        let b3 = Util.read2DDataFromFile(process.cwd() + "\\..\\gpujs\\data\\b3", nN, nN,gl);
+        let b4 = Util.read2DDataFromFile(process.cwd() + "\\..\\gpujs\\data\\b4", nN, nN,gl);
 
         //writeArray('C:/nowak/development/git/Simplicity/js/test/data/vector1D128',randomNumbersAtScale1D(128,100));
         let dataIn = vector1D128;
         dataIn = Util.data2Texture1D(dataIn,dataIn.length,gl)
         let target = dataIn;
+
+        Util.data2Texture2D(weights,weights[0].length,weights.length,this.gl);
 
         let l1 = new simplicity.Layer(nN,nN, 'sigmoid', gl);
         let l2 = new simplicity.Layer(nN,nN, 'sigmoid', gl);

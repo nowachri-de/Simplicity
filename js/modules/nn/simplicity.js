@@ -32,12 +32,11 @@ module.exports.Layer = function (numberOfInputNeurons,numberOfNeurons, activatio
     this.nextLayer = null;
     this.isCompiled = false;
     this.dataIn = null; // only used for input layer
-
+    
+    
     this.setWeights = function (weights) {
         if (!isGLTextureFloat2D(weights)){
-            this.weights = Util.data2Texture2D(weights,weights[0].length,weights.length,this.gl);
-        }else{
-            this.weights = weights;
+            throw 'setWeight argument is not of type texture'
         }
         this.weights = weights;
     }
