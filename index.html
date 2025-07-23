@@ -1,0 +1,1366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hierarchical JSON 3D Visualizer</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+        }
+        
+        #upload-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            z-index: 1000;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            display: none;
+        }
+
+        #upload-container.visible {
+            display: block;
+        }
+        
+        #file-input {
+            margin: 20px 0;
+            padding: 10px;
+            border: 2px dashed #4ecdc4;
+            border-radius: 10px;
+            background: rgba(78, 205, 196, 0.1);
+            cursor: pointer;
+        }
+        
+        #file-input:hover {
+            background: rgba(78, 205, 196, 0.2);
+        }
+        
+        input[type="file"] {
+            display: none;
+        }
+        
+        .upload-btn {
+            background: #4ecdc4;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .upload-btn:hover {
+            background: #45b7d1;
+            transform: translateY(-2px);
+        }
+        
+        #container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+        
+        #info {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            max-width: 350px;
+            z-index: 100;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        #controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 12px;
+            z-index: 100;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            min-width: 200px;
+        }
+
+        #controls h4 {
+            margin: 0 0 10px 0;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #controls-content {
+            transition: all 0.3s ease;
+        }
+
+        #controls-content.collapsed {
+            display: none;
+        }
+
+        .toggle-icon {
+            font-size: 14px;
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-icon.collapsed {
+            transform: rotate(-90deg);
+        }
+        
+        #legend {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 12px;
+            z-index: 100;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+        }
+        
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .reset-btn {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            z-index: 100;
+            display: none;
+        }
+
+        .reset-btn:hover {
+            background: #ff5252;
+        }
+
+        #error-message {
+            color: #ff6b6b;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .sample-data {
+            margin-top: 20px;
+            font-size: 12px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="upload-container">
+            <h2>📊 Hierarchical JSON 3D Visualizer</h2>
+            <p>Upload a JSON file with hierarchical data structure</p>
+            
+            <div id="file-input" onclick="document.getElementById('file-upload').click()">
+                <p>📁 Click to select JSON file</p>
+                <p><small>or drag & drop here</small></p>
+            </div>
+            
+            <input type="file" id="file-upload" accept=".json,.txt" />
+            
+            <div>
+                <button class="upload-btn" onclick="loadSampleData()">📋 Use HGC Services Data</button>
+            </div>
+            
+            <div id="error-message"></div>
+            
+            <div class="sample-data">
+                <strong>Expected JSON structure:</strong><br>
+                <code>{ "name": "Root", "description": "...", "children": [...] }</code>
+            </div>
+        </div>
+
+        <button class="reset-btn" id="reset-btn" onclick="resetVisualization()" style="display: none;">🔄 Load New Data</button>
+        
+        <div id="info">
+            <h3 id="data-title">Service Gruppen und Hiererchie</h3>
+            <div id="nodeInfo">Klicke auf Knoten um zu expandieren / kollabieren </div>
+        </div>
+        
+        <div id="controls">
+            <h4 onclick="toggleControls()">
+                <span>Steuerung</span>
+                <span id="controls-toggle" class="toggle-icon">▼</span>
+            </h4>
+            <div id="controls-content">
+                <div>🖱️ Linke Maus: Ansicht Drehen/div>
+                <div>🖱️ Rechte Maus: Ansicht Verschieben</div>
+                <div>🔍 Scroll: Zoom in/out</div>
+                <div>👆 Click: Knoten expandieren/kollabieren</div>
+                <div>🔄 R: Ansicht zurücksetzen</div>
+                <div>🔍 E: Alle expandieren</div>
+                <div>📁 C: Alle kollabieren</div>
+                <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.2);">
+                    <button class="upload-btn" onclick="showUploadDialog()" style="padding: 8px 16px; font-size: 11px;">📁 Daten Laden</button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="legend">
+            <h4>Legend</h4>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #ff6b6b;"></div>
+                <span>Root Node</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #4ecdc4;"></div>
+                <span>Expanded Nodes</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #ffd93d;"></div>
+                <span>Collapsed Nodes</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #45b7d1;"></div>
+                <span>Leaf Nodes</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        let scene, camera, renderer, raycaster, mouse;
+        let nodes = [];
+        let nodeStates = new Map();
+        let currentData = null;
+
+        // HGC Services sample data
+        const sampleData = {
+            "name": "HGC Services",
+            "children": [
+                {
+                    "name": "AEOS",
+                    "children": [
+                        {
+                            "name": "vmsst010"
+                        }
+                    ]
+                },
+                {
+                    "name": "ALT",
+                    "children": [
+                        {
+                            "name": "vmxee102.hgc.intra"
+                        },
+                        {
+                            "name": "vmdms011"
+                        },
+                        {
+                            "name": "vmdms001"
+                        },
+                        {
+                            "name": "vmxet102.hgc.intra"
+                        },
+                        {
+                            "name": "vmsparx001"
+                        },
+                        {
+                            "name": "vmedison001"
+                        }
+                    ]
+                },
+                {
+                    "name": "Admin WS",
+                    "children": [
+                        {
+                            "name": "vmadmin011"
+                        },
+                        {
+                            "name": "vmadmin005"
+                        },
+                        {
+                            "name": "vmadmin014"
+                        },
+                        {
+                            "name": "vmadmin010"
+                        },
+                        {
+                            "name": "vmadmin019"
+                        },
+                        {
+                            "name": "vmadmin098"
+                        },
+                        {
+                            "name": "vmadmin015"
+                        },
+                        {
+                            "name": "vmadmin009"
+                        },
+                        {
+                            "name": "vmadmin077"
+                        }
+                    ]
+                },
+                {
+                    "name": "Anaconda",
+                    "children": [
+                        {
+                            "name": "vmana001"
+                        }
+                    ]
+                },
+                {
+                    "name": "CA",
+                    "children": [
+                        {
+                            "name": "vmcer001"
+                        },
+                        {
+                            "name": "vmcer002"
+                        },
+                        {
+                            "name": "vmcer003"
+                        }
+                    ]
+                },
+                {
+                    "name": "Cortex",
+                    "children": [
+                        {
+                            "name": "vmcortex002"
+                        }
+                    ]
+                },
+                {
+                    "name": "DC",
+                    "children": [
+                        {
+                            "name": "vmdcs002"
+                        },
+                        {
+                            "name": "vmdcr001"
+                        },
+                        {
+                            "name": "vmadc001"
+                        },
+                        {
+                            "name": "vmadc002"
+                        },
+                        {
+                            "name": "vmdcr002"
+                        }
+                    ]
+                },
+                {
+                    "name": "Exchange",
+                    "children": [
+                        {
+                            "name": "vmexc010"
+                        }
+                    ]
+                },
+                {
+                    "name": "FCI",
+                    "children": [
+                        {
+                            "name": "vmfciprod001"
+                        },
+                        {
+                            "name": "vmfcidev001"
+                        }
+                    ]
+                },
+                {
+                    "name": "ISE",
+                    "children": [
+                        {
+                            "name": "vmise002"
+                        },
+                        {
+                            "name": "vmise001"
+                        }
+                    ]
+                },
+                {
+                    "name": "IT-Infra",
+                    "children": [
+                        {
+                            "name": "vmmgt019"
+                        },
+                        {
+                            "name": "vmipam010"
+                        },
+                        {
+                            "name": "vmbgw001"
+                        }
+                    ]
+                },
+                {
+                    "name": "KIWI",
+                    "children": [
+                        {
+                            "name": "vmmgt002"
+                        },
+                        {
+                            "name": "vmbackup002"
+                        }
+                    ]
+                },
+                {
+                    "name": "Kaba",
+                    "children": [
+                        {
+                            "name": "vmkaba001"
+                        }
+                    ]
+                },
+                {
+                    "name": "PIM",
+                    "children": [
+                        {
+                            "name": "vmsql005"
+                        },
+                        {
+                            "name": "vmsql100"
+                        },
+                        {
+                            "name": "vmpim010"
+                        }
+                    ]
+                },
+                {
+                    "name": "PRTG",
+                    "children": [
+                        {
+                            "name": "vmprtg001"
+                        }
+                    ]
+                },
+                {
+                    "name": "Print Server",
+                    "children": [
+                        {
+                            "name": "vmprs020"
+                        },
+                        {
+                            "name": "vmprs030"
+                        },
+                        {
+                            "name": "vmprs012"
+                        },
+                        {
+                            "name": "vmprs011"
+                        },
+                        {
+                            "name": "vmprs010"
+                        }
+                    ]
+                },
+                {
+                    "name": "RIMO",
+                    "children": [
+                        {
+                            "name": "vmimo010"
+                        }
+                    ]
+                },
+                {
+                    "name": "SW Verteilung",
+                    "children": [
+                        {
+                            "name": "vmmgt001"
+                        }
+                    ]
+                },
+                {
+                    "name": "UKA",
+                    "children": [
+                        {
+                            "name": "vmuka001"
+                        }
+                    ]
+                },
+                {
+                    "name": "World Line",
+                    "children": [
+                        {
+                            "name": "vmmgt014"
+                        },
+                        {
+                            "name": "vmmgt011"
+                        }
+                    ]
+                },
+                {
+                    "name": "Zuschnitt",
+                    "children": [
+                        {
+                            "name": "vmmgt031"
+                        },
+                        {
+                            "name": "vmddx001"
+                        },
+                        {
+                            "name": "vmapp030"
+                        },
+                        {
+                            "name": "vmapp010"
+                        }
+                    ]
+                },
+                {
+                    "name": "Zuschnitt Client",
+                    "children": [
+                        {
+                            "name": "vmschnittbi"
+                        },
+                        {
+                            "name": "vmschnittvg"
+                        },
+                        {
+                            "name": "vmschnittco"
+                        },
+                        {
+                            "name": "vmschnitthb"
+                        },
+                        {
+                            "name": "vmschnittzw"
+                        },
+                        {
+                            "name": "vmschnittvw"
+                        },
+                        {
+                            "name": "vmschnitttest"
+                        },
+                        {
+                            "name": "vmschnittwe"
+                        },
+                        {
+                            "name": "vmschnittcf"
+                        },
+                        {
+                            "name": "vmschnittbe"
+                        }
+                    ]
+                },
+                {
+                    "name": "abacus",
+                    "children": [
+                        {
+                            "name": "vmaba020"
+                        },
+                        {
+                            "name": "vmabadev001"
+                        },
+                        {
+                            "name": "vmabaprod001"
+                        }
+                    ]
+                },
+                {
+                    "name": "andere Lösung",
+                    "children": [
+                        {
+                            "name": "vmotx105.hgc.intra"
+                        },
+                        {
+                            "name": "vmotx104.hgc.intra"
+                        }
+                    ]
+                },
+                {
+                    "name": "avaya",
+                    "children": [
+                        {
+                            "name": "vmads001"
+                        },
+                        {
+                            "name": "vmacm002"
+                        },
+                        {
+                            "name": "vmspie001"
+                        },
+                        {
+                            "name": "vmams001"
+                        },
+                        {
+                            "name": "vmacm001"
+                        },
+                        {
+                            "name": "vmpre001"
+                        },
+                        {
+                            "name": "vmads002"
+                        },
+                        {
+                            "name": "vmwgw001"
+                        },
+                        {
+                            "name": "vmpre002"
+                        },
+                        {
+                            "name": "vmdiag001"
+                        },
+                        {
+                            "name": "vmwgw002"
+                        },
+                        {
+                            "name": "vmsem020"
+                        },
+                        {
+                            "name": "vmams002"
+                        },
+                        {
+                            "name": "vmems001"
+                        },
+                        {
+                            "name": "vmutl001"
+                        },
+                        {
+                            "name": "vmsem010"
+                        },
+                        {
+                            "name": "vmsym010"
+                        }
+                    ]
+                },
+                {
+                    "name": "cortex",
+                    "children": [
+                        {
+                            "name": "vmcortex001"
+                        }
+                    ]
+                },
+                {
+                    "name": "dc",
+                    "children": [
+                        {
+                            "name": "vmdcs001"
+                        }
+                    ]
+                }
+            ]
+        };
+
+        // Initialize Three.js
+        function initThreeJS() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColor(0x000000, 0);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            document.getElementById('container').appendChild(renderer.domElement);
+
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0x404040, 0.8);
+            scene.add(ambientLight);
+
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
+            directionalLight.position.set(50, 50, 50);
+            directionalLight.castShadow = true;
+            scene.add(directionalLight);
+
+            // Camera position for better 3D matrix view with depth
+            camera.position.set(40, 50, 100);
+            camera.lookAt(0, 0, 0);
+
+            // Mouse interaction
+            raycaster = new THREE.Raycaster();
+            mouse = new THREE.Vector2();
+        }
+
+        // Create text texture for labels
+        function createTextTexture(text, fontSize = 48, color = '#ffffff') {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            
+            canvas.width = 1024;
+            canvas.height = 256;
+            
+            context.fillStyle = color;
+            context.font = `bold ${fontSize}px Arial`;
+            context.textAlign = 'center';
+            context.textBaseline = 'middle';
+            
+            // Add text shadow for better visibility
+            context.shadowColor = 'rgba(0,0,0,0.9)';
+            context.shadowBlur = 6;
+            context.shadowOffsetX = 3;
+            context.shadowOffsetY = 3;
+            
+            // Truncate long text
+            const maxLength = 25;
+            const displayText = text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+            context.fillText(displayText, canvas.width / 2, canvas.height / 2);
+            
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.needsUpdate = true;
+            return texture;
+        }
+
+        // Get node color based on level and state
+        function getNodeColor(level, hasChildren, expanded) {
+            if (level === 0) return 0xff6b6b; // Red for root
+            if (hasChildren) return expanded ? 0x4ecdc4 : 0xffd93d; // Teal if expanded, yellow if collapsed
+            return 0x45b7d1; // Blue for leaf nodes
+        }
+
+        // Create a node with label
+        function createNodeWithLabel(name, position, level, hasChildren = false, expanded = false) {
+            const group = new THREE.Group();
+            
+            const color = getNodeColor(level, hasChildren, expanded);
+            // Much smaller nodes
+            const size = level === 0 ? 1.5 : (level === 1 ? 1.2 : 1.0);
+
+            // Create smaller sphere
+            const geometry = new THREE.SphereGeometry(size, 16, 16);
+            const material = new THREE.MeshLambertMaterial({ 
+                color: color,
+                transparent: true,
+                opacity: 0.8
+            });
+            const sphere = new THREE.Mesh(geometry, material);
+            sphere.castShadow = true;
+            sphere.receiveShadow = true;
+            group.add(sphere);
+
+            // Create much larger text label
+            const fontSize = level === 0 ? 106 : (level === 1 ? 108 : 100);
+            const textTexture = createTextTexture(name, fontSize);
+            const textMaterial = new THREE.SpriteMaterial({ 
+                map: textTexture,
+                transparent: true,
+                opacity: 0.95
+            });
+            const textSprite = new THREE.Sprite(textMaterial);
+            // Much larger text sprites
+            textSprite.scale.set(12, 3, 1);
+            textSprite.position.set(0, size + 4, 0);
+            group.add(textSprite);
+
+            group.position.copy(position);
+            
+            return { group, sphere, textSprite };
+        }
+
+        // Create connections between nodes
+        function createConnection(from, to, visible = true) {
+            const points = [from.clone(), to.clone()];
+            const geometry = new THREE.BufferGeometry().setFromPoints(points);
+            const material = new THREE.LineBasicMaterial({ 
+                color: 0x888888,
+                transparent: true,
+                opacity: 0.6
+            });
+            const line = new THREE.Line(geometry, material);
+            line.visible = visible;
+            scene.add(line);
+            return line;
+        }
+
+        // Calculate tree layout positions with matrix layout for levels 2 and 3
+        function calculateTreeLayout(data, level = 0, index = 0, totalSiblings = 1) {
+            const spacing = { x: 15, y: 15, z: 8 }; // Spacing between nodes
+            
+            // Calculate position based on tree structure
+            let x = 0, y = 0, z = 0;
+            
+            if (level === 0) {
+                // Root at center top
+                x = 0;
+                y = 30;
+                z = 0;
+            } else if (level === 1) {
+                // First level: spread horizontally in a line
+                const totalWidth = (totalSiblings - 1) * spacing.x;
+                const startX = -(totalWidth / 2);
+                x = startX + (index * spacing.x);
+                y = 10;
+                z = 0; // Keep all level 1 nodes at same depth
+            } else if (level === 2) {
+                // Second level: arrange in a straight horizontal line below level 1
+                const totalWidth = (totalSiblings - 1) * spacing.x;
+                const startX = -(totalWidth / 2);
+                x = startX + (index * spacing.x);
+                y = -10; // Fixed Y position for all level 2 nodes
+                z = 0; // Keep all level 2 nodes at same depth
+            } else {
+                // Third level and beyond: arrange in another horizontal line below level 2
+                const totalWidth = (totalSiblings - 1) * spacing.x;
+                const startX = -(totalWidth / 2);
+                x = startX + (index * spacing.x);
+                y = -30; // Fixed Y position for all level 3+ nodes
+                z = 0;
+            }
+            
+            return new THREE.Vector3(x, y, z);
+        }
+
+        // Recursively create nodes with matrix layout
+        function createNodesRecursive(data, level = 0, parentPos = new THREE.Vector3(0, 30, 0), parentId = null, index = 0, totalSiblings = 1, globalIndex = { level1: 0, level2: 0, level3: 0 }) {
+            const hasChildren = data.children && data.children.length > 0;
+            const nodeId = `${level}_${data.name}_${Math.random().toString(36).substring(7)}`;
+            
+            let position;
+            const spacing = 15;
+            
+            if (level === 0) {
+                // Root at center top
+                position = new THREE.Vector3(0, 30, 0);
+            } else if (level === 1) {
+                // First level: arrange in two rows for better depth utilization
+                const totalLevel1Nodes = countNodesAtLevel(currentData, 1);
+                const nodesPerRow = Math.ceil(totalLevel1Nodes / 2);
+                const row = Math.floor(globalIndex.level1 / nodesPerRow);
+                const posInRow = globalIndex.level1 % nodesPerRow;
+                
+                const rowWidth = (nodesPerRow - 1) * spacing;
+                const startX = -(rowWidth / 2);
+                const x = startX + (posInRow * spacing);
+                const z = row === 0 ? -15 : 15; // Front row and back row
+                
+                position = new THREE.Vector3(x, 10, z);
+                globalIndex.level1++;
+            } else if (level === 2) {
+                // Second level: position directly underneath parent node
+                // Use parent's X and Z coordinates, but lower Y
+                position = new THREE.Vector3(
+                    parentPos.x + (index - (totalSiblings - 1) / 2) * 8, // Slight horizontal offset for multiple children
+                    parentPos.y - 20, // Directly below parent
+                    parentPos.z // Same depth as parent
+                );
+            } else {
+                // Third level and beyond: also position relative to parent
+                position = new THREE.Vector3(
+                    parentPos.x + (index - (totalSiblings - 1) / 2) * 6,
+                    parentPos.y - 15,
+                    parentPos.z
+                );
+            }
+
+        // Helper function to count total nodes at a specific level
+        function countNodesAtLevel(data, targetLevel, currentLevel = 0) {
+            if (currentLevel === targetLevel) {
+                return 1;
+            }
+            if (!data.children || currentLevel >= targetLevel) {
+                return 0;
+            }
+            
+            let count = 0;
+            data.children.forEach(child => {
+                count += countNodesAtLevel(child, targetLevel, currentLevel + 1);
+            });
+            return count;
+        }
+            // Create node
+            const nodeData = createNodeWithLabel(data.name, position, level, hasChildren, level === 0);
+            scene.add(nodeData.group);
+
+            const userData = {
+                name: data.name,
+                description: data.description || "No description available",
+                level: level,
+                hasChildren: hasChildren,
+                expanded: level === 0,
+                nodeId: nodeId,
+                parentId: parentId
+            };
+
+            nodes.push({
+                ...nodeData,
+                userData: userData
+            });
+
+            // Initialize node state
+            if (hasChildren) {
+                nodeStates.set(nodeId, { expanded: level === 0, children: [], connections: [] });
+            }
+
+            // Create connection to parent (only if parent is expanded)
+            if (parentId && parentPos && level > 0) {
+                const connection = createConnection(parentPos, position, false); // Initially hidden
+                if (nodeStates.has(parentId)) {
+                    nodeStates.get(parentId).connections.push(connection);
+                }
+            }
+
+            // Create children with matrix layout
+            if (hasChildren) {
+                const childCount = data.children.length;
+                
+                data.children.forEach((child, childIndex) => {
+                    const childNodes = createNodesRecursive(child, level + 1, position, nodeId, childIndex, childCount, globalIndex);
+                    
+                    if (nodeStates.has(nodeId)) {
+                        nodeStates.get(nodeId).children.push(...childNodes);
+                    }
+
+                    // Initially show first two levels, hide deeper ones
+                    if (level >= 1) {
+                        childNodes.forEach(childNode => {
+                            childNode.group.visible = false;
+                        });
+                    }
+                });
+            }
+
+            return [{...nodeData, userData}];
+        }
+
+        // Clear existing visualization
+        function clearVisualization() {
+            // Remove all nodes
+            nodes.forEach(node => {
+                scene.remove(node.group);
+            });
+            
+            // Clear connections
+            const connections = [];
+            scene.traverse((object) => {
+                if (object instanceof THREE.Line) {
+                    connections.push(object);
+                }
+            });
+            connections.forEach(connection => {
+                scene.remove(connection);
+            });
+
+            nodes = [];
+            nodeStates.clear();
+        }
+
+        // Create visualization from data
+        function createVisualization(data) {
+            clearVisualization();
+            currentData = data;
+            
+            document.getElementById('data-title').textContent = data.name || 'Data Structure';
+            
+            // Initialize global index tracker for matrix layout (only needed for level 1 now)
+            const globalIndex = { level1: 0, level2: 0, level3: 0 };
+            
+            // Create nodes with hybrid matrix/tree layout
+            createNodesRecursive(data, 0, new THREE.Vector3(0, 30, 0), null, 0, 1, globalIndex);
+            
+            // Show connections from root to first level (since root is always expanded)
+            const rootNode = nodes.find(n => n.userData.level === 0);
+            if (rootNode) {
+                const rootState = nodeStates.get(rootNode.userData.nodeId);
+                if (rootState) {
+                    rootState.connections.forEach(connection => {
+                        connection.visible = true;
+                    });
+                }
+            }
+            
+            console.log(`Created ${nodes.length} nodes in hybrid 3D matrix/tree structure`);
+            console.log(`Level distribution - L1: ${globalIndex.level1} (in matrix), L2+: positioned under parents`);
+        }
+
+        // Toggle node expansion
+        function toggleNode(nodeData) {
+            if (!nodeData.hasChildren) return;
+
+            const state = nodeStates.get(nodeData.nodeId);
+            if (!state) return;
+
+            state.expanded = !state.expanded;
+            nodeData.expanded = state.expanded;
+
+            // Toggle children visibility
+            state.children.forEach(child => {
+                child.group.visible = state.expanded;
+                
+                // If collapsing, also collapse all grandchildren
+                if (!state.expanded && child.userData.hasChildren) {
+                    const childState = nodeStates.get(child.userData.nodeId);
+                    if (childState && childState.expanded) {
+                        toggleNode(child.userData);
+                    }
+                }
+            });
+
+            // Toggle connection visibility - only show connections when expanded
+            state.connections.forEach(connection => {
+                connection.visible = state.expanded;
+            });
+
+            // Update node color
+            const node = nodes.find(n => n.userData.nodeId === nodeData.nodeId);
+            if (node) {
+                const newColor = getNodeColor(nodeData.level, nodeData.hasChildren, nodeData.expanded);
+                node.sphere.material.color.setHex(newColor);
+            }
+
+            updateNodeInfo(nodeData);
+        }
+
+        // Update node info display
+        function updateNodeInfo(nodeData) {
+            const expandedText = nodeData.hasChildren ? 
+                (nodeData.expanded ? '(expanded)' : '(collapsed)') : '';
+            
+            document.getElementById('nodeInfo').innerHTML = `
+                <strong>${nodeData.name}</strong> ${expandedText}<br>
+                ${nodeData.description}<br>
+                <small>Level: ${nodeData.level}${nodeData.hasChildren ? `, Children: ${nodeStates.get(nodeData.nodeId)?.children.length || 0}` : ''}</small>
+            `;
+        }
+
+        // File upload handling
+        function setupFileUpload() {
+            const fileInput = document.getElementById('file-upload');
+            const fileInputArea = document.getElementById('file-input');
+            const errorMessage = document.getElementById('error-message');
+
+            fileInput.addEventListener('change', handleFileUpload);
+
+            // Drag and drop
+            fileInputArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                fileInputArea.style.background = 'rgba(78, 205, 196, 0.3)';
+            });
+
+            fileInputArea.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                fileInputArea.style.background = 'rgba(78, 205, 196, 0.1)';
+            });
+
+            fileInputArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                fileInputArea.style.background = 'rgba(78, 205, 196, 0.1)';
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFile(files[0]);
+                }
+            });
+
+            function handleFileUpload(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    handleFile(file);
+                }
+            }
+
+            function handleFile(file) {
+                if (!file.name.endsWith('.json') && !file.name.endsWith('.txt')) {
+                    showError('Please select a JSON or TXT file');
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        if (!data.name || !Array.isArray(data.children)) {
+                            showError('Invalid JSON structure. Expected: {"name": "...", "children": [...]}');
+                            return;
+                        }
+                        
+                        startVisualization(data);
+                    } catch (error) {
+                        showError('Invalid JSON file: ' + error.message);
+                    }
+                };
+                reader.readAsText(file);
+            }
+
+            function showError(message) {
+                errorMessage.textContent = message;
+                setTimeout(() => {
+                    errorMessage.textContent = '';
+                }, 5000);
+            }
+        }
+
+        // Start visualization
+        function startVisualization(data) {
+            document.getElementById('upload-container').classList.remove('visible');
+            document.getElementById('info').style.display = 'block';
+            document.getElementById('controls').style.display = 'block';
+            document.getElementById('legend').style.display = 'block';
+            
+            // Show canvas if hidden
+            const canvas = document.querySelector('canvas');
+            if (canvas) {
+                canvas.style.display = 'block';
+            }
+            
+            if (!renderer) {
+                initThreeJS();
+            }
+            createVisualization(data);
+            animate();
+        }
+
+        // Load sample data
+        function loadSampleData() {
+            startVisualization(sampleData);
+        }
+
+        // Toggle controls visibility
+        function toggleControls() {
+            const content = document.getElementById('controls-content');
+            const toggle = document.getElementById('controls-toggle');
+            
+            if (content.classList.contains('collapsed')) {
+                content.classList.remove('collapsed');
+                toggle.classList.remove('collapsed');
+                toggle.textContent = '▼';
+            } else {
+                content.classList.add('collapsed');
+                toggle.classList.add('collapsed');
+                toggle.textContent = '▶';
+            }
+        }
+
+        // Show upload dialog
+        function showUploadDialog() {
+            document.getElementById('upload-container').classList.add('visible');
+            
+            // Hide visualization UI temporarily
+            document.getElementById('info').style.display = 'none';
+            document.getElementById('controls').style.display = 'none';
+            document.getElementById('legend').style.display = 'none';
+            
+            // Hide canvas
+            const canvas = document.querySelector('canvas');
+            if (canvas) {
+                canvas.style.display = 'none';
+            }
+        }
+
+        // Reset visualization
+        function resetVisualization() {
+            // Remove renderer
+            const canvas = document.querySelector('canvas');
+            if (canvas) {
+                canvas.remove();
+            }
+
+            // Hide UI elements
+            document.getElementById('info').style.display = 'none';
+            document.getElementById('controls').style.display = 'none';
+            document.getElementById('legend').style.display = 'none';
+            document.getElementById('reset-btn').style.display = 'none';
+            
+            // Show upload container
+            document.getElementById('upload-container').classList.remove('hidden');
+            
+            // Clear data
+            clearVisualization();
+            currentData = null;
+        }
+
+        // Mouse interaction variables
+        let mouseX = 0, mouseY = 0;
+        let targetRotationX = 0, targetRotationY = 0;
+        let cameraTarget = new THREE.Vector3(0, 0, 0);
+        let isMouseDown = false;
+        let isRightMouseDown = false;
+
+        // Setup mouse controls with improved pan functionality
+        function setupMouseControls() {
+            document.addEventListener('mousedown', (event) => {
+                if (event.target.closest('#upload-container')) return;
+                
+                if (event.button === 0) { // Left mouse button
+                    isMouseDown = true;
+                } else if (event.button === 2) { // Right mouse button
+                    isRightMouseDown = true;
+                    event.preventDefault(); // Prevent context menu
+                }
+                
+                mouseX = event.clientX;
+                mouseY = event.clientY;
+            });
+
+            document.addEventListener('mouseup', (event) => {
+                if (event.button === 0) {
+                    isMouseDown = false;
+                } else if (event.button === 2) {
+                    isRightMouseDown = false;
+                }
+            });
+
+            // Disable context menu on right click
+            document.addEventListener('contextmenu', (event) => {
+                if (!event.target.closest('#upload-container')) {
+                    event.preventDefault();
+                }
+            });
+
+            document.addEventListener('mousemove', (event) => {
+                if (!event.target.closest('#upload-container')) {
+                    const deltaX = event.clientX - mouseX;
+                    const deltaY = event.clientY - mouseY;
+                    
+                    if (isMouseDown) {
+                        // Left mouse: rotate
+                        targetRotationX += deltaX * 0.01;
+                        targetRotationY += deltaY * 0.01;
+                        targetRotationY = Math.max(-Math.PI/2, Math.min(Math.PI/2, targetRotationY));
+                    } else if (isRightMouseDown) {
+                        // Right mouse: pan by moving the camera target
+                        const panSpeed = 1.0;
+                        
+                        // Calculate right and up vectors relative to camera
+                        const cameraDirection = new THREE.Vector3();
+                        camera.getWorldDirection(cameraDirection);
+                        
+                        const right = new THREE.Vector3();
+                        right.crossVectors(cameraDirection, camera.up).normalize();
+                        
+                        const up = new THREE.Vector3();
+                        up.crossVectors(right, cameraDirection).normalize();
+                        
+                        // Apply pan movement
+                        cameraTarget.add(right.multiplyScalar(-deltaX * panSpeed));
+                        cameraTarget.add(up.multiplyScalar(deltaY * panSpeed));
+                    }
+                    
+                    mouseX = event.clientX;
+                    mouseY = event.clientY;
+                }
+            });
+
+            // Click handling
+            document.addEventListener('click', (event) => {
+                if (event.target.closest('#upload-container') || !renderer) return;
+                if (isMouseDown || isRightMouseDown) return;
+
+                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+                raycaster.setFromCamera(mouse, camera);
+                const spheres = nodes.map(n => n.sphere);
+                const intersects = raycaster.intersectObjects(spheres);
+
+                if (intersects.length > 0) {
+                    const clickedSphere = intersects[0].object;
+                    const nodeData = nodes.find(n => n.sphere === clickedSphere)?.userData;
+                    
+                    if (nodeData) {
+                        if (nodeData.hasChildren) {
+                            toggleNode(nodeData);
+                        } else {
+                            updateNodeInfo(nodeData);
+                        }
+                    }
+                }
+            });
+
+            // Zoom
+            document.addEventListener('wheel', (event) => {
+                if (!renderer) return;
+                const zoomSpeed = 1.1;
+                const direction = new THREE.Vector3();
+                direction.subVectors(cameraTarget, camera.position).normalize();
+                
+                if (event.deltaY > 0) {
+                    camera.position.add(direction.multiplyScalar(-10));
+                } else {
+                    camera.position.add(direction.multiplyScalar(10));
+                }
+            });
+
+            // Keyboard controls
+            document.addEventListener('keydown', (event) => {
+                if (!renderer) return;
+                switch(event.key.toLowerCase()) {
+                    case 'r':
+                        camera.position.set(40, 50, 100);
+                        cameraTarget.set(0, 0, 0);
+                        camera.lookAt(cameraTarget);
+                        targetRotationX = 0;
+                        targetRotationY = 0;
+                        break;
+                    case 'e':
+                        nodes.forEach(node => {
+                            if (node.userData.hasChildren && !node.userData.expanded) {
+                                toggleNode(node.userData);
+                            }
+                        });
+                        break;
+                    case 'c':
+                        nodes.forEach(node => {
+                            if (node.userData.hasChildren && node.userData.expanded && node.userData.level > 0) {
+                                toggleNode(node.userData);
+                            }
+                        });
+                        break;
+                }
+            });
+        }
+
+        // Animation loop
+        function animate() {
+            if (!renderer) return;
+            requestAnimationFrame(animate);
+
+            // Smooth camera rotation around the target point
+            const radius = camera.position.distanceTo(cameraTarget);
+            const newCameraX = cameraTarget.x + Math.cos(targetRotationX) * Math.cos(targetRotationY) * radius;
+            const newCameraY = cameraTarget.y + Math.sin(targetRotationY) * radius;
+            const newCameraZ = cameraTarget.z + Math.sin(targetRotationX) * Math.cos(targetRotationY) * radius;
+            
+            camera.position.set(newCameraX, newCameraY, newCameraZ);
+            camera.lookAt(cameraTarget);
+
+            renderer.render(scene, camera);
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            if (!camera || !renderer) return;
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        window.addEventListener('DOMContentLoaded', () => { loadSampleData() });
+
+        // Initialize
+        setupFileUpload();
+        setupMouseControls();
+        
+    </script>
+</body>
+</html>
