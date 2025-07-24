@@ -1,0 +1,4177 @@
+<div class="row"><div class="col-md-12"><div class="panel panel-success"><div class="panel-heading "><h3 class="panel-title">HTML Table Preview</h3></div>
+<table border=1 class="table table-striped table-bordered table-hover table-condensed">
+<thead><tr><th title="Field #1">Machine</th>
+<th title="Field #2">Vcenter Comment (MDU)</th>
+<th title="Field #3">Services</th>
+<th title="Field #4">VM host</th>
+<th title="Field #5">Azure VM readiness</th>
+<th title="Field #6">Azure readiness issues</th>
+<th title="Field #7">Data collection issues</th>
+<th title="Field #8">Recommended size</th>
+<th title="Field #9">Compute monthly cost estimate CHF</th>
+<th title="Field #10">Storage monthly cost estimate CHF</th>
+<th title="Field #11">Estimated monthly savings from Azure Hybrid Benefit for Windows OS CHF</th>
+<th title="Field #12">Estimated monthly savings from Azure Hybrid Benefit for Linux OS CHF</th>
+<th title="Field #13">Security readiness</th>
+<th title="Field #14">Security monthly cost estimate CHF</th>
+<th title="Field #15">Operating system</th>
+<th title="Field #16">Boot type</th>
+<th title="Field #17">Processor</th>
+<th title="Field #18">Cores</th>
+<th title="Field #19">Memory(MB)</th>
+<th title="Field #20">CPU usage(%)</th>
+<th title="Field #21">Memory usage(%)</th>
+<th title="Field #22">Storage(GB)</th>
+<th title="Field #23">Standard HDD disks</th>
+<th title="Field #24">Standard SSD disks</th>
+<th title="Field #25">Premium disks</th>
+<th title="Field #26">Premium SSD V2 disks</th>
+<th title="Field #27">Ultra disks</th>
+<th title="Field #28">Disk read(ops/sec)</th>
+<th title="Field #29">Disk write(ops/sec)</th>
+<th title="Field #30">Disk read(MBPS)</th>
+<th title="Field #31">Disk write(MBPS)</th>
+<th title="Field #32">Confidence Rating (% of utilization data collected)</th>
+<th title="Field #33">Network adapters</th>
+<th title="Field #34">IP address</th>
+<th title="Field #35">MAC address</th>
+<th title="Field #36">Network in(MBPS)</th>
+<th title="Field #37">Network out(MBPS)</th>
+<th title="Field #38">Group name</th>
+</tr></thead>
+<tbody><tr><td>vmschnittbi</td>
+<td>0</td>
+<td>Zuschnitt Client</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready With Conditions</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F1</td>
+<td align="right">64.56</td>
+<td align="right">4.61</td>
+<td align="right">27.37</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows 7 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">4</td>
+<td align="right">8192</td>
+<td align="right">12.21</td>
+<td align="right">23.99</td>
+<td align="right">60.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">1</td>
+<td align="right">23</td>
+<td align="right">0.16</td>
+<td align="right">1.98</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.237];</td>
+<td>[00:50:56:b9:6c:58];</td>
+<td align="right">0.01</td>
+<td align="right">0.01</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmxee102.hgc.intra</td>
+<td>XEE-Server PROD SAP</td>
+<td>ALT</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td>No data for percentage of CPU cores utilized, No data for percentage of memory utilized</td>
+<td>Standard_D16as_v5</td>
+<td align="right">1023.55</td>
+<td align="right">28.09</td>
+<td align="right">437.99</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2016 or later (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">8</td>
+<td align="right">32768</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">322.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">2</td>
+<td>0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">1</td>
+<td>[10.136.53.133];</td>
+<td>[00:50:56:93:cd:d7];</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmmig100</td>
+<td>0</td>
+<td>töten</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F2s_v2</td>
+<td align="right">118.24</td>
+<td align="right">8.78</td>
+<td align="right">54.75</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2019 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5218 CPU @ 2.30GHz</td>
+<td align="right">2</td>
+<td align="right">4096</td>
+<td align="right">51.19</td>
+<td align="right">30.99</td>
+<td align="right">110.00</td>
+<td>0</td>
+<td align="right">2</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">59</td>
+<td align="right">37</td>
+<td align="right">2.09</td>
+<td align="right">1.84</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.199];</td>
+<td>[00:50:56:b9:af:9e];</td>
+<td align="right">0.00</td>
+<td align="right">0.02</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmfciprod001</td>
+<td>FIS FCI</td>
+<td>FCI</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_D16as_v5</td>
+<td align="right">1023.55</td>
+<td align="right">38.73</td>
+<td align="right">437.99</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2019 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">24</td>
+<td align="right">65536</td>
+<td align="right">31.37</td>
+<td align="right">15.99</td>
+<td align="right">420.00</td>
+<td>0</td>
+<td align="right">2</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">171</td>
+<td align="right">176</td>
+<td align="right">4.09</td>
+<td align="right">5.80</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.53.102];</td>
+<td>[00:50:56:b9:a0:8e];</td>
+<td align="right">0.38</td>
+<td align="right">0.69</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmcarat001</td>
+<td>0</td>
+<td>töten</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F1s</td>
+<td align="right">64.56</td>
+<td align="right">17.69</td>
+<td align="right">27.37</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2019 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">2</td>
+<td align="right">8192</td>
+<td align="right">21.24</td>
+<td align="right">17.99</td>
+<td align="right">200.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">1</td>
+<td align="right">17</td>
+<td align="right">0.04</td>
+<td align="right">1.01</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.72];</td>
+<td>[00:50:56:b9:43:f5];</td>
+<td align="right">0.00</td>
+<td align="right">0.12</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmadmin011</td>
+<td>Admin-WS SB</td>
+<td>Admin WS</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready With Conditions</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F4s_v2</td>
+<td align="right">236.49</td>
+<td align="right">36.79</td>
+<td align="right">109.50</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows 10 (64-bit)</td>
+<td>EFI</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">2</td>
+<td align="right">16384</td>
+<td align="right">76.35</td>
+<td align="right">36.99</td>
+<td align="right">160.00</td>
+<td>0</td>
+<td align="right">0</td>
+<td>1</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">416</td>
+<td align="right">131</td>
+<td align="right">27.52</td>
+<td align="right">11.38</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.12.112];</td>
+<td>[00:50:56:b9:88:c3];</td>
+<td align="right">0.01</td>
+<td align="right">0.02</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmcer001</td>
+<td>Zert</td>
+<td>CA</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td>No data for percentage of CPU cores utilized, No data for percentage of memory utilized</td>
+<td>Standard_D2as_v5</td>
+<td align="right">127.94</td>
+<td align="right">4.61</td>
+<td align="right">54.75</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2016 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">1</td>
+<td align="right">4096</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">60.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">1</td>
+<td>[169.254.26.164];</td>
+<td>[00:50:56:b9:4e:b7];</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmise002</td>
+<td>ISE</td>
+<td>ISE</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_E2as_v5</td>
+<td align="right">130.68</td>
+<td align="right">737.14</td>
+<td align="right">0.00</td>
+<td align="right">34.28</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Red Hat Enterprise Linux 8 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5218 CPU @ 2.30GHz</td>
+<td align="right">16</td>
+<td align="right">32768</td>
+<td align="right">13.65</td>
+<td align="right">31.99</td>
+<td align="right">600.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">918</td>
+<td align="right">969</td>
+<td align="right">206.57</td>
+<td align="right">158.15</td>
+<td align="right">97.92</td>
+<td align="right">2</td>
+<td>[10.136.51.22]; [192.168.33.22];</td>
+<td>[00:50:56:b9:73:8f]; [00:50:56:b9:8d:0a];</td>
+<td align="right">0.03</td>
+<td align="right">0.02</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmotx105.hgc.intra</td>
+<td>OpenText Archiv Server SAP</td>
+<td>andere Lösung</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F4s</td>
+<td align="right">258.09</td>
+<td align="right">23.75</td>
+<td align="right">109.50</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2019 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">8</td>
+<td align="right">16384</td>
+<td align="right">29.03</td>
+<td align="right">48.99</td>
+<td align="right">250.00</td>
+<td>0</td>
+<td align="right">3</td>
+<td>0</td>
+<td align="right">3</td>
+<td>0</td>
+<td align="right">3083</td>
+<td align="right">375</td>
+<td align="right">166.44</td>
+<td align="right">10.41</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.53.109];</td>
+<td>[00:50:56:93:2e:31];</td>
+<td align="right">1.28</td>
+<td align="right">0.07</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmmgt031</td>
+<td>KnowBe4 ADIsync</td>
+<td>Zuschnitt</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F1</td>
+<td align="right">64.56</td>
+<td align="right">4.61</td>
+<td align="right">27.37</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2019 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5218 CPU @ 2.30GHz</td>
+<td align="right">1</td>
+<td align="right">4096</td>
+<td align="right">44.30</td>
+<td align="right">26.99</td>
+<td align="right">60.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">19</td>
+<td align="right">35</td>
+<td align="right">0.72</td>
+<td align="right">1.87</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.113];</td>
+<td>[00:50:56:b9:ea:24];</td>
+<td align="right">0.00</td>
+<td align="right">0.01</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmmgt021</td>
+<td>VMware vCenter Server Appliance</td>
+<td>töten</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready With Conditions</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F4s</td>
+<td align="right">148.59</td>
+<td align="right">180.75</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>VMware Photon OS (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5218 CPU @ 2.30GHz</td>
+<td align="right">4</td>
+<td align="right">21504</td>
+<td align="right">31.19</td>
+<td align="right">23.99</td>
+<td align="right">2051.33</td>
+<td>0</td>
+<td align="right">8</td>
+<td>0</td>
+<td align="right">9</td>
+<td>0</td>
+<td align="right">229</td>
+<td align="right">79</td>
+<td align="right">7.64</td>
+<td align="right">6.29</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.221];</td>
+<td>[00:50:56:b9:fb:d0];</td>
+<td align="right">0.32</td>
+<td align="right">2.31</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmschnittvg</td>
+<td>0</td>
+<td>Zuschnitt Client</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready With Conditions</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_D2as_v5</td>
+<td align="right">127.94</td>
+<td align="right">4.61</td>
+<td align="right">54.75</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows 10 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">2</td>
+<td align="right">8192</td>
+<td align="right">64.32</td>
+<td align="right">42.99</td>
+<td align="right">60.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">385</td>
+<td align="right">105</td>
+<td align="right">20.93</td>
+<td align="right">4.56</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.234];</td>
+<td>[00:50:56:b9:e4:f3];</td>
+<td align="right">0.12</td>
+<td align="right">0.02</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmmgt014</td>
+<td>Failover EFT</td>
+<td>World Line</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F1</td>
+<td align="right">64.56</td>
+<td align="right">4.61</td>
+<td align="right">27.37</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2019 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">1</td>
+<td align="right">6144</td>
+<td align="right">32.06</td>
+<td align="right">21.99</td>
+<td align="right">60.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">5</td>
+<td align="right">18</td>
+<td align="right">0.12</td>
+<td align="right">0.99</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.110];</td>
+<td>[00:50:56:b9:ab:c0];</td>
+<td align="right">0.00</td>
+<td align="right">0.01</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmschnittco</td>
+<td>0</td>
+<td>Zuschnitt Client</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready With Conditions</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_D2as_v5</td>
+<td align="right">127.94</td>
+<td align="right">4.61</td>
+<td align="right">54.75</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows 10 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">2</td>
+<td align="right">8192</td>
+<td align="right">61.74</td>
+<td align="right">37.99</td>
+<td align="right">60.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">169</td>
+<td align="right">117</td>
+<td align="right">12.05</td>
+<td align="right">5.01</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.233];</td>
+<td>[00:50:56:b9:d6:4f];</td>
+<td align="right">0.13</td>
+<td align="right">0.02</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmsql004</td>
+<td>Viflow DB Server</td>
+<td>töten</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F1s</td>
+<td align="right">64.56</td>
+<td align="right">10.21</td>
+<td align="right">27.37</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2019 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">2</td>
+<td align="right">16384</td>
+<td align="right">14.72</td>
+<td align="right">11.99</td>
+<td align="right">120.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">2</td>
+<td>0</td>
+<td align="right">0</td>
+<td align="right">20</td>
+<td align="right">0.01</td>
+<td align="right">0.93</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.163];</td>
+<td>[00:50:56:b9:32:be];</td>
+<td align="right">0.00</td>
+<td align="right">0.02</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmdms011</td>
+<td>Windream Server</td>
+<td>ALT</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td>No data for percentage of CPU cores utilized, No data for percentage of memory utilized</td>
+<td>Standard_D4as_v5</td>
+<td align="right">255.89</td>
+<td align="right">11.43</td>
+<td align="right">109.50</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2016 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">2</td>
+<td align="right">8192</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">120.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">2</td>
+<td>0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">1</td>
+<td>[10.136.51.61];</td>
+<td>[00:50:56:b9:a1:03];</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmsql005</td>
+<td>SAPEDC/SAPPim/SAPCRM zwischen DB&#39;s Prod</td>
+<td>PIM</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F1s</td>
+<td align="right">64.56</td>
+<td align="right">7.41</td>
+<td align="right">27.37</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2019 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">2</td>
+<td align="right">8192</td>
+<td align="right">16.90</td>
+<td align="right">17.99</td>
+<td align="right">90.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">2</td>
+<td>0</td>
+<td align="right">9</td>
+<td align="right">24</td>
+<td align="right">0.52</td>
+<td align="right">0.83</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.34];</td>
+<td>[00:50:56:b9:6d:b0];</td>
+<td align="right">0.00</td>
+<td align="right">0.02</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmschnitthb</td>
+<td>0</td>
+<td>Zuschnitt Client</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready With Conditions</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F2s_v2</td>
+<td align="right">118.24</td>
+<td align="right">4.61</td>
+<td align="right">54.75</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows 7 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">4</td>
+<td align="right">8192</td>
+<td align="right">23.23</td>
+<td align="right">25.00</td>
+<td align="right">60.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">422</td>
+<td align="right">24</td>
+<td align="right">6.16</td>
+<td align="right">2.19</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.241];</td>
+<td>[00:50:56:b9:04:1e];</td>
+<td align="right">0.08</td>
+<td align="right">0.07</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmadmin005</td>
+<td>Admin-WS TJ</td>
+<td>Admin WS</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready With Conditions</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F4s_v2</td>
+<td align="right">236.49</td>
+<td align="right">9.21</td>
+<td align="right">109.50</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows 10 (64-bit)</td>
+<td>EFI</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">4</td>
+<td align="right">16384</td>
+<td align="right">45.14</td>
+<td align="right">35.99</td>
+<td align="right">100.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">127</td>
+<td align="right">98</td>
+<td align="right">10.26</td>
+<td align="right">5.99</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.12.114];</td>
+<td>[00:50:56:b9:05:34];</td>
+<td align="right">0.86</td>
+<td align="right">0.14</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmschnittzw</td>
+<td>0</td>
+<td>Zuschnitt Client</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready With Conditions</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F1</td>
+<td align="right">64.56</td>
+<td align="right">4.61</td>
+<td align="right">27.37</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows 7 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">4</td>
+<td align="right">8192</td>
+<td align="right">11.58</td>
+<td align="right">15.99</td>
+<td align="right">60.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">4</td>
+<td align="right">18</td>
+<td align="right">0.12</td>
+<td align="right">0.64</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.248];</td>
+<td>[00:50:56:b9:6b:49];</td>
+<td align="right">0.01</td>
+<td align="right">0.01</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmads001</td>
+<td>Avaya Aura Device Services Version - 10.1.0.0.120</td>
+<td>avaya</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_D4as_v5</td>
+<td align="right">180.67</td>
+<td align="right">20.43</td>
+<td align="right">0.00</td>
+<td align="right">34.28</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Red Hat Enterprise Linux 8 (64-bit)</td>
+<td>EFI</td>
+<td>Intel(R) Xeon(R) Gold 5218 CPU @ 2.30GHz</td>
+<td align="right">6</td>
+<td align="right">9216</td>
+<td align="right">52.26</td>
+<td align="right">50.00</td>
+<td align="right">245.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">3</td>
+<td>0</td>
+<td align="right">30</td>
+<td align="right">136</td>
+<td align="right">0.64</td>
+<td align="right">4.34</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.137.30.60,10.137.30.70,10.137.30.66,10.137.30.70];</td>
+<td>[00:50:56:b9:a0:4e];</td>
+<td align="right">1.09</td>
+<td align="right">1.12</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmprs020</td>
+<td>JetAdmin</td>
+<td>Print Server</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F2s_v2</td>
+<td align="right">118.24</td>
+<td align="right">4.61</td>
+<td align="right">54.75</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2019 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5218 CPU @ 2.30GHz</td>
+<td align="right">4</td>
+<td align="right">12288</td>
+<td align="right">27.18</td>
+<td align="right">25.00</td>
+<td align="right">60.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">3</td>
+<td align="right">102</td>
+<td align="right">0.11</td>
+<td align="right">1.50</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.86];</td>
+<td>[00:50:56:b9:75:8c];</td>
+<td align="right">0.03</td>
+<td align="right">0.02</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmo365001</td>
+<td>O365 Server for Viflow Export and Admindroid</td>
+<td>töten</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F1</td>
+<td align="right">64.56</td>
+<td align="right">4.61</td>
+<td align="right">27.37</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2019 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">2</td>
+<td align="right">8192</td>
+<td align="right">18.72</td>
+<td align="right">17.99</td>
+<td align="right">60.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">4</td>
+<td align="right">34</td>
+<td align="right">0.15</td>
+<td align="right">2.15</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.145];</td>
+<td>[00:50:56:b9:ab:79];</td>
+<td align="right">0.00</td>
+<td align="right">0.01</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmmgt019</td>
+<td>Scheduled Tasks Scripts and KMS Server</td>
+<td>IT-Infra</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F1</td>
+<td align="right">64.56</td>
+<td align="right">4.61</td>
+<td align="right">27.37</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2019 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">2</td>
+<td align="right">8192</td>
+<td align="right">24.23</td>
+<td align="right">18.99</td>
+<td align="right">60.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">4</td>
+<td align="right">27</td>
+<td align="right">0.15</td>
+<td align="right">1.46</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.92];</td>
+<td>[00:50:56:b9:a9:b5];</td>
+<td align="right">0.16</td>
+<td align="right">0.05</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmhlp201</td>
+<td>Helpline Dev</td>
+<td>töten</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_A2_v2</td>
+<td align="right">111.28</td>
+<td align="right">36.86</td>
+<td align="right">54.75</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2019 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">4</td>
+<td align="right">49152</td>
+<td align="right">9.78</td>
+<td align="right">7.99</td>
+<td align="right">450.00</td>
+<td>0</td>
+<td align="right">3</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">3</td>
+<td align="right">31</td>
+<td align="right">0.05</td>
+<td align="right">1.31</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.249];</td>
+<td>[00:50:56:b9:4a:7f];</td>
+<td align="right">0.01</td>
+<td align="right">0.02</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmcortex002</td>
+<td>Cortex</td>
+<td>Cortex</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready With Conditions</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_D2as_v5</td>
+<td align="right">73.20</td>
+<td align="right">70.86</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Ubuntu Linux (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5218 CPU @ 2.30GHz</td>
+<td align="right">2</td>
+<td align="right">4096</td>
+<td align="right">95.54</td>
+<td align="right">80.99</td>
+<td align="right">480.00</td>
+<td>0</td>
+<td align="right">0</td>
+<td>1</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">917</td>
+<td align="right">67</td>
+<td align="right">24.32</td>
+<td align="right">11.55</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.95];</td>
+<td>[00:50:56:b9:5b:c3];</td>
+<td align="right">27.09</td>
+<td align="right">2.85</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmschnittvw</td>
+<td>0</td>
+<td>Zuschnitt Client</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready With Conditions</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F4s_v2</td>
+<td align="right">236.49</td>
+<td align="right">4.61</td>
+<td align="right">109.50</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows 10 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">2</td>
+<td align="right">8192</td>
+<td align="right">71.88</td>
+<td align="right">50.00</td>
+<td align="right">60.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">305</td>
+<td align="right">140</td>
+<td align="right">25.14</td>
+<td align="right">6.85</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.186];</td>
+<td>[00:50:56:b9:fc:78];</td>
+<td align="right">1.81</td>
+<td align="right">0.07</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmadmin014</td>
+<td>Admin-WS SD</td>
+<td>Admin WS</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready With Conditions</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_D2as_v5</td>
+<td align="right">127.94</td>
+<td align="right">9.21</td>
+<td align="right">54.75</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows 10 (64-bit)</td>
+<td>EFI</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">2</td>
+<td align="right">16384</td>
+<td align="right">56.67</td>
+<td align="right">27.99</td>
+<td align="right">100.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">2</td>
+<td align="right">65</td>
+<td align="right">0.14</td>
+<td align="right">4.80</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.12.120];</td>
+<td>[00:50:56:b9:4d:e7];</td>
+<td align="right">0.00</td>
+<td align="right">0.02</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmsst010</td>
+<td>Schlüsselsystem Aeos Bern</td>
+<td>AEOS</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F1</td>
+<td align="right">64.56</td>
+<td align="right">9.21</td>
+<td align="right">27.37</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2019 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">2</td>
+<td align="right">8192</td>
+<td align="right">19.41</td>
+<td align="right">21.99</td>
+<td align="right">120.00</td>
+<td>0</td>
+<td align="right">2</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">13</td>
+<td align="right">29</td>
+<td align="right">0.24</td>
+<td align="right">1.50</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.93];</td>
+<td>[00:50:56:b9:a5:0a];</td>
+<td align="right">0.01</td>
+<td align="right">0.02</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmvsc001</td>
+<td>Virtual Appliance - NetApp VSC, VASA Provider, and SRA virtual appliance for NetApp storage systems. For more information or support please visit http://www.netapp.com/</td>
+<td>töten</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F2s_v2</td>
+<td align="right">63.50</td>
+<td align="right">4.53</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Debian GNU/Linux 11 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5218 CPU @ 2.30GHz</td>
+<td align="right">2</td>
+<td align="right">8192</td>
+<td align="right">20.48</td>
+<td align="right">32.99</td>
+<td align="right">53.00</td>
+<td>0</td>
+<td align="right">2</td>
+<td>0</td>
+<td align="right">2</td>
+<td>0</td>
+<td align="right">0</td>
+<td align="right">10</td>
+<td align="right">0.00</td>
+<td align="right">0.55</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.78];</td>
+<td>[00:50:56:b9:aa:8b];</td>
+<td align="right">0.31</td>
+<td align="right">0.16</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmmon001</td>
+<td>0</td>
+<td>töten</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready With Conditions</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_A1_v2</td>
+<td align="right">26.84</td>
+<td align="right">4.61</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Debian GNU/Linux 12 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5218 CPU @ 2.30GHz</td>
+<td align="right">1</td>
+<td align="right">2048</td>
+<td align="right">17.55</td>
+<td align="right">56.99</td>
+<td align="right">40.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">103</td>
+<td align="right">71</td>
+<td align="right">2.73</td>
+<td align="right">2.11</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.161];</td>
+<td>[00:50:56:b9:e5:5d];</td>
+<td align="right">0.01</td>
+<td align="right">0.01</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmaba020</td>
+<td>Ziegler integriert 2015</td>
+<td>abacus</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td>No data for percentage of CPU cores utilized, No data for percentage of memory utilized</td>
+<td>Standard_D4as_v5</td>
+<td align="right">255.89</td>
+<td align="right">8.34</td>
+<td align="right">109.50</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2012 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">2</td>
+<td align="right">4096</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">80.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">1</td>
+<td>[];</td>
+<td>[00:50:56:b9:2a:d9];</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmise001</td>
+<td>ISE</td>
+<td>ISE</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_D8as_v5</td>
+<td align="right">344.20</td>
+<td align="right">130.81</td>
+<td align="right">0.00</td>
+<td align="right">51.42</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Red Hat Enterprise Linux 8 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5218 CPU @ 2.30GHz</td>
+<td align="right">16</td>
+<td align="right">32768</td>
+<td align="right">35.10</td>
+<td align="right">30.99</td>
+<td align="right">600.00</td>
+<td>0</td>
+<td align="right">0</td>
+<td>1</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">777</td>
+<td align="right">971</td>
+<td align="right">99.87</td>
+<td align="right">86.68</td>
+<td align="right">97.92</td>
+<td align="right">2</td>
+<td>[10.136.51.21]; [192.168.33.21];</td>
+<td>[00:50:56:b9:f0:b5]; [00:50:56:b9:8d:ac];</td>
+<td align="right">0.02</td>
+<td align="right">0.03</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmacm002</td>
+<td>010.1.0.0.974-e70-0</td>
+<td>avaya</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_D2ds_v4</td>
+<td align="right">123.30</td>
+<td align="right">5.76</td>
+<td align="right">0.00</td>
+<td align="right">34.28</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Red Hat Enterprise Linux 8 (64-bit)</td>
+<td>EFI</td>
+<td>Intel(R) Xeon(R) Gold 5218 CPU @ 2.30GHz</td>
+<td align="right">3</td>
+<td align="right">5120</td>
+<td align="right">4.53</td>
+<td align="right">15.00</td>
+<td align="right">64.00</td>
+<td>0</td>
+<td align="right">2</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">0</td>
+<td align="right">3</td>
+<td align="right">0.00</td>
+<td align="right">0.04</td>
+<td align="right">85.68</td>
+<td align="right">3</td>
+<td>[10.137.30.51,10.137.30.52]; [10.136.51.128,10.136.51.129]; [];</td>
+<td>[00:50:56:b9:26:b5]; [00:50:56:b9:70:95]; [00:50:56:b9:5c:d9];</td>
+<td align="right">0.06</td>
+<td align="right">0.22</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmspie001</td>
+<td>0</td>
+<td>avaya</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F1</td>
+<td align="right">64.56</td>
+<td align="right">4.61</td>
+<td align="right">27.37</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2019 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">4</td>
+<td align="right">12288</td>
+<td align="right">10.24</td>
+<td align="right">13.99</td>
+<td align="right">60.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">10</td>
+<td align="right">31</td>
+<td align="right">0.25</td>
+<td align="right">1.90</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.30];</td>
+<td>[00:50:56:b9:6e:b5];</td>
+<td align="right">0.01</td>
+<td align="right">0.01</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmmgt002</td>
+<td>KiwiCat Server for Cisco Configs</td>
+<td>KIWI</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F2s_v2</td>
+<td align="right">118.24</td>
+<td align="right">41.46</td>
+<td align="right">54.75</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2019 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">2</td>
+<td align="right">12288</td>
+<td align="right">24.05</td>
+<td align="right">16.99</td>
+<td align="right">460.00</td>
+<td>0</td>
+<td align="right">2</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">6</td>
+<td align="right">28</td>
+<td align="right">0.15</td>
+<td align="right">1.76</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.29];</td>
+<td>[00:50:56:b9:14:53];</td>
+<td align="right">0.01</td>
+<td align="right">0.02</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmprs030</td>
+<td>efleet Server für Drucker export</td>
+<td>Print Server</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td>Cores utilization data out of range</td>
+<td>Standard_D4as_v5</td>
+<td align="right">255.89</td>
+<td align="right">4.61</td>
+<td align="right">109.50</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2019 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">2</td>
+<td align="right">8192</td>
+<td align="right">102.47</td>
+<td align="right">18.99</td>
+<td align="right">60.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">0</td>
+<td align="right">21</td>
+<td align="right">0.02</td>
+<td align="right">0.98</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.89];</td>
+<td>[00:50:56:b9:6e:1d];</td>
+<td align="right">0.05</td>
+<td align="right">0.05</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmkaba001</td>
+<td>0</td>
+<td>Kaba</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_A2_v2</td>
+<td align="right">111.28</td>
+<td align="right">9.21</td>
+<td align="right">54.75</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2019 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">4</td>
+<td align="right">16384</td>
+<td align="right">8.38</td>
+<td align="right">18.99</td>
+<td align="right">100.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">52</td>
+<td align="right">68</td>
+<td align="right">1.72</td>
+<td align="right">4.19</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.108];</td>
+<td>[00:50:56:b9:52:5b];</td>
+<td align="right">0.00</td>
+<td align="right">0.02</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmdms001</td>
+<td>0</td>
+<td>ALT</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td>No data for percentage of CPU cores utilized, No data for percentage of memory utilized</td>
+<td>Standard_D8as_v5</td>
+<td align="right">511.78</td>
+<td align="right">10.68</td>
+<td align="right">218.99</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2016 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">4</td>
+<td align="right">16384</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">125.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">2</td>
+<td>0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">1</td>
+<td>[];</td>
+<td>[00:50:56:b9:8d:e9];</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmams001</td>
+<td>The Avaya Media Server is a real-time media services platform, providing the infrastructure for a diverse range of products and applications.</td>
+<td>avaya</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F1</td>
+<td align="right">71.46</td>
+<td align="right">4.61</td>
+<td align="right">0.00</td>
+<td align="right">34.28</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Red Hat Enterprise Linux 8 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5218 CPU @ 2.30GHz</td>
+<td align="right">4</td>
+<td align="right">4608</td>
+<td align="right">12.13</td>
+<td align="right">26.99</td>
+<td align="right">50.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">1</td>
+<td align="right">12</td>
+<td align="right">0.04</td>
+<td align="right">0.90</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.137.30.58];</td>
+<td>[00:50:56:b9:39:0e];</td>
+<td align="right">0.44</td>
+<td align="right">0.47</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmddx001</td>
+<td>AluRanger HB Zuschnitt</td>
+<td>Zuschnitt</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready With Conditions</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_D4as_v5</td>
+<td align="right">255.89</td>
+<td align="right">9.21</td>
+<td align="right">109.50</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows 10 (64-bit)</td>
+<td>EFI</td>
+<td>Intel(R) Xeon(R) Gold 5218 CPU @ 2.30GHz</td>
+<td align="right">8</td>
+<td align="right">24576</td>
+<td align="right">46.76</td>
+<td align="right">30.99</td>
+<td align="right">100.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">47</td>
+<td align="right">210</td>
+<td align="right">2.07</td>
+<td align="right">5.94</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.183];</td>
+<td>[00:50:56:b9:e5:08];</td>
+<td align="right">0.14</td>
+<td align="right">0.13</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmdcs002</td>
+<td>0</td>
+<td>DC</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_D2as_v5</td>
+<td align="right">127.94</td>
+<td align="right">4.61</td>
+<td align="right">54.75</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2019 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">2</td>
+<td align="right">8192</td>
+<td align="right">66.17</td>
+<td align="right">26.99</td>
+<td align="right">60.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">68</td>
+<td align="right">70</td>
+<td align="right">2.41</td>
+<td align="right">3.54</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.44];</td>
+<td>[00:50:56:b9:e5:da];</td>
+<td align="right">0.39</td>
+<td align="right">4.94</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmimo010</td>
+<td>Rimo Server</td>
+<td>RIMO</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F1</td>
+<td align="right">64.56</td>
+<td align="right">4.61</td>
+<td align="right">27.37</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2019 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">1</td>
+<td align="right">8192</td>
+<td align="right">30.95</td>
+<td align="right">17.99</td>
+<td align="right">60.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">5</td>
+<td align="right">18</td>
+<td align="right">0.28</td>
+<td align="right">0.85</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.235];</td>
+<td>[00:50:56:b9:ab:ed];</td>
+<td align="right">0.00</td>
+<td align="right">0.02</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmbkp001</td>
+<td>0</td>
+<td>töten</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready With Conditions</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_A1_v2</td>
+<td align="right">26.84</td>
+<td align="right">2.30</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Ubuntu Linux (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5218 CPU @ 2.30GHz</td>
+<td align="right">2</td>
+<td align="right">8192</td>
+<td align="right">11.45</td>
+<td align="right">16.99</td>
+<td align="right">30.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">19</td>
+<td align="right">10</td>
+<td align="right">0.34</td>
+<td align="right">0.25</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.107];</td>
+<td>[00:50:56:b9:de:09];</td>
+<td align="right">0.37</td>
+<td align="right">0.02</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmacm001</td>
+<td>010.1.0.0.974-e70-0</td>
+<td>avaya</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_D2ds_v4</td>
+<td align="right">123.30</td>
+<td align="right">5.76</td>
+<td align="right">0.00</td>
+<td align="right">34.28</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Red Hat Enterprise Linux 8 (64-bit)</td>
+<td>EFI</td>
+<td>Intel(R) Xeon(R) Gold 5218 CPU @ 2.30GHz</td>
+<td align="right">3</td>
+<td align="right">5120</td>
+<td align="right">2.25</td>
+<td align="right">7.99</td>
+<td align="right">64.00</td>
+<td>0</td>
+<td align="right">2</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0.00</td>
+<td align="right">0.02</td>
+<td align="right">85.68</td>
+<td align="right">3</td>
+<td>[10.137.30.50]; [10.136.51.127]; [];</td>
+<td>[00:50:56:b9:82:8d]; [00:50:56:b9:ae:ac]; [00:50:56:b9:63:6d];</td>
+<td align="right">0.16</td>
+<td align="right">0.00</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmscs001</td>
+<td>SnapCenter Server</td>
+<td>töten</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_A2_v2</td>
+<td align="right">111.28</td>
+<td align="right">9.21</td>
+<td align="right">54.75</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2019 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">2</td>
+<td align="right">12288</td>
+<td align="right">17.60</td>
+<td align="right">16.99</td>
+<td align="right">100.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">20</td>
+<td align="right">30</td>
+<td align="right">0.64</td>
+<td align="right">1.15</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.104];</td>
+<td>[00:50:56:b9:d7:b7];</td>
+<td align="right">0.00</td>
+<td align="right">0.01</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmsql100</td>
+<td>SAPEDC/SAPPim/SAPCRM zwischen DB&#39;s DEV</td>
+<td>PIM</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F1s</td>
+<td align="right">64.56</td>
+<td align="right">7.41</td>
+<td align="right">27.37</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2019 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">1</td>
+<td align="right">8192</td>
+<td align="right">37.13</td>
+<td align="right">20.99</td>
+<td align="right">90.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">2</td>
+<td>0</td>
+<td align="right">8</td>
+<td align="right">22</td>
+<td align="right">0.27</td>
+<td align="right">1.26</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.81];</td>
+<td>[00:50:56:b9:f4:8e];</td>
+<td align="right">0.01</td>
+<td align="right">0.01</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmapp030</td>
+<td>Schnitt-Profit V8 Lizenz Server DE --&gt; USB Dongle</td>
+<td>Zuschnitt</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F1</td>
+<td align="right">64.56</td>
+<td align="right">4.61</td>
+<td align="right">27.37</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2019 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">2</td>
+<td align="right">4096</td>
+<td align="right">18.38</td>
+<td align="right">28.99</td>
+<td align="right">60.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">62</td>
+<td align="right">32</td>
+<td align="right">1.95</td>
+<td align="right">2.13</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.51];</td>
+<td>[00:50:56:b9:a6:dd];</td>
+<td align="right">0.01</td>
+<td align="right">0.02</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmipam010</td>
+<td>PHP IP AM</td>
+<td>IT-Infra</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready With Conditions</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F2s_v2</td>
+<td align="right">63.50</td>
+<td align="right">9.21</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Debian GNU/Linux 12 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5218 CPU @ 2.30GHz</td>
+<td align="right">2</td>
+<td align="right">4096</td>
+<td align="right">57.13</td>
+<td align="right">34.99</td>
+<td align="right">75.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">1</td>
+<td align="right">45</td>
+<td align="right">0.02</td>
+<td align="right">0.56</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.159];</td>
+<td>[00:50:56:b9:34:1d];</td>
+<td align="right">0.89</td>
+<td align="right">0.82</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmxet102.hgc.intra</td>
+<td>XEE-Server Test SAP</td>
+<td>ALT</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td>No data for percentage of CPU cores utilized, No data for percentage of memory utilized</td>
+<td>Standard_D16as_v5</td>
+<td align="right">1023.55</td>
+<td align="right">15.35</td>
+<td align="right">437.99</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2016 or later (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">8</td>
+<td align="right">32768</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">193.00</td>
+<td>0</td>
+<td align="right">2</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">1</td>
+<td>[10.136.53.134];</td>
+<td>[00:50:56:93:5c:60];</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmprs012</td>
+<td>PrintServer Qeues</td>
+<td>Print Server</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F1s</td>
+<td align="right">64.56</td>
+<td align="right">4.61</td>
+<td align="right">27.37</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2019 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">2</td>
+<td align="right">8192</td>
+<td align="right">28.47</td>
+<td align="right">21.99</td>
+<td align="right">60.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">5</td>
+<td align="right">62</td>
+<td align="right">0.25</td>
+<td align="right">1.99</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.88];</td>
+<td>[00:50:56:b9:e5:07];</td>
+<td align="right">1.27</td>
+<td align="right">0.98</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmmer001</td>
+<td>0</td>
+<td>töten</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F1</td>
+<td align="right">64.56</td>
+<td align="right">4.61</td>
+<td align="right">27.37</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2019 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">1</td>
+<td align="right">4096</td>
+<td align="right">30.17</td>
+<td align="right">22.99</td>
+<td align="right">60.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">15</td>
+<td align="right">20</td>
+<td align="right">0.27</td>
+<td align="right">0.76</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.106];</td>
+<td>[00:50:56:b9:86:7d];</td>
+<td align="right">0.01</td>
+<td align="right">0.01</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmmgt011</td>
+<td>0</td>
+<td>World Line</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F1</td>
+<td align="right">64.56</td>
+<td align="right">9.21</td>
+<td align="right">27.37</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2019 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5218 CPU @ 2.30GHz</td>
+<td align="right">1</td>
+<td align="right">6144</td>
+<td align="right">41.88</td>
+<td align="right">21.99</td>
+<td align="right">100.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">9</td>
+<td align="right">23</td>
+<td align="right">0.24</td>
+<td align="right">1.54</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.80];</td>
+<td>[00:50:56:b9:d7:93];</td>
+<td align="right">0.00</td>
+<td align="right">0.01</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmpre001</td>
+<td>Avaya Breeze for VMware</td>
+<td>avaya</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_E2as_v5</td>
+<td align="right">130.68</td>
+<td align="right">4.61</td>
+<td align="right">0.00</td>
+<td align="right">34.28</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Red Hat Enterprise Linux 7 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5218 CPU @ 2.30GHz</td>
+<td align="right">12</td>
+<td align="right">27648</td>
+<td align="right">8.60</td>
+<td align="right">30.99</td>
+<td align="right">50.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">5</td>
+<td align="right">25</td>
+<td align="right">0.12</td>
+<td align="right">0.20</td>
+<td align="right">97.92</td>
+<td align="right">2</td>
+<td>[10.137.30.54]; [10.137.30.55];</td>
+<td>[00:50:56:b9:69:c1]; [00:50:56:b9:7d:4b];</td>
+<td align="right">0.38</td>
+<td align="right">0.43</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmadmin010</td>
+<td>Admin-WS IO</td>
+<td>Admin WS</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready With Conditions</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_D2as_v5</td>
+<td align="right">127.94</td>
+<td align="right">9.21</td>
+<td align="right">54.75</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows 10 (64-bit)</td>
+<td>EFI</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">2</td>
+<td align="right">16384</td>
+<td align="right">61.73</td>
+<td align="right">36.99</td>
+<td align="right">100.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">117</td>
+<td align="right">149</td>
+<td align="right">10.08</td>
+<td align="right">8.91</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.12.118];</td>
+<td>[00:50:56:b9:22:0a];</td>
+<td align="right">0.12</td>
+<td align="right">0.05</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmads002</td>
+<td>Avaya Aura Device Services Version - 10.1.0.0.120</td>
+<td>avaya</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_D4as_v5</td>
+<td align="right">180.67</td>
+<td align="right">20.43</td>
+<td align="right">0.00</td>
+<td align="right">34.28</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Red Hat Enterprise Linux 8 (64-bit)</td>
+<td>EFI</td>
+<td>Intel(R) Xeon(R) Gold 5218 CPU @ 2.30GHz</td>
+<td align="right">6</td>
+<td align="right">9216</td>
+<td align="right">57.86</td>
+<td align="right">57.99</td>
+<td align="right">245.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">3</td>
+<td>0</td>
+<td align="right">46</td>
+<td align="right">194</td>
+<td align="right">0.88</td>
+<td align="right">3.91</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.137.30.64];</td>
+<td>[00:50:56:b9:5b:6e];</td>
+<td align="right">1.06</td>
+<td align="right">1.10</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmftp101</td>
+<td>FTP-Server SIX-Download</td>
+<td>töten</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F2s_v2</td>
+<td align="right">118.24</td>
+<td align="right">9.78</td>
+<td align="right">54.75</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2019 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5218 CPU @ 2.30GHz</td>
+<td align="right">2</td>
+<td align="right">4096</td>
+<td align="right">65.16</td>
+<td align="right">39.99</td>
+<td align="right">110.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">2</td>
+<td>0</td>
+<td align="right">400</td>
+<td align="right">95</td>
+<td align="right">6.83</td>
+<td align="right">5.56</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.53.66];</td>
+<td>[00:50:56:93:b9:91];</td>
+<td align="right">0.07</td>
+<td align="right">0.06</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmdcs001</td>
+<td>0</td>
+<td>dc</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td>Cores utilization data out of range</td>
+<td>Standard_F4s_v2</td>
+<td align="right">236.49</td>
+<td align="right">4.61</td>
+<td align="right">109.50</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2019 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5218 CPU @ 2.30GHz</td>
+<td align="right">2</td>
+<td align="right">8192</td>
+<td align="right">128.27</td>
+<td align="right">34.99</td>
+<td align="right">60.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">118</td>
+<td align="right">92</td>
+<td align="right">3.48</td>
+<td align="right">4.19</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.43];</td>
+<td>[00:50:56:b9:b8:59];</td>
+<td align="right">0.50</td>
+<td align="right">4.77</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmwgw001</td>
+<td>Avaya Aura® Web Gateway - 10.1.0.0.90</td>
+<td>avaya</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F1s</td>
+<td align="right">71.46</td>
+<td align="right">11.33</td>
+<td align="right">0.00</td>
+<td align="right">34.28</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Red Hat Enterprise Linux 8 (64-bit)</td>
+<td>EFI</td>
+<td>Intel(R) Xeon(R) Gold 5218 CPU @ 2.30GHz</td>
+<td align="right">4</td>
+<td align="right">6144</td>
+<td align="right">15.85</td>
+<td align="right">27.99</td>
+<td align="right">132.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">3</td>
+<td>0</td>
+<td align="right">0</td>
+<td align="right">23</td>
+<td align="right">0.00</td>
+<td align="right">0.30</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.137.30.62,10.137.30.65];</td>
+<td>[00:50:56:b9:be:35];</td>
+<td align="right">0.01</td>
+<td align="right">0.01</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmdcr001</td>
+<td>new vmdcr001</td>
+<td>DC</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F1s</td>
+<td align="right">64.56</td>
+<td align="right">4.61</td>
+<td align="right">27.37</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2019 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5218 CPU @ 2.30GHz</td>
+<td align="right">2</td>
+<td align="right">8192</td>
+<td align="right">42.82</td>
+<td align="right">19.99</td>
+<td align="right">60.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">169</td>
+<td align="right">30</td>
+<td align="right">3.10</td>
+<td align="right">1.46</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.41];</td>
+<td>[00:50:56:b9:bf:00];</td>
+<td align="right">0.10</td>
+<td align="right">0.04</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmmgt001</td>
+<td>Landesk Server</td>
+<td>SW Verteilung</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_D4as_v5</td>
+<td align="right">255.89</td>
+<td align="right">21.92</td>
+<td align="right">109.50</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2019 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5218 CPU @ 2.30GHz</td>
+<td align="right">6</td>
+<td align="right">32768</td>
+<td align="right">71.05</td>
+<td align="right">27.99</td>
+<td align="right">230.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">2</td>
+<td>0</td>
+<td align="right">244</td>
+<td align="right">496</td>
+<td align="right">7.90</td>
+<td align="right">12.17</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.64];</td>
+<td>[00:50:56:b9:52:9c];</td>
+<td align="right">0.37</td>
+<td align="right">2.65</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmpre002</td>
+<td>Avaya Breeze for VMware</td>
+<td>avaya</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_D2as_v5</td>
+<td align="right">107.47</td>
+<td align="right">4.61</td>
+<td align="right">0.00</td>
+<td align="right">34.28</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Red Hat Enterprise Linux 7 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5218 CPU @ 2.30GHz</td>
+<td align="right">12</td>
+<td align="right">27648</td>
+<td align="right">9.09</td>
+<td align="right">28.99</td>
+<td align="right">50.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">0</td>
+<td align="right">24</td>
+<td align="right">0.00</td>
+<td align="right">0.20</td>
+<td align="right">97.92</td>
+<td align="right">2</td>
+<td>[10.137.30.67]; [10.137.30.68,10.137.30.56];</td>
+<td>[00:50:56:b9:fe:2c]; [00:50:56:b9:c9:69];</td>
+<td align="right">0.41</td>
+<td align="right">0.37</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmsparx001</td>
+<td>0</td>
+<td>ALT</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td>No data for percentage of CPU cores utilized, No data for percentage of memory utilized</td>
+<td>Standard_D4as_v5</td>
+<td align="right">255.89</td>
+<td align="right">4.61</td>
+<td align="right">109.50</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2016 or later (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">2</td>
+<td align="right">8192</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">60.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">1</td>
+<td>[];</td>
+<td>[00:50:56:b9:85:69];</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmdiag001</td>
+<td>Avaya Diagnostic Server Virtual Appliance  Base Version:    Avaya Diagnostic Server-4.0.0.0-vApp-e70-11 Bundled Avaya Diagnostic Server Installer Version:4.0.0.0-843 Bundled SAL Policy Manager with SSH Proxy INstaller Version:4.0.0.0.22</td>
+<td>avaya</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td>No data for percentage of CPU cores utilized, No data for percentage of memory utilized</td>
+<td>Standard_D4as_v5</td>
+<td align="right">180.67</td>
+<td align="right">18.43</td>
+<td align="right">0.00</td>
+<td align="right">34.28</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Red Hat Enterprise Linux 7 (64-bit)</td>
+<td>EFI</td>
+<td>Intel(R) Xeon(R) Gold 5218 CPU @ 2.30GHz</td>
+<td align="right">4</td>
+<td align="right">8192</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">250.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">2</td>
+<td>[10.136.51.75]; [];</td>
+<td>[00:50:56:b9:8e:9b]; [00:50:56:b9:22:d7];</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmprtg001</td>
+<td>0</td>
+<td>PRTG</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F4s_v2</td>
+<td align="right">236.49</td>
+<td align="right">18.43</td>
+<td align="right">109.50</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2019 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">8</td>
+<td align="right">16384</td>
+<td align="right">19.74</td>
+<td align="right">28.99</td>
+<td align="right">250.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">8</td>
+<td align="right">46</td>
+<td align="right">0.43</td>
+<td align="right">1.44</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.54];</td>
+<td>[00:50:56:b9:70:23];</td>
+<td align="right">0.09</td>
+<td align="right">0.04</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmwgw002</td>
+<td>Avaya Aura® Web Gateway - 10.1.0.0.90</td>
+<td>avaya</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F1s</td>
+<td align="right">71.46</td>
+<td align="right">11.33</td>
+<td align="right">0.00</td>
+<td align="right">34.28</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Red Hat Enterprise Linux 7 (64-bit)</td>
+<td>EFI</td>
+<td>Intel(R) Xeon(R) Gold 5218 CPU @ 2.30GHz</td>
+<td align="right">4</td>
+<td align="right">6144</td>
+<td align="right">15.79</td>
+<td align="right">28.99</td>
+<td align="right">132.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">3</td>
+<td>0</td>
+<td align="right">0</td>
+<td align="right">22</td>
+<td align="right">0.00</td>
+<td align="right">0.31</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.137.30.63];</td>
+<td>[00:50:56:b9:ad:ad];</td>
+<td align="right">0.01</td>
+<td align="right">0.01</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmfcidev001</td>
+<td>FIS FCI</td>
+<td>FCI</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_D8as_v5</td>
+<td align="right">511.78</td>
+<td align="right">23.23</td>
+<td align="right">218.99</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2019 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">12</td>
+<td align="right">16384</td>
+<td align="right">32.33</td>
+<td align="right">30.99</td>
+<td align="right">250.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">348</td>
+<td align="right">367</td>
+<td align="right">7.85</td>
+<td align="right">8.07</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.53.101];</td>
+<td>[00:50:56:b9:6f:f8];</td>
+<td align="right">0.09</td>
+<td align="right">0.14</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmcer002</td>
+<td>Zert</td>
+<td>CA</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F1s</td>
+<td align="right">64.56</td>
+<td align="right">4.70</td>
+<td align="right">27.37</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2019 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">2</td>
+<td align="right">4096</td>
+<td align="right">17.01</td>
+<td align="right">27.99</td>
+<td align="right">61.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">16</td>
+<td align="right">27</td>
+<td align="right">0.44</td>
+<td align="right">1.15</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.101];</td>
+<td>[00:50:56:b9:2d:71];</td>
+<td align="right">0.01</td>
+<td align="right">0.01</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmpim010</td>
+<td>0</td>
+<td>PIM</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_D8as_v5</td>
+<td align="right">511.78</td>
+<td align="right">17.16</td>
+<td align="right">218.99</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2019 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">6</td>
+<td align="right">32768</td>
+<td align="right">71.37</td>
+<td align="right">21.99</td>
+<td align="right">175.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">2</td>
+<td>0</td>
+<td align="right">699</td>
+<td align="right">1305</td>
+<td align="right">42.37</td>
+<td align="right">85.88</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.136];</td>
+<td>[00:50:56:b9:6c:ab];</td>
+<td align="right">1.88</td>
+<td align="right">1.87</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmedison001</td>
+<td>0</td>
+<td>ALT</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready With Conditions</td>
+<td>Not applicable</td>
+<td>No data for percentage of CPU cores utilized, No data for percentage of memory utilized</td>
+<td>Standard_F16s_v2</td>
+<td align="right">945.95</td>
+<td align="right">9.21</td>
+<td align="right">437.99</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows 10 (64-bit)</td>
+<td>EFI</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">6</td>
+<td align="right">16384</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">110.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">1</td>
+<td>[];</td>
+<td>[00:50:56:b9:8e:1c];</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmndb001</td>
+<td>NetApp Data Broker is used to backup and restore virtual machines on NetApp storage systems. For more information or support please visit http://www.netapp.com/</td>
+<td>töten</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Unknown Readiness</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F2s_v2</td>
+<td align="right">63.50</td>
+<td align="right">7.99</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Other 4.x Linux (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5218 CPU @ 2.30GHz</td>
+<td align="right">4</td>
+<td align="right">16384</td>
+<td align="right">20.50</td>
+<td align="right">15.99</td>
+<td align="right">88.00</td>
+<td>0</td>
+<td align="right">2</td>
+<td>0</td>
+<td align="right">2</td>
+<td>0</td>
+<td align="right">0</td>
+<td align="right">63</td>
+<td align="right">0.00</td>
+<td align="right">1.19</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.85];</td>
+<td>[00:50:56:b9:5b:22];</td>
+<td align="right">2.31</td>
+<td align="right">0.31</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmadmin019</td>
+<td>Admin WS ifedayo</td>
+<td>Admin WS</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready With Conditions</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_D2as_v5</td>
+<td align="right">127.94</td>
+<td align="right">9.21</td>
+<td align="right">54.75</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows 10 (64-bit)</td>
+<td>EFI</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">2</td>
+<td align="right">16384</td>
+<td align="right">63.89</td>
+<td align="right">32.99</td>
+<td align="right">100.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">84</td>
+<td align="right">79</td>
+<td align="right">4.82</td>
+<td align="right">4.50</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.12.126];</td>
+<td>[00:50:56:b9:7a:4e];</td>
+<td align="right">0.28</td>
+<td align="right">0.05</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmexc010</td>
+<td>Echange</td>
+<td>Exchange</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F4</td>
+<td align="right">258.09</td>
+<td align="right">18.43</td>
+<td align="right">109.50</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2019 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5218 CPU @ 2.30GHz</td>
+<td align="right">4</td>
+<td align="right">20480</td>
+<td align="right">46.08</td>
+<td align="right">30.00</td>
+<td align="right">200.00</td>
+<td>0</td>
+<td align="right">2</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">105</td>
+<td align="right">70</td>
+<td align="right">2.36</td>
+<td align="right">4.63</td>
+<td align="right">97.92</td>
+<td align="right">3</td>
+<td>[10.136.51.151]; [192.168.151.151]; [192.168.150.151];</td>
+<td>[00:50:56:b9:41:dc]; [00:50:56:b9:d0:4e]; [00:50:56:b9:f3:cb];</td>
+<td align="right">1.45</td>
+<td align="right">0.94</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmschnitttest</td>
+<td>0</td>
+<td>Zuschnitt Client</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready With Conditions</td>
+<td>Not applicable</td>
+<td>No data for percentage of CPU cores utilized, No data for percentage of memory utilized</td>
+<td>Standard_D8as_v5</td>
+<td align="right">511.78</td>
+<td align="right">4.61</td>
+<td align="right">218.99</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows 7 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">4</td>
+<td align="right">8192</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">60.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">1</td>
+<td>[];</td>
+<td>[00:50:56:b9:dd:5d];</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmabadev001</td>
+<td>0</td>
+<td>abacus</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F2s_v2</td>
+<td align="right">118.24</td>
+<td align="right">65.27</td>
+<td align="right">54.75</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2019 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5218 CPU @ 2.30GHz</td>
+<td align="right">4</td>
+<td align="right">16384</td>
+<td align="right">22.31</td>
+<td align="right">18.99</td>
+<td align="right">670.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">6</td>
+<td align="right">70</td>
+<td align="right">0.14</td>
+<td align="right">2.87</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.71];</td>
+<td>[00:50:56:b9:81:41];</td>
+<td align="right">0.01</td>
+<td align="right">0.02</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmcer003</td>
+<td>Zert</td>
+<td>CA</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F1</td>
+<td align="right">64.56</td>
+<td align="right">4.61</td>
+<td align="right">27.37</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2019 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">2</td>
+<td align="right">4096</td>
+<td align="right">16.72</td>
+<td align="right">23.99</td>
+<td align="right">60.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">6</td>
+<td align="right">19</td>
+<td align="right">0.23</td>
+<td align="right">0.88</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.102];</td>
+<td>[00:50:56:b9:8f:6f];</td>
+<td align="right">0.00</td>
+<td align="right">0.01</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmadmin098</td>
+<td>Admin WS SL</td>
+<td>Admin WS</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready With Conditions</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_D2as_v5</td>
+<td align="right">127.94</td>
+<td align="right">9.21</td>
+<td align="right">54.75</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows 10 (64-bit)</td>
+<td>EFI</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">2</td>
+<td align="right">16384</td>
+<td align="right">58.29</td>
+<td align="right">25.99</td>
+<td align="right">100.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">11</td>
+<td align="right">56</td>
+<td align="right">0.37</td>
+<td align="right">5.81</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.12.108];</td>
+<td>[00:50:56:b9:cb:5a];</td>
+<td align="right">0.00</td>
+<td align="right">0.02</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmprs011</td>
+<td>PrintServer Qeues</td>
+<td>Print Server</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F1s</td>
+<td align="right">64.56</td>
+<td align="right">4.61</td>
+<td align="right">27.37</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2019 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">2</td>
+<td align="right">8192</td>
+<td align="right">30.71</td>
+<td align="right">23.99</td>
+<td align="right">60.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">7</td>
+<td align="right">79</td>
+<td align="right">0.43</td>
+<td align="right">2.12</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.87];</td>
+<td>[00:50:56:b9:19:e3];</td>
+<td align="right">1.44</td>
+<td align="right">1.25</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>debian_9_6_template</td>
+<td>0</td>
+<td>töten</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Unknown Readiness</td>
+<td>Not applicable</td>
+<td>No data for percentage of CPU cores utilized, No data for percentage of memory utilized</td>
+<td>Standard_D2as_v5</td>
+<td align="right">73.20</td>
+<td align="right">4.61</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Other Linux (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5218 CPU @ 2.30GHz</td>
+<td align="right">1</td>
+<td align="right">512</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">40.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">1</td>
+<td>[];</td>
+<td>[00:50:56:b9:43:84];</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmhlp002</td>
+<td>Helpline Prod</td>
+<td>töten</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_D4as_v5</td>
+<td align="right">255.89</td>
+<td align="right">36.86</td>
+<td align="right">109.50</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2019 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">8</td>
+<td align="right">49152</td>
+<td align="right">22.18</td>
+<td align="right">18.99</td>
+<td align="right">450.00</td>
+<td>0</td>
+<td align="right">3</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">35</td>
+<td align="right">146</td>
+<td align="right">0.66</td>
+<td align="right">2.86</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.39];</td>
+<td>[00:50:56:b9:cc:ba];</td>
+<td align="right">0.07</td>
+<td align="right">0.38</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmsem020</td>
+<td>0</td>
+<td>avaya</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F2s_v2</td>
+<td align="right">97.77</td>
+<td align="right">9.21</td>
+<td align="right">0.00</td>
+<td align="right">34.28</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Red Hat Enterprise Linux 8 (64-bit)</td>
+<td>EFI</td>
+<td>Intel(R) Xeon(R) Gold 5218 CPU @ 2.30GHz</td>
+<td align="right">5</td>
+<td align="right">7828</td>
+<td align="right">17.76</td>
+<td align="right">34.99</td>
+<td align="right">100.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">54</td>
+<td align="right">70</td>
+<td align="right">0.77</td>
+<td align="right">0.56</td>
+<td align="right">97.92</td>
+<td align="right">2</td>
+<td>[10.137.30.43]; [10.137.30.44];</td>
+<td>[00:50:56:b9:d8:cc]; [00:50:56:b9:8e:0d];</td>
+<td align="right">0.07</td>
+<td align="right">0.10</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmadc001</td>
+<td>0</td>
+<td>DC</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F2s_v2</td>
+<td align="right">118.24</td>
+<td align="right">4.61</td>
+<td align="right">54.75</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2019 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">2</td>
+<td align="right">8192</td>
+<td align="right">44.68</td>
+<td align="right">25.99</td>
+<td align="right">60.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">7</td>
+<td align="right">42</td>
+<td align="right">0.16</td>
+<td align="right">1.67</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.139];</td>
+<td>[00:50:56:b9:d5:3d];</td>
+<td align="right">0.01</td>
+<td align="right">0.02</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmadmin015</td>
+<td> </td>
+<td>Admin WS</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready With Conditions</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_D2as_v5</td>
+<td align="right">127.94</td>
+<td align="right">9.21</td>
+<td align="right">54.75</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows 10 (64-bit)</td>
+<td>EFI</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">2</td>
+<td align="right">16384</td>
+<td align="right">59.18</td>
+<td align="right">19.99</td>
+<td align="right">100.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">1</td>
+<td align="right">40</td>
+<td align="right">0.04</td>
+<td align="right">4.80</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.12.123];</td>
+<td>[00:50:56:b9:09:43];</td>
+<td align="right">0.00</td>
+<td align="right">0.02</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmuka001</td>
+<td>0</td>
+<td>UKA</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_A2_v2</td>
+<td align="right">111.28</td>
+<td align="right">9.21</td>
+<td align="right">54.75</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2019 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">2</td>
+<td align="right">16384</td>
+<td align="right">16.51</td>
+<td align="right">12.99</td>
+<td align="right">120.00</td>
+<td>0</td>
+<td align="right">2</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">0</td>
+<td align="right">32</td>
+<td align="right">0.05</td>
+<td align="right">2.16</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.170];</td>
+<td>[00:50:56:b9:a2:bc];</td>
+<td align="right">0.01</td>
+<td align="right">0.02</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmapp010</td>
+<td>Schnitt-Profit V10 Lizenz Server FR ---&gt; USB Dongle</td>
+<td>Zuschnitt</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F1</td>
+<td align="right">64.56</td>
+<td align="right">4.61</td>
+<td align="right">27.37</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2019 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">2</td>
+<td align="right">4096</td>
+<td align="right">14.81</td>
+<td align="right">28.99</td>
+<td align="right">60.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">23</td>
+<td align="right">24</td>
+<td align="right">0.52</td>
+<td align="right">0.78</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.50];</td>
+<td>[00:50:56:b9:08:2f];</td>
+<td align="right">0.12</td>
+<td align="right">0.02</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmadc002</td>
+<td>Azure Connect Server</td>
+<td>DC</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_A2_v2</td>
+<td align="right">111.28</td>
+<td align="right">4.61</td>
+<td align="right">54.75</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2019 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">2</td>
+<td align="right">8192</td>
+<td align="right">19.07</td>
+<td align="right">31.99</td>
+<td align="right">60.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">6</td>
+<td align="right">25</td>
+<td align="right">0.11</td>
+<td align="right">1.26</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.140];</td>
+<td>[00:50:56:b9:55:fd];</td>
+<td align="right">0.01</td>
+<td align="right">0.02</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmadmin009</td>
+<td>Admin-WS JL</td>
+<td>Admin WS</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready With Conditions</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_D2as_v5</td>
+<td align="right">127.94</td>
+<td align="right">9.21</td>
+<td align="right">54.75</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows 10 (64-bit)</td>
+<td>EFI</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">2</td>
+<td align="right">16384</td>
+<td align="right">59.91</td>
+<td align="right">26.99</td>
+<td align="right">100.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">1</td>
+<td align="right">70</td>
+<td align="right">0.04</td>
+<td align="right">4.65</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.12.101];</td>
+<td>[00:50:56:b9:d4:e0];</td>
+<td align="right">0.00</td>
+<td align="right">0.02</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmabaprod001</td>
+<td>0</td>
+<td>abacus</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_D4as_v5</td>
+<td align="right">255.89</td>
+<td align="right">51.26</td>
+<td align="right">109.50</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2019 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5218 CPU @ 2.30GHz</td>
+<td align="right">4</td>
+<td align="right">26624</td>
+<td align="right">87.84</td>
+<td align="right">36.99</td>
+<td align="right">570.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">272</td>
+<td align="right">317</td>
+<td align="right">8.50</td>
+<td align="right">9.80</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.70];</td>
+<td>[00:50:56:b9:0e:82];</td>
+<td align="right">0.10</td>
+<td align="right">0.52</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmdcr002</td>
+<td>0</td>
+<td>DC</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F2s_v2</td>
+<td align="right">118.24</td>
+<td align="right">4.61</td>
+<td align="right">54.75</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2019 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">2</td>
+<td align="right">8192</td>
+<td align="right">31.71</td>
+<td align="right">19.99</td>
+<td align="right">60.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">186</td>
+<td align="right">32</td>
+<td align="right">2.83</td>
+<td align="right">0.92</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.42];</td>
+<td>[00:50:56:b9:96:0c];</td>
+<td align="right">0.12</td>
+<td align="right">0.08</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmams002</td>
+<td>The Avaya Media Server is a real-time media services platform, providing the infrastructure for a diverse range of products and applications.</td>
+<td>avaya</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F1</td>
+<td align="right">71.46</td>
+<td align="right">4.61</td>
+<td align="right">0.00</td>
+<td align="right">34.28</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Red Hat Enterprise Linux 8 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5218 CPU @ 2.30GHz</td>
+<td align="right">4</td>
+<td align="right">4608</td>
+<td align="right">8.82</td>
+<td align="right">22.99</td>
+<td align="right">50.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">0</td>
+<td align="right">9</td>
+<td align="right">0.00</td>
+<td align="right">0.55</td>
+<td align="right">97.92</td>
+<td align="right">2</td>
+<td>[10.137.30.59]; [];</td>
+<td>[00:50:56:b9:58:1f]; [00:50:56:b9:1e:9d];</td>
+<td align="right">0.43</td>
+<td align="right">0.44</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmprs010</td>
+<td>JetAdmin und DSS</td>
+<td>Print Server</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F1</td>
+<td align="right">64.56</td>
+<td align="right">4.61</td>
+<td align="right">27.37</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2012 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">4</td>
+<td align="right">4096</td>
+<td align="right">8.24</td>
+<td align="right">39.99</td>
+<td align="right">40.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">23</td>
+<td align="right">106</td>
+<td align="right">0.36</td>
+<td align="right">1.04</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.125];</td>
+<td>[00:50:56:b9:7f:15];</td>
+<td align="right">0.02</td>
+<td align="right">0.01</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmana001</td>
+<td>0</td>
+<td>Anaconda</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F1s</td>
+<td align="right">64.56</td>
+<td align="right">9.21</td>
+<td align="right">27.37</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2019 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">4</td>
+<td align="right">12288</td>
+<td align="right">12.50</td>
+<td align="right">15.99</td>
+<td align="right">80.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">4</td>
+<td align="right">45</td>
+<td align="right">0.23</td>
+<td align="right">3.02</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.184];</td>
+<td>[00:50:56:b9:0d:1f];</td>
+<td align="right">0.00</td>
+<td align="right">0.01</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmems001</td>
+<td>sbce-10.1.2.0</td>
+<td>avaya</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_A1_v2</td>
+<td align="right">61.12</td>
+<td align="right">4.61</td>
+<td align="right">0.00</td>
+<td align="right">34.28</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Red Hat Enterprise Linux 8 (64-bit)</td>
+<td>EFI</td>
+<td>Intel(R) Xeon(R) Gold 5218 CPU @ 2.30GHz</td>
+<td align="right">3</td>
+<td align="right">8192</td>
+<td align="right">8.89</td>
+<td align="right">23.99</td>
+<td align="right">64.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">0</td>
+<td align="right">13</td>
+<td align="right">0.00</td>
+<td align="right">0.14</td>
+<td align="right">78.33</td>
+<td align="right">2</td>
+<td>[10.136.51.76]; [];</td>
+<td>[00:50:56:b9:d1:65]; [00:50:56:b9:29:f6];</td>
+<td align="right">0.01</td>
+<td align="right">0.00</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmutl001</td>
+<td>0</td>
+<td>avaya</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready With Conditions</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_D2as_v5</td>
+<td align="right">73.20</td>
+<td align="right">19.36</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Debian GNU/Linux 12 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5218 CPU @ 2.30GHz</td>
+<td align="right">2</td>
+<td align="right">4096</td>
+<td align="right">92.44</td>
+<td align="right">20.99</td>
+<td align="right">210.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">2</td>
+<td align="right">23</td>
+<td align="right">0.12</td>
+<td align="right">1.06</td>
+<td align="right">97.92</td>
+<td align="right">2</td>
+<td>[10.137.30.69,10.137.30.53]; [];</td>
+<td>[00:50:56:b9:e3:2c]; [00:50:56:b9:c2:6d];</td>
+<td align="right">0.60</td>
+<td align="right">0.02</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmnss001</td>
+<td>Zscaler Log Server für SIEM</td>
+<td>töten</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready With Conditions</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_A1_v2</td>
+<td align="right">26.84</td>
+<td align="right">36.86</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>FreeBSD (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5218 CPU @ 2.30GHz</td>
+<td align="right">2</td>
+<td align="right">8192</td>
+<td align="right">4.18</td>
+<td align="right">7.99</td>
+<td align="right">500.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0.00</td>
+<td align="right">0.04</td>
+<td align="right">97.92</td>
+<td align="right">2</td>
+<td>[10.136.51.178]; [];</td>
+<td>[00:50:56:b9:33:6f]; [00:50:56:b9:60:da];</td>
+<td align="right">0.14</td>
+<td align="right">1.56</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmsem010</td>
+<td>0</td>
+<td>avaya</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_A2_v2</td>
+<td align="right">90.63</td>
+<td align="right">9.21</td>
+<td align="right">0.00</td>
+<td align="right">34.28</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Red Hat Enterprise Linux 8 (64-bit)</td>
+<td>EFI</td>
+<td>Intel(R) Xeon(R) Gold 5218 CPU @ 2.30GHz</td>
+<td align="right">5</td>
+<td align="right">7828</td>
+<td align="right">12.20</td>
+<td align="right">34.99</td>
+<td align="right">100.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">19</td>
+<td align="right">21</td>
+<td align="right">0.19</td>
+<td align="right">0.39</td>
+<td align="right">97.92</td>
+<td align="right">2</td>
+<td>[10.137.30.41]; [10.137.30.42];</td>
+<td>[00:50:56:b9:6a:af]; [00:50:56:b9:e8:6d];</td>
+<td align="right">0.42</td>
+<td align="right">0.47</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmbackup002</td>
+<td>0</td>
+<td>KIWI</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready With Conditions</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F4s_v2</td>
+<td align="right">126.99</td>
+<td align="right">9.21</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Ubuntu Linux (64-bit)</td>
+<td>EFI</td>
+<td>Intel(R) Xeon(R) Gold 5218 CPU @ 2.30GHz</td>
+<td align="right">8</td>
+<td align="right">32768</td>
+<td align="right">37.35</td>
+<td align="right">21.99</td>
+<td align="right">120.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">0</td>
+<td align="right">109</td>
+<td align="right">0.00</td>
+<td align="right">4.88</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.109];</td>
+<td>[00:50:56:b9:59:be];</td>
+<td align="right">0.04</td>
+<td align="right">0.03</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmschnittwe</td>
+<td>0</td>
+<td>Zuschnitt Client</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready With Conditions</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_D2as_v5</td>
+<td align="right">127.94</td>
+<td align="right">4.61</td>
+<td align="right">54.75</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows 7 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">4</td>
+<td align="right">8192</td>
+<td align="right">24.64</td>
+<td align="right">22.99</td>
+<td align="right">60.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">2</td>
+<td align="right">38</td>
+<td align="right">0.14</td>
+<td align="right">2.10</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.231];</td>
+<td>[00:50:56:b9:0c:68];</td>
+<td align="right">0.06</td>
+<td align="right">0.03</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmschnittcf</td>
+<td>0</td>
+<td>Zuschnitt Client</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready With Conditions</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_D2as_v5</td>
+<td align="right">127.94</td>
+<td align="right">4.61</td>
+<td align="right">54.75</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows 10 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">2</td>
+<td align="right">8192</td>
+<td align="right">59.25</td>
+<td align="right">38.99</td>
+<td align="right">60.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">288</td>
+<td align="right">94</td>
+<td align="right">18.44</td>
+<td align="right">6.52</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.181];</td>
+<td>[00:50:56:b9:52:d6];</td>
+<td align="right">0.13</td>
+<td align="right">0.02</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmotx104.hgc.intra</td>
+<td>OpenText Archiv Server SAP</td>
+<td>andere Lösung</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F2s</td>
+<td align="right">129.37</td>
+<td align="right">15.69</td>
+<td align="right">54.75</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2019 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">8</td>
+<td align="right">16384</td>
+<td align="right">7.17</td>
+<td align="right">15.99</td>
+<td align="right">190.00</td>
+<td>0</td>
+<td align="right">4</td>
+<td>0</td>
+<td align="right">2</td>
+<td>0</td>
+<td align="right">4</td>
+<td align="right">29</td>
+<td align="right">0.08</td>
+<td align="right">1.12</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.53.108];</td>
+<td>[00:50:56:93:cf:11];</td>
+<td align="right">0.01</td>
+<td align="right">0.02</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmbgw001</td>
+<td>Power Bi Gateway Helpline --&gt; O365</td>
+<td>IT-Infra</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F1</td>
+<td align="right">64.56</td>
+<td align="right">4.61</td>
+<td align="right">27.37</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows Server 2019 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">2</td>
+<td align="right">8192</td>
+<td align="right">23.64</td>
+<td align="right">20.99</td>
+<td align="right">60.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">3</td>
+<td align="right">29</td>
+<td align="right">0.14</td>
+<td align="right">1.91</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.187];</td>
+<td>[00:50:56:b9:1d:68];</td>
+<td align="right">0.38</td>
+<td align="right">0.02</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmcortex001</td>
+<td>Cortex</td>
+<td>cortex</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready With Conditions</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_D2as_v5</td>
+<td align="right">73.20</td>
+<td align="right">36.86</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Ubuntu Linux (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5218 CPU @ 2.30GHz</td>
+<td align="right">2</td>
+<td align="right">8192</td>
+<td align="right">85.19</td>
+<td align="right">80.99</td>
+<td align="right">480.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">216</td>
+<td align="right">53</td>
+<td align="right">23.70</td>
+<td align="right">10.21</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.94];</td>
+<td>[00:50:56:b9:0e:64];</td>
+<td align="right">23.26</td>
+<td align="right">2.34</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmschnittbe</td>
+<td>0</td>
+<td>Zuschnitt Client</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready With Conditions</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_F1</td>
+<td align="right">64.56</td>
+<td align="right">4.61</td>
+<td align="right">27.37</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows 7 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">2</td>
+<td align="right">8192</td>
+<td align="right">23.12</td>
+<td align="right">21.99</td>
+<td align="right">60.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">4</td>
+<td align="right">22</td>
+<td align="right">0.16</td>
+<td align="right">1.93</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.243];</td>
+<td>[00:50:56:b9:c9:3c];</td>
+<td align="right">0.01</td>
+<td align="right">0.02</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmsym010</td>
+<td>Avaya Aura(R)System Manager is the intuitive administration and management tool that brings Avaya Aura capabilities to life. Avaya Aura(R) System Manager centralizes provisioning, maintenance and troubleshooting to simplify and reduce management complexity and solution servicing. It is designed to manage all Avaya Aura components in the future: System Manager is used by administrators who centrally manage multiple Avaya applications and/or systems, such as Communication Manager and Session Manager. The VM requires 12288 MB of memory, x86_64 instruction set, 6 CPU&#39;s and 2 NIC Interface.</td>
+<td>avaya</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_D2as_v5</td>
+<td align="right">107.47</td>
+<td align="right">18.43</td>
+<td align="right">0.00</td>
+<td align="right">34.28</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Red Hat Enterprise Linux 8 (64-bit)</td>
+<td>EFI</td>
+<td>Intel(R) Xeon(R) Gold 5218 CPU @ 2.30GHz</td>
+<td align="right">6</td>
+<td align="right">12288</td>
+<td align="right">16.35</td>
+<td align="right">63.99</td>
+<td align="right">170.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">46</td>
+<td align="right">26</td>
+<td align="right">0.66</td>
+<td align="right">0.44</td>
+<td align="right">97.92</td>
+<td align="right">2</td>
+<td>[10.137.30.45]; [];</td>
+<td>[00:50:56:b9:25:65]; [00:50:56:b9:43:37];</td>
+<td align="right">0.02</td>
+<td align="right">0.02</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmadmin077</td>
+<td>Admin-WS BC</td>
+<td>Admin WS</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready With Conditions</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_D2as_v5</td>
+<td align="right">127.94</td>
+<td align="right">9.21</td>
+<td align="right">54.75</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>Microsoft Windows 10 (64-bit)</td>
+<td>EFI</td>
+<td>Intel(R) Xeon(R) Gold 5317 CPU @ 3.00GHz</td>
+<td align="right">2</td>
+<td align="right">16384</td>
+<td align="right">66.67</td>
+<td align="right">36.99</td>
+<td align="right">100.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">198</td>
+<td align="right">75</td>
+<td align="right">12.28</td>
+<td align="right">4.47</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.12.105];</td>
+<td>[00:50:56:b9:19:bd];</td>
+<td align="right">0.14</td>
+<td align="right">0.02</td>
+<td>AllVMs</td>
+</tr>
+<tr><td>vmcsa001</td>
+<td>0</td>
+<td>töten</td>
+<td>vmmgt021.hgc.intra</td>
+<td>Ready</td>
+<td>Not applicable</td>
+<td> </td>
+<td>Standard_A1_v2</td>
+<td align="right">26.84</td>
+<td align="right">4.61</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td>Unknown</td>
+<td>0</td>
+<td>CentOS 7 (64-bit)</td>
+<td>BIOS</td>
+<td>Intel(R) Xeon(R) Gold 5218 CPU @ 2.30GHz</td>
+<td align="right">2</td>
+<td align="right">8192</td>
+<td align="right">12.06</td>
+<td align="right">12.99</td>
+<td align="right">50.00</td>
+<td>0</td>
+<td align="right">1</td>
+<td>0</td>
+<td align="right">0</td>
+<td>0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0.00</td>
+<td align="right">0.02</td>
+<td align="right">97.92</td>
+<td align="right">1</td>
+<td>[10.136.51.114];</td>
+<td>[00:50:56:b9:25:74];</td>
+<td align="right">0.02</td>
+<td align="right">0.09</td>
+<td>AllVMs</td>
+</tr>
+</tbody></table>
+</div></div></div>
