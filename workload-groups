@@ -1,0 +1,121 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CSV Table</title>
+  <style>
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      font-family: sans-serif;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+    }
+    th {
+      background-color: #f5f5f5;
+      text-align: left;
+    }
+    tr:nth-child(even) {
+      background-color: #fafafa;
+    }
+  </style>
+</head>
+<body>
+  <table>
+    <tr><th>Service</th><th>Server</th></tr>
+<tr><td>AEOS</td><td>vmsst010</td></tr>
+<tr><td>ALT</td><td>vmxee102.hgc.intra</td></tr>
+<tr><td>ALT</td><td>vmdms011</td></tr>
+<tr><td>ALT</td><td>vmdms001</td></tr>
+<tr><td>ALT</td><td>vmxet102.hgc.intra</td></tr>
+<tr><td>ALT</td><td>vmsparx001</td></tr>
+<tr><td>ALT</td><td>vmedison001</td></tr>
+<tr><td>Admin WS</td><td>vmadmin011</td></tr>
+<tr><td>Admin WS</td><td>vmadmin005</td></tr>
+<tr><td>Admin WS</td><td>vmadmin014</td></tr>
+<tr><td>Admin WS</td><td>vmadmin010</td></tr>
+<tr><td>Admin WS</td><td>vmadmin019</td></tr>
+<tr><td>Admin WS</td><td>vmadmin098</td></tr>
+<tr><td>Admin WS</td><td>vmadmin015</td></tr>
+<tr><td>Admin WS</td><td>vmadmin009</td></tr>
+<tr><td>Admin WS</td><td>vmadmin077</td></tr>
+<tr><td>Anaconda</td><td>vmana001</td></tr>
+<tr><td>CA</td><td>vmcer001</td></tr>
+<tr><td>CA</td><td>vmcer002</td></tr>
+<tr><td>CA</td><td>vmcer003</td></tr>
+<tr><td>Cortex</td><td>vmcortex002</td></tr>
+<tr><td>DC</td><td>vmdcs002</td></tr>
+<tr><td>DC</td><td>vmdcr001</td></tr>
+<tr><td>DC</td><td>vmadc001</td></tr>
+<tr><td>DC</td><td>vmadc002</td></tr>
+<tr><td>DC</td><td>vmdcr002</td></tr>
+<tr><td>Exchange</td><td>vmexc010</td></tr>
+<tr><td>FCI</td><td>vmfciprod001</td></tr>
+<tr><td>FCI</td><td>vmfcidev001</td></tr>
+<tr><td>ISE</td><td>vmise002</td></tr>
+<tr><td>ISE</td><td>vmise001</td></tr>
+<tr><td>IT-Infra</td><td>vmmgt019</td></tr>
+<tr><td>IT-Infra</td><td>vmipam010</td></tr>
+<tr><td>IT-Infra</td><td>vmbgw001</td></tr>
+<tr><td>KIWI</td><td>vmmgt002</td></tr>
+<tr><td>KIWI</td><td>vmbackup002</td></tr>
+<tr><td>Kaba</td><td>vmkaba001</td></tr>
+<tr><td>PIM</td><td>vmsql005</td></tr>
+<tr><td>PIM</td><td>vmsql100</td></tr>
+<tr><td>PIM</td><td>vmpim010</td></tr>
+<tr><td>PRTG</td><td>vmprtg001</td></tr>
+<tr><td>Print Server</td><td>vmprs020</td></tr>
+<tr><td>Print Server</td><td>vmprs030</td></tr>
+<tr><td>Print Server</td><td>vmprs012</td></tr>
+<tr><td>Print Server</td><td>vmprs011</td></tr>
+<tr><td>Print Server</td><td>vmprs010</td></tr>
+<tr><td>RIMO</td><td>vmimo010</td></tr>
+<tr><td>SW Verteilung</td><td>vmmgt001</td></tr>
+<tr><td>UKA</td><td>vmuka001</td></tr>
+<tr><td>World Line</td><td>vmmgt014</td></tr>
+<tr><td>World Line</td><td>vmmgt011</td></tr>
+<tr><td>Zuschnitt</td><td>vmmgt031</td></tr>
+<tr><td>Zuschnitt</td><td>vmddx001</td></tr>
+<tr><td>Zuschnitt</td><td>vmapp030</td></tr>
+<tr><td>Zuschnitt</td><td>vmapp010</td></tr>
+<tr><td>Zuschnitt Client</td><td>vmschnittbi</td></tr>
+<tr><td>Zuschnitt Client</td><td>vmschnittvg</td></tr>
+<tr><td>Zuschnitt Client</td><td>vmschnittco</td></tr>
+<tr><td>Zuschnitt Client</td><td>vmschnitthb</td></tr>
+<tr><td>Zuschnitt Client</td><td>vmschnittzw</td></tr>
+<tr><td>Zuschnitt Client</td><td>vmschnittvw</td></tr>
+<tr><td>Zuschnitt Client</td><td>vmschnitttest</td></tr>
+<tr><td>Zuschnitt Client</td><td>vmschnittwe</td></tr>
+<tr><td>Zuschnitt Client</td><td>vmschnittcf</td></tr>
+<tr><td>Zuschnitt Client</td><td>vmschnittbe</td></tr>
+<tr><td>abacus</td><td>vmaba020</td></tr>
+<tr><td>abacus</td><td>vmabadev001</td></tr>
+<tr><td>abacus</td><td>vmabaprod001</td></tr>
+<tr><td>andere Lösung</td><td>vmotx105.hgc.intra</td></tr>
+<tr><td>andere Lösung</td><td>vmotx104.hgc.intra</td></tr>
+<tr><td>avaya</td><td>vmads001</td></tr>
+<tr><td>avaya</td><td>vmacm002</td></tr>
+<tr><td>avaya</td><td>vmspie001</td></tr>
+<tr><td>avaya</td><td>vmams001</td></tr>
+<tr><td>avaya</td><td>vmacm001</td></tr>
+<tr><td>avaya</td><td>vmpre001</td></tr>
+<tr><td>avaya</td><td>vmads002</td></tr>
+<tr><td>avaya</td><td>vmwgw001</td></tr>
+<tr><td>avaya</td><td>vmpre002</td></tr>
+<tr><td>avaya</td><td>vmdiag001</td></tr>
+<tr><td>avaya</td><td>vmwgw002</td></tr>
+<tr><td>avaya</td><td>vmsem020</td></tr>
+<tr><td>avaya</td><td>vmams002</td></tr>
+<tr><td>avaya</td><td>vmems001</td></tr>
+<tr><td>avaya</td><td>vmutl001</td></tr>
+<tr><td>avaya</td><td>vmsem010</td></tr>
+<tr><td>avaya</td><td>vmsym010</td></tr>
+<tr><td>cortex</td><td>vmcortex001</td></tr>
+<tr><td>dc</td><td>vmdcs001</td></tr>
+  </table>
+</body>
+</html>
+  
