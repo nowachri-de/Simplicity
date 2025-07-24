@@ -1,0 +1,112 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Welle 1 – VMs für Migration</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welle 1 – VMs für Migration</h1>
+    <table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>Machine</th>
+      <th>Recommended size</th>
+      <th>Compute monthly cost estimate CHF</th>
+      <th>Storage monthly cost estimate CHF</th>
+      <th>Total monthly cost CHF</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>vmbkp001</td>
+      <td>Standard_A1_v2</td>
+      <td>26.84</td>
+      <td>2.30</td>
+      <td>29.14</td>
+    </tr>
+    <tr>
+      <td>vmcsa001</td>
+      <td>Standard_A1_v2</td>
+      <td>26.84</td>
+      <td>4.61</td>
+      <td>31.45</td>
+    </tr>
+    <tr>
+      <td>vmmon001</td>
+      <td>Standard_A1_v2</td>
+      <td>26.84</td>
+      <td>4.61</td>
+      <td>31.45</td>
+    </tr>
+    <tr>
+      <td>vmnss001</td>
+      <td>Standard_A1_v2</td>
+      <td>26.84</td>
+      <td>36.86</td>
+      <td>63.70</td>
+    </tr>
+    <tr>
+      <td>vmems001</td>
+      <td>Standard_A1_v2</td>
+      <td>61.12</td>
+      <td>4.61</td>
+      <td>65.73</td>
+    </tr>
+    <tr>
+      <td>vmvsc001</td>
+      <td>Standard_F2s_v2</td>
+      <td>63.50</td>
+      <td>4.53</td>
+      <td>68.03</td>
+    </tr>
+    <tr>
+      <td>vmmgt019</td>
+      <td>Standard_F1</td>
+      <td>64.56</td>
+      <td>4.61</td>
+      <td>69.17</td>
+    </tr>
+    <tr>
+      <td>vmspie001</td>
+      <td>Standard_F1</td>
+      <td>64.56</td>
+      <td>4.61</td>
+      <td>69.17</td>
+    </tr>
+    <tr>
+      <td>vmimo010</td>
+      <td>Standard_F1</td>
+      <td>64.56</td>
+      <td>4.61</td>
+      <td>69.17</td>
+    </tr>
+    <tr>
+      <td>vmapp030</td>
+      <td>Standard_F1</td>
+      <td>64.56</td>
+      <td>4.61</td>
+      <td>69.17</td>
+    </tr>
+  </tbody>
+</table>
+</body>
+</html>
